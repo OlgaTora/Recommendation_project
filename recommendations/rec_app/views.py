@@ -12,11 +12,11 @@ def index(request):
 
 
 def catalog(request):
-    return render(request, 'catalog.html')
+    return render(request, 'rec_app/catalog.html')
 
 
 def search(request):
-    return render(request, 'search.html')
+    return render(request, 'rec_app/search.html')
 
 def signup(request):
     message = 'Fill this form to sign up'
@@ -40,7 +40,7 @@ def signup(request):
         form = SignupForm()
     return render(
         request,
-        'login.html',
+        'rec_app/login.html',
         {'form': form, 'message': message}
     )
 
@@ -61,7 +61,7 @@ def user_login(request):
         form = LoginForm()
     return render(
         request,
-        'login.html',
+        'rec_app/login.html',
         {'form': form, 'user': request.user, 'message': message}
     )
 
