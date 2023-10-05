@@ -5,7 +5,7 @@ import django
 from django.contrib.auth.hashers import make_password
 from django.core.management.base import BaseCommand
 
-from recommendations.rec_app.models import Profile
+from rec_app.models import Profile
 
 
 class Command(BaseCommand):

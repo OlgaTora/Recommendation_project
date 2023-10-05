@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static '/css/style.css' %}">
+    {% block title %}
+    <title>Московское долголетие</title>
+    {% endblock %}
+</head>
+<body>
+
+<div class="header">
+    {% if user.id %}
+    <p> Wellcome to our service: {{ user }} </p>
+
+    <ul class="menu">
+        <li class="menu-item"><a href="/logout/"
+                                 class="nav-link">Logout</a></li>
+    </ul>
+    {% else %}
+    <ul class="menu">
+        <li class="menu-item"><a href="/signup/"
+                                 class="nav-link">Signup</a></li>
+        <li class="menu-item"><a href="/login/"
+                                 class="nav-link">Login</a></li>
+        <li class="menu-item"><a href=""
+                                 class="nav-link">About me</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+{% block content %}
+{% endblock %}
+
+<div class="footer">Here you are in footer</div>
+
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+body{
+    background-color: lightgray;
+}
+
+.header{
+    background-color: rgb(148, 146, 146);
+    height: 50px;
+    font-size: 25px;
+    margin-bottom: 100px;
+}
+
+.menu-item{
+    color: rgb(22, 22, 22);
+    display: inline;
+    font-size: 25px;
+}
+
+.footer{
+    background-color: rgb(148, 146, 146);
+    height: 120px;
+    font-size: 25px;
+    margin-top: 200px;
+}
+
+h1{
+    font-size: 55px;
+    color: silver;
+    text-align: center;
+    text-shadow: 2px 2px 2px #000;
+}
+
+h2{
+    font-size: 35px;
+    color: silver;
+    text-align: center;
+    text-shadow: 1px 1px 1px #000;
+}
+
+h3{
+    font-size: 25px;
+    color: red;
+    text-align: center;
+}
+
+h4{
+    font-size: 25px;
+    color: red;
+    text-align: left;
+}
+
+.show-users{
+    font-size: 15px;
+    text-align: left;
+}
+
+.row{
+    border: 1px solid rgb(148, 146, 146);
+}
+
+.form_login{
+    font-size: 20px;
+}
+
+.form-input{
+    padding: 10px;
+}
+
+input{
+    height: 35px;
+    padding: 5px;
+    width: 100%;
+    margin: 5px 0 22px 0;
+    font-size: 20px;
+    display: inline-block;
+}
+
+.auth_button{
+    font-size: 35px;
+}
+
+input:focus{
+    color: red;
+}
+
+.container{
+    width: 500px;
+    height: 180px;
+    margin: 0 auto;
+    display: inline-block;
+}
+
+.auth_button:focus{
+    color:red;
+}
+
+.auth_button{
+    width: 100%;
+    padding: 16px;
+    margin: 15px 0 15px 15px;
+    cursor: pointer;
+    color: silver;
+    text-align: center;
+    text-shadow: 2px 2px 2px #000;
+}
+
+.alert{
+    background-color: rgb(148, 146, 146);
+    color: red;
+    text-align:center;
+}
