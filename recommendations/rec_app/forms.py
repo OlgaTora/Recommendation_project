@@ -2,8 +2,10 @@ import datetime
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.forms import BaseFormSet
 
-from .models import Profile
+from . import models
+from .models import Profile, Question
 
 
 # class ProfileCreationForm(UserCreationForm):
@@ -55,3 +57,20 @@ class LoginForm(forms.Form):
         except Profile.DoesNotExist:
             raise forms.ValidationError('Incorrect username')
 
+
+class AnswerForm(forms.Form):
+
+    def __init__(self, *args, page_num, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = []
+        question_pk = page_num
+        question = Question.objects.filter(pk=question_pk).first()
+        for choice in question.choice_set.all():
+            choices.append((choice.votes, choice.choice_text))
+        # self.fields['choice'] = forms.ChoiceField(label=question.question_text, required=True,
+        #                                         choices=choices, widget=forms.RadioSelect)
+        self.fields['choice'] = forms.ChoiceField(
+            label=question.question_text,
+            required=True,
+            choices=question.get_choices(),
+            widget=forms.RadioSelect)

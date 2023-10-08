@@ -11,4 +11,8 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('catalog/', views.catalog, name='catalog'),
     path('search/', views.search, name='search'),
+    #path('test/', views.test_form, name='test'),
+    # path('test/', views.question_form, name='question_and_answers'),
+    path('test/<int:page_num>/', views.question_form, name='question_and_answers'),
+
 ]

@@ -13,11 +13,14 @@ class Profile(AbstractUser):
     address = models.CharField(max_length=255)
 
     def __str__(self):
-        return f'Имя: {Profile.username} пол: {self.gender}'
+        return f'Имя: {self.username}'
 
 
 class Question(models.Model):
     question_text = models.CharField(max_length=255, default='')
+
+    def get_choices(self):
+        return [(choice.votes, choice.choice_text) for choice in Choice.objects.filter(question=self)]
 
     def __str__(self):
         return self.question_text
@@ -31,3 +34,8 @@ class Choice(models.Model):
     def __str__(self):
         return self.choice_text
 
+
+class ResultOfTest(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.ForeignKey(Choice, on_delete=models.CASCADE)
