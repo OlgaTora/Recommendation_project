@@ -5,6 +5,7 @@
 <ul>
     {% for activity_type in activity_types %}
     <li><a href="{% url 'catalog:type_content' activity_type.id %}">{{ activity_type.activity_type }}</a></li>
+
     {% endfor %}
 </ul>
 {% endblock %}

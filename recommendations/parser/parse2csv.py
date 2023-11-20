@@ -2,8 +2,7 @@ from parser import Parser
 
 parser = Parser()
 data = parser.take_all_pages()
-data.to_csv('/home/olgatorres/PycharmProjects/Diplom_project/recommendations/files/moscow_streets.csv', index=False)
-
+# data.to_csv('/home/olgatorres/PycharmProjects/Diplom_project/recommendations/files/moscow_streets.csv', index=False)
 
 # import os
 # from sqlalchemy import create_engine

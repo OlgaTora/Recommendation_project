@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+<h1> Каталог</h1>
+{% block content %}
+<h1>Выберите занятие по сердцу: </h1>
+<ul>
+    {% for level in level3 %}
+    <li> {{ level.level }}
+        <br/>
+        {{level.descript_level}}
+        <p></p>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

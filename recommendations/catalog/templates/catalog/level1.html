@@ -3,9 +3,10 @@
 {% block content %}
 <h1>Выберите раздел по настроению: </h1>
 <ul>
-    {% for level in level1 %}
-    <li><a href="{% url 'catalog:level1_content' activity_type.id level.id %}">{{ level.level }}</a></li>
+    {% for level in level2 %}
+    <li><a href="{% url 'catalog:level2_content' activity_type.id level1.id level.id %}">{{ level.level }}</a>
+
+    </li>
     {% endfor %}
 </ul>
 {% endblock %}
-
