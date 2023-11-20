@@ -39,3 +39,12 @@ class ResultOfTest(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.ForeignKey(Choice, on_delete=models.CASCADE)
+
+    @staticmethod
+    def get_results(user):
+        results = ResultOfTest.objects.filter(user=user)
+        resume = 0
+        for result in results:
+            resume += result.answer.votes
+        return resume
+

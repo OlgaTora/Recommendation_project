@@ -3,7 +3,7 @@ body{
 }
 
 .header{
-    background-color: rgb(148, 146, 146);
+    background-color: #128849;
     height: 50px;
     font-size: 25px;
     margin-bottom: 100px;
@@ -16,7 +16,7 @@ body{
 }
 
 .footer{
-    background-color: rgb(148, 146, 146);
+    background-color: #128849;
     height: 120px;
     font-size: 25px;
     margin-top: 200px;

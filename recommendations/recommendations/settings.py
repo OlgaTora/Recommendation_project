@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rec_app.apps.RecAppConfig',
+    'catalog.apps.CatalogConfig',
 ]
 
 MIDDLEWARE = [

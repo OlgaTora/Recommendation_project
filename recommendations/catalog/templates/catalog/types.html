@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+<h1> Каталог</h1>
+{% block content %}
+<h1>Выберите раздел по настроению: </h1>
+<ul>
+    {% for level in levels %}
+    <li><a href="{% url 'catalog:level1_content' level.id %}">{{ level.level }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

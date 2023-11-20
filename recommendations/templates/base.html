@@ -18,6 +18,8 @@
     <ul class="menu">
         <li class="menu-item"><a href="/logout/"
                                  class="nav-link">Logout</a></li>
+        <li class="menu-item"><a href="/test/1"
+                                 class="nav-link">Test</a></li>
     </ul>
     {% else %}
     <ul class="menu">
@@ -25,12 +27,13 @@
                                  class="nav-link">Signup</a></li>
         <li class="menu-item"><a href="/login/"
                                  class="nav-link">Login</a></li>
-        <li class="menu-item"><a href=""
-                                 class="nav-link">About me</a></li>
+
+        <li class="menu-item"><a href="/catalog/"
+                                 class="nav-link">Catalog</a></li>
+
         {% endif %}
     </ul>
 </div>
-
 {% block content %}
 {% endblock %}
 

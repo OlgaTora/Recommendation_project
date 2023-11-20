@@ -13,12 +13,12 @@ def index(request):
     return render(request, 'base.html')
 
 
-def catalog(request):
-    return render(request, 'rec_app/catalog.html')
+# def catalog(request):
+#     return render(request, 'rec_app/catalog.html')
 
-
-def search(request):
-    return render(request, 'rec_app/search.html')
+#
+# def search(request):
+#     return render(request, 'rec_app/search.html')
 
 
 def signup(request):
@@ -75,33 +75,35 @@ def user_logout(request):
     return HttpResponseRedirect('/')
 
 
+def recommendations(request):
+    result = ResultOfTest.get_results(request.user)
+    return render(request, 'rec_app/recommendations.html', {'result': result})
+
+
 def question_form(request, page_num=1):
+    message = None
     last_question = Question.objects.latest('pk')
     if page_num == int(last_question.pk) + 1:
-        return HttpResponseRedirect('/catalog/')
+        return HttpResponseRedirect('/recommendations/')
     question = get_object_or_404(Question, pk=page_num)
     if request.method == 'POST':
         form = AnswerForm(request.POST, page_num=page_num)
         if form.is_valid():
-            print(question)
-            """Надо переделать поиск ответа и чтобы вопрос был текущий а не плюс 1
-            также чтоб нельзя было вернуться назад и поменять ответ,
-            а также чтоб попадать сразу только на 1ый вопрос
+            """Надо сделать чтоб нельзя было вернуться назад и поменять ответ,
+            а также чтоб попадать  только на 1ый вопрос
             """
             choice = int(form.cleaned_data['choice'])
-            answers = Choice.objects.filter(question=question)
-            for answer in answers:
-                if answer.votes == choice:
-                    user = request.user
-                    result = ResultOfTest(answer=answer, user=user, question=question)
-                    result.save()
+            answer = Choice.objects.filter(question=question, votes=choice).first()
+            result = ResultOfTest(answer=answer, user=request.user, question=question)
+            result.save()
+            message = 'Ответ принят'
     else:
         form = AnswerForm(page_num=page_num)
     page_num += 1
 
     return render(request,
                   'rec_app/question_form.html',
-                  {'form': form, 'page_num': page_num, 'pk': question.pk})
+                  {'form': form, 'page_num': page_num, 'pk': question.pk, 'message': message})
 
 
 def test_form(request):

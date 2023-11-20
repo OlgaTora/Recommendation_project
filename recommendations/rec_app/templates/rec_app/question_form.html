@@ -1,14 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1>Question {{ pk }}: </h1>
+{% if message %}
 <div class="container">
-    <form action="/test/{{page_num}}/" method="post">
+    <button class="auth_button" type="submit" name="form_auth_submit">
+        <a href="/test/{{page_num}}">Следующий вопрос</a>
+    </button>
+</div>
+{% else %}
+<h1>Вопрос № {{ pk }}: </h1>
+<div class="container">
+    <form action="" method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <input type="submit" value="Next question">
+        <input type="submit" value="Выберите ответ">
     </form>
 </div>
+{% endif%}
 {% endblock %}
 
 
