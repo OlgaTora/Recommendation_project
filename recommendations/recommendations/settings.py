@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rec_app.apps.RecAppConfig',
     'catalog.apps.CatalogConfig',
+    'address_book.apps.AddressBookConfig',
 ]
 
 MIDDLEWARE = [
