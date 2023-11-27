@@ -4,7 +4,7 @@
 <h1>Выберите занятие по сердцу: </h1>
 <ul>
     {% for level in level3 %}
-    <li> {{ level.level }}
+    <li> <a href="{% url 'catalog:level3_content' activity_type.id level1.id level2.id level.id %}">{{ level.level }}</a>
         <br/>
         {{level.descript_level}}
         <p></p>

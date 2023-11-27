@@ -10,5 +10,7 @@ urlpatterns = [
             name='level1_content'),
     re_path(r"^(?P<pk_type>[0-9]+)/(?P<pk_level1>[0-9]+)/(?P<pk_level2>[0-9]+)$", views.level2_content,
             name='level2_content'),
+    re_path(r"^(?P<pk_type>[0-9]+)/(?P<pk_level1>[0-9]+)/(?P<pk_level2>[0-9]+)/(?P<pk_level3>[0-9]+)$",
+            views.level3_content, name='level3_content'),
     path('search/', views.search, name='search'),
 ]

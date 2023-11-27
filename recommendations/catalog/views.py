@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 
-from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3
+from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups
 
 
 def index(request):
@@ -45,5 +45,24 @@ def level2_content(request, pk_type, pk_level1, pk_level2):
     return render(
         request,
         'catalog/level2.html',
-        {'level1': level1, 'level2': level2, 'level3': level3, 'activity_type': activity_type}
+        {'level1': level1,
+         'level2': level2,
+         'level3': level3,
+         'activity_type': activity_type, })
+
+
+def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
+    activity_type = get_object_or_404(ActivityTypes, pk=pk_type)
+    level1 = get_object_or_404(ActivityLevel1, pk=pk_level1)
+    level2 = get_object_or_404(ActivityLevel2, pk=pk_level2)
+    level3 = get_object_or_404(ActivityLevel3, pk=pk_level3)
+    groups = Groups.groups.filter(level=level3).exclude(schedule_active='')
+    return render(
+        request,
+        'catalog/level3.html',
+        {'level1': level1,
+         'level2': level2,
+         'level3': level3,
+         'activity_type': activity_type,
+         'groups': groups}
     )

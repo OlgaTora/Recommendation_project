@@ -35,3 +35,16 @@ class ActivityLevel3(models.Model):
 
     def __str__(self):
         return f'{self.level} {self.descript_level}'
+
+
+class Groups(models.Model):
+    uniq_id = models.IntegerField()
+    level = models.ForeignKey(ActivityLevel3, on_delete=models.CASCADE)
+    address = models.TextField()
+    schedule_active = models.TextField(null=True)
+    schedule_past = models.TextField(null=True)
+    schedule_plan = models.TextField(null=True)
+    groups = models.Manager()
+
+    def __str__(self):
+        return f'{self.level}'

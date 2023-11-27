@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+<h1> Каталог</h1>
+{% block content %}
+<h2>{{level3}}</h2>
+
+
+<div class="container item-flex">
+    {% if groups %}
+    <h3>Выберите место занятий: </h3>
+    <ul>
+        {% for group in groups %}
+        {% if 'ОНЛАЙН' in group.level %}
+        <li> {{group.level}}
+            <p>Номер группы: {{group.uniq_id}}.</p>
+            <p>Занятия проходят он-лайн.</p>
+            <p>{{group.schedule_active}}</p>
+            <button class="auth_button" type="submit" name="form_auth_submit">Записаться</button>
+        </li>
+        {% else %}
+        <li> {{group.level}}
+            <p>Номер группы: {{group.uniq_id}}.</p>
+            <p> Адрес: {{ group.address }}</p>
+            <p> {{group.schedule_active}}</p>
+            <button class="auth_button" type="submit" name="form_auth_submit">Записаться</button>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+
+    {% else %}
+    <h3>Сейчас нет свободных групп. Посмотрите другие активности. </h3>{% endif %}
+</div>
+
+{% endblock %}

@@ -17,27 +17,29 @@
 
     <ul class="menu">
         <li class="menu-item"><a href="/logout/"
-                                 class="nav-link">Logout</a></li>
+                                 class="nav-link">Выйти</a></li>
         <li class="menu-item"><a href="/test/1"
-                                 class="nav-link">Test</a></li>
+                                 class="nav-link">Пройти тест</a></li>
     </ul>
     {% else %}
     <ul class="menu">
         <li class="menu-item"><a href="/signup/"
-                                 class="nav-link">Signup</a></li>
+                                 class="nav-link">Зарегистрироватся</a></li>
         <li class="menu-item"><a href="/login/"
-                                 class="nav-link">Login</a></li>
+                                 class="nav-link">Войти</a></li>
 
         <li class="menu-item"><a href="/catalog/"
-                                 class="nav-link">Catalog</a></li>
-
+                                 class="nav-link">Каталог</a></li>
         {% endif %}
     </ul>
 </div>
 {% block content %}
 {% endblock %}
 
-<div class="footer">Here you are in footer</div>
+<div class="footer">Наши контакты:<br/>
+телефон: +79151234567<br/> адрес: город Москва, Московский проспект, дом 10
+
+</div>
 
 
 </body>

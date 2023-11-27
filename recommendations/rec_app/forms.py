@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.forms import BaseFormSet
 
 from . import models
-from .models import Profile, Question
+from .models import Profile, Question, Choice
 
 
 # class ProfileCreationForm(UserCreationForm):
@@ -64,13 +64,15 @@ class AnswerForm(forms.Form):
         super().__init__(*args, **kwargs)
         choices = []
         question_pk = page_num
-        question = Question.objects.filter(pk=question_pk).first()
-        for choice in question.choice_set.all():
+        question = Question.questions.filter(pk=question_pk).first()
+        for choice in Choice.choices.all():
             choices.append((choice.votes, choice.choice_text))
+        # for choice in question.choice_set.all():
+            # choices.append((choice.votes, choice.choice_text))
         # self.fields['choice'] = forms.ChoiceField(label=question.question_text, required=True,
         #                                         choices=choices, widget=forms.RadioSelect)
         self.fields['choice'] = forms.ChoiceField(
             label=question.question_text,
             required=True,
-            choices=question.get_choices(),
+            choices=choices,
             widget=forms.RadioSelect)
