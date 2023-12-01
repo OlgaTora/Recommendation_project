@@ -9,7 +9,7 @@
     <h3>Выберите место занятий: </h3>
     <ul>
         {% for group in groups %}
-        {% if 'ОНЛАЙН' in group.level %}
+        {% if 'ОНЛАЙН' in level3.level %}
         <li> {{group.level}}
             <p>Номер группы: {{group.uniq_id}}.</p>
             <p>Занятия проходят он-лайн.</p>

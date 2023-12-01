@@ -6,15 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static '/css/style.css' %}">
     {% block title %}
-    <title>Московское долголетие</title>
+    <title>Еще не бабушка</title>
     {% endblock %}
 </head>
 <body>
 
 <div class="header">
     {% if user.id %}
-    <p> Wellcome to our service: {{ user }} </p>
-
     <ul class="menu">
         <li class="menu-item"><a href="/logout/"
                                  class="nav-link">Выйти</a></li>

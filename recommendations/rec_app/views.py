@@ -4,11 +4,12 @@ from django.forms import formset_factory
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django import http
-
+from django.db.models import Q
 from address_book.models import District, StreetsBook
+from catalog.models import Groups, ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3
 from data_transform.street_types_dict import street_types_dict
 from .forms import SignupForm, LoginForm, AnswerForm
-from .models import Profile, Question, Choice, ResultOfTest
+from .models import Profile, Question, Choice, ResultOfTest, TestResultDescription
 
 
 def index(request):
@@ -78,25 +79,35 @@ def user_logout(request):
 
 
 def recommendations(request):
-    # а если название улицы и улица указаны? и их порядок другой? а если 1-Я
-
-    address = request.user.address.split(',')[1].strip()
-    if len(address.split()) == 1:
-        address = address.title()
-    else:
-        tmp = address.split()
-        for word in tmp:
-            for key, value in street_types_dict.items():
-                if word in value:
-                    street_type = key
-                    tmp.remove(word)
-                    address = (' '.join(tmp)).title()
-
-    address_book = StreetsBook.streets.filter(street_name=address).first()
-    # по адресу клиента попробовать выборку
-
     result = ResultOfTest.get_results(request.user)
-    return render(request, 'rec_app/recommendations.html', {'result': result, 'address_book': address_book})
+    # НАДО СДЕЛАТЬ ЧТОБ В ТАБЛИЦЫ БЫЛИ ДАННЫЕ а не тут иф елс писать
+    if result < 16:
+        description = TestResultDescription.descriptions.filter(pk=1).first()
+        activity_type = ActivityTypes.types.filter(pk=1).first()
+    elif 16 < result < 33:
+        description = TestResultDescription.descriptions.filter(pk=2).first()
+        activity_type = ActivityTypes.types.filter(pk=2).first()
+    else:
+        description = TestResultDescription.descriptions.filter(pk=3).first()
+        activity_type = ActivityTypes.types.filter(pk=3).first()
+
+    level1 = ActivityLevel1.levels.filter(activity_type=activity_type)
+    level2 = ActivityLevel2.levels.filter(activity_type__in=[i.pk for i in level1])
+    level3 = ActivityLevel3.levels.filter(activity_type__in=[i.pk for i in level2])
+
+    # район по адресу пользователя
+    user_address = address_transform(request.user.address)
+    user_address = StreetsBook.streets.filter(street_name=user_address).first()
+    district = user_address.district.admin_district.admin_district_name
+
+    # группы по типу активности из теста и из района пользователя
+    groups_list = Groups.groups.filter(level__in=[i.pk for i in level3], districts__contains=district)
+
+    return render(request, 'rec_app/recommendations.html',
+                  {'result': result,
+                   'description': description,
+                   'district': district,
+                   'groups_list': groups_list,})
 
 
 def question_form(request, page_num=1):
@@ -124,6 +135,21 @@ def question_form(request, page_num=1):
     return render(request,
                   'rec_app/question_form.html',
                   {'form': form, 'page_num': page_num, 'pk': question.pk, 'message': message})
+
+
+def address_transform(address):
+    address = address.split(',')[1].strip()
+    if len(address.split()) != 1:
+        tmp = address.split()
+        for word in tmp:
+            for key, value in street_types_dict.items():
+                if word in value:
+                    street_type = key
+                    tmp.remove(word)
+                    address = (' '.join(tmp))
+    address = address.title()
+    return address
+
 
 # def test_form(request):
 #     """Psginator test not work"""
@@ -186,3 +212,17 @@ def question_form(request, page_num=1):
 #     else:
 #         formset = AnswerFormSet()
 #     return render(request, 'rec_app/test_form.html', {'formset': formset, 'questions': questions})
+
+
+   # а  если 1-Я
+    # user_address = request.user.address.split(',')[1].strip()
+    # if len(user_address.split()) == 1:
+    #     user_address = user_address.title()
+    # else:
+    #     tmp = user_address.split()
+    #     for word in tmp:
+    #         for key, value in street_types_dict.items():
+    #             if word in value:
+    #                 street_type = key
+    #                 tmp.remove(word)
+    #                 user_address = (' '.join(tmp)).title()

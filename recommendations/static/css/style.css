@@ -44,7 +44,7 @@ h3{
 
 h4{
     font-size: 25px;
-    color: red;
+    color: black;
     text-align: left;
 }
 
@@ -84,7 +84,7 @@ input:focus{
 }
 
 .container{
-    width: 500px;
+    width: 800px;
     height: 180px;
     margin: 0 auto;
     display: inline-block;

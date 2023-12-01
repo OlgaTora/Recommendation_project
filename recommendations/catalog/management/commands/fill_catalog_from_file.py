@@ -81,6 +81,7 @@ class Command(BaseCommand):
                     uniq_id=groups_list[group][0],
                     level=ActivityLevel3.levels.filter(level=groups_list[group][3]).first(),
                     address=groups_list[group][4],
+                    districts=groups_list[group][5].replace('административные округа', 'административный округ'),
                     schedule_active=groups_list[group][7],
                     schedule_past=groups_list[group][8],
                     schedule_plan=groups_list[group][9],

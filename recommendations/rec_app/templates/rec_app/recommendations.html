@@ -1,9 +1,32 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container">
-<h1> Ваш результат: {{result}} баллов</h1>
-<h3>Вы такой-то человек, вам нравится то-то и вам подойдет это:</h3>
-        address catalog {{address_book}}
+    <h1> Ваш результат: {{result}} баллов</h1>
+    <h4> {{description}}</h4>
 
+<div class="container">
+    {% if groups_list %}
+    <h3>Выберите место занятий: </h3>
+    <ul>
+        {% for group in groups_list %}
+        {% if 'ОНЛАЙН' in group.level.level %}
+        <li> {{group.level}}
+            <p>Номер группы: {{group.uniq_id}}.</p>
+            <p>Занятия проходят он-лайн.</p>
+            <p>{{group.schedule_active}}</p>
+            <button class="auth_button" type="submit" name="form_auth_submit">Записаться</button>
+        </li>
+        {% else %}
+        <li> {{group.level}}
+            <p>Номер группы: {{group.uniq_id}}.</p>
+            <p> Адрес: {{ group.address }}</p>
+            <p> {{group.schedule_active}}</p>
+            <button class="auth_button" type="submit" name="form_auth_submit">Записаться</button>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+    {% else %}
+    <h3>Сейчас нет свободных групп. Посмотрите другие активности. </h3>{% endif %}
 </div>
+
 {% endblock %}

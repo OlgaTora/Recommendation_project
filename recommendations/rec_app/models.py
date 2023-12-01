@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from catalog.models import ActivityTypes
+
 
 class Profile(AbstractUser):
     class Gender(models.TextChoices):
@@ -35,6 +37,15 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choice_text
+
+
+class TestResultDescription(models.Model):
+    activity_type = models.ForeignKey(ActivityTypes, on_delete=models.CASCADE)
+    description = models.TextField()
+    descriptions = models.Manager()
+
+    def __str__(self):
+        return self.description
 
 
 class ResultOfTest(models.Model):
