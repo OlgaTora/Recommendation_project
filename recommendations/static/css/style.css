@@ -10,8 +10,9 @@ body{
 }
 
 .menu-item{
-    color: rgb(22, 22, 22);
+    color: silver;
     display: inline;
+    text-shadow: 4px 4px 4px #000;
     font-size: 25px;
 }
 
@@ -26,35 +27,27 @@ h1{
     font-size: 55px;
     color: silver;
     text-align: center;
-    text-shadow: 4px 4px 4px #000;
+    text-shadow: 4px 4px 4px #128849;
 }
 
 h2{
-    font-size: 35px;
+    font-size: 40px;
     color: silver;
     text-align: center;
-    text-shadow: 1px 1px 1px #000;
+    text-shadow: 1px 1px 1px #128849;
 }
 
 h3{
     font-size: 25px;
-    color: black;
+    color: silver;
     text-align: center;
+    text-shadow: 1px 1px 1px #128849;
 }
 
 h4{
     font-size: 25px;
     color: black;
     text-align: left;
-}
-
-.show-users{
-    font-size: 15px;
-    text-align: left;
-}
-
-.row{
-    border: 1px solid rgb(148, 146, 146);
 }
 
 .form_login{

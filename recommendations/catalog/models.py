@@ -5,6 +5,8 @@ class ActivityTypes(models.Model):
     activity_type = models.CharField(max_length=255, unique=True)
     types = models.Manager()
 
+    def __str__(self):
+        return f'{self.activity_type}'
 
 class ActivityLevel1(models.Model):
     activity_type = models.ForeignKey(ActivityTypes, on_delete=models.CASCADE)

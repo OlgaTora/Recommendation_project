@@ -46,27 +46,31 @@ class Command(BaseCommand):
         # направление 2
         lst_types = []
         for row in sheet.iter_rows(min_row=2, values_only=True):
-            full_row = [row[1], row[3], row[4]]
+            full_row = [row[0], row[1], row[3], row[4]]
             lst_types.append(full_row)
         lst_types = list(unique_everseen(lst_types))
         for i in range(len(lst_types)):
+            activity_type = ActivityTypes.types.filter(activity_type=lst_types[i][0]).first()
+            level1 = ActivityLevel1.levels.filter(id_level=lst_types[i][1], activity_type=activity_type).first()
             ActivityLevel2.levels.create(
-                activity_type=ActivityLevel1.levels.filter(id_level=lst_types[i][0]).first(),
-                id_level=lst_types[i][1],
-                level=lst_types[i][2],
+                activity_type=level1,
+                id_level=lst_types[i][2],
+                level=lst_types[i][3],
             )
         # направление 3
         lst_types = []
         for row in sheet.iter_rows(min_row=2, values_only=True):
-            full_row = [row[3], row[5], row[6], row[7]]
-            lst_types.append(full_row)
-        lst_types = list(unique_everseen(lst_types))
+            lst_types.append(row)
         for i in range(len(lst_types)):
+            activity_type = ActivityTypes.types.filter(activity_type=lst_types[i][0]).first()
+            level1 = ActivityLevel1.levels.filter(id_level=lst_types[i][1], activity_type=activity_type).first()
+            level2 = ActivityLevel2.levels.filter(id_level=lst_types[i][3], activity_type=level1).first()
+
             ActivityLevel3.levels.create(
-                activity_type=ActivityLevel2.levels.filter(id_level=lst_types[i][0]).first(),
-                id_level=lst_types[i][1],
-                level=lst_types[i][2],
-                descript_level=lst_types[i][3]
+                activity_type=level2,
+                id_level=lst_types[i][5],
+                level=lst_types[i][6],
+                descript_level=lst_types[i][7]
             )
 
         # группы
@@ -76,14 +80,14 @@ class Command(BaseCommand):
             for row in file_reader:
                 groups_list.append(row)
 
-            for group in range(1, len(groups_list)):
-                Groups.groups.create(
-                    uniq_id=groups_list[group][0],
-                    level=ActivityLevel3.levels.filter(level=groups_list[group][3]).first(),
-                    address=groups_list[group][4],
-                    districts=groups_list[group][5].replace('административные округа', 'административный округ'),
-                    schedule_active=groups_list[group][7],
-                    schedule_past=groups_list[group][8],
-                    schedule_plan=groups_list[group][9],
-                )
-                print(group)
+        for group in range(1, len(groups_list)):
+            Groups.groups.create(
+                uniq_id=groups_list[group][0],
+                level=ActivityLevel3.levels.filter(level=groups_list[group][3]).first(),
+                address=groups_list[group][4],
+                districts=groups_list[group][5].replace('административные округа', 'административный округ'),
+                schedule_active=groups_list[group][7],
+                schedule_past=groups_list[group][8],
+                schedule_plan=groups_list[group][9],
+            )
+            print(group)

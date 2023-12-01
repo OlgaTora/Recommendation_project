@@ -2,32 +2,13 @@
 {% block content %}
 <h1>{{ message }}</h1>
 <div class="container">
-    <form action="" method="post">
-        {% csrf_token %}
-        {% for question in questions%}
-<!--        <p>Question: {{question}}</p>-->
-        <br/>
-        <form method="post">
-            Forma {{ form }}
-        </form>
-        <!--        <form method="post">-->
-        <!--            {{ formset.management_form }}-->
-        <!--            <table>-->
-        <!--                {% for form in formset %}-->
-        <!--                {{ form }}-->
-        <!--            </table>-->
-        <!--            {% endfor %}-->
-        <!--        </form>-->
-
-
-        <!--        {% for choice in question.choice_set.all %}-->
-        <!--        <p>{{choice.choice_text}}</p>-->
-        <!--        {% endfor %}-->
+    <form method="post">
+        {{ formset.management_form }}
+        <table>
+            {% for form in formset %}
+            {{ form }}
+        </table>
         {% endfor %}
-        <input type="submit" value="Push">
-
     </form>
-
 </div>
-{% include "./pagination.html" with page=question %}
 {% endblock %}

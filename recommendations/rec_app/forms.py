@@ -1,34 +1,27 @@
 import datetime
 
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.forms import BaseFormSet
+from django.forms import BaseFormSet, BaseModelFormSet
 
-from . import models
 from .models import Profile, Question, Choice
 
 
-# class ProfileCreationForm(UserCreationForm):
-#     class Meta(UserCreationForm):
-#         model = Profile
-#         fields = ('username', 'password', 'birth_date', 'address', 'gender')
-
-
 class SignupForm(forms.Form):
-    username = forms.CharField(max_length=12)
-    password = forms.CharField(max_length=20, widget=forms.PasswordInput())
+    username = forms.CharField(max_length=12, label='Имя')
+    password = forms.CharField(max_length=20, widget=forms.PasswordInput(), label='Пароль')
     # confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput())
     birth_date = forms.DateField(initial=datetime.date.today,
-                                 widget=forms.DateInput(attrs={'class': 'date'}))
-    address = forms.CharField(max_length=255)
-    gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('Мужчина', 'Мужчина'), ('Женщина', 'Женщина')])
+                                 widget=forms.DateInput(attrs={'class': 'date'}), label='Дата рождения')
+    address = forms.CharField(max_length=255, label='Адрес')
+    gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('Мужчина', 'Мужчина'), ('Женщина', 'Женщина')],
+                               label='Пол')
 
     def clean_username(self):
         username = self.cleaned_data['username']
         if ' ' in username:
-            raise forms.ValidationError('Username cant contains spaces')
+            raise forms.ValidationError('Имя не может содержать пробелы.')
         if Profile.objects.filter(username=username).exists():
-            raise forms.ValidationError('This username is exist')
+            raise forms.ValidationError('Такое имя уже существует.')
         return username
 
     # def clean_password(self):
@@ -52,10 +45,10 @@ class LoginForm(forms.Form):
         try:
             user = Profile.objects.get(username=username)
             if not user.check_password(password):
-                raise forms.ValidationError("Incorrect password!")
+                raise forms.ValidationError("Неправильно введен пароль.")
             return super(LoginForm, self).clean()
         except Profile.DoesNotExist:
-            raise forms.ValidationError('Incorrect username')
+            raise forms.ValidationError('Неправильно введено имя.')
 
 
 class AnswerForm(forms.Form):
@@ -68,7 +61,31 @@ class AnswerForm(forms.Form):
         for choice in Choice.choices.all():
             choices.append((choice.votes, choice.choice_text))
         # for choice in question.choice_set.all():
-            # choices.append((choice.votes, choice.choice_text))
+        # choices.append((choice.votes, choice.choice_text))
+        # self.fields['choice'] = forms.ChoiceField(label=question.question_text, required=True,
+        #                                         choices=choices, widget=forms.RadioSelect)
+        self.fields['choice'] = forms.ChoiceField(
+            label=question.question_text,
+            required=True,
+            choices=choices,
+            widget=forms.RadioSelect)
+
+    class BaseAnswerFormSet(BaseModelFormSet):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.queryset = Question.questions.all()
+
+class AnswerForm1(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = []
+        question_pk = page_num
+        question = Question.questions.filter(pk=question_pk).first()
+        for choice in Choice.choices.all():
+            choices.append((choice.votes, choice.choice_text))
+        # for choice in question.choice_set.all():
+        # choices.append((choice.votes, choice.choice_text))
         # self.fields['choice'] = forms.ChoiceField(label=question.question_text, required=True,
         #                                         choices=choices, widget=forms.RadioSelect)
         self.fields['choice'] = forms.ChoiceField(
