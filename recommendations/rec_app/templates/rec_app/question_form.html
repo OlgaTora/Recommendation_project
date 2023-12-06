@@ -1,22 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-
-{% if message %}
-<div class="container">
-    <button class="auth_button" type="submit" name="form_auth_submit">
-        <a href="/test/{{page_num}}">Следующий вопрос</a>
-    </button>
-</div>
-{% else %}
+<h3>{{message}}</h3>
 <h1>Вопрос № {{ pk }}: </h1>
 <div class="container">
-    <form action="" method="post">
+    <form action=""  method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.as_ul }}
         <input type="submit" value="Выберите ответ">
     </form>
+        <button class="auth_button" type="submit" name="form_auth_submit">
+        <a href=" {% url 'rec_app:question_and_answers' page_num %}">Следующий вопрос</a>
+    </button>
 </div>
-{% endif%}
 {% endblock %}
-
-

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if error_message %}
+{{ error_message }}
+{% endif %}
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        {% for question in questions %}
+            {{ question.question_text }}<br/>
+            {% for choice in choices %}
+            {{ choice.choice_text }}
+            {% endfor %}
+        {% endfor %}
+
+        <input type="submit" value="Выберите ответ">
+
+    </form>
+</div>
+
+{% include "./pagination.html" with page=questions %}
+{% endblock %}
+
+
+<!--        <input type="submit" value="Выберите ответ">-->
+<!--{% if message %}-->
+<!--<div class="container">-->
+<!--    <button class="auth_button" type="submit" name="form_auth_submit">-->
+<!--        <a href="/test/{{page_num}}">Следующий вопрос</a>-->
+<!--    </button>-->
+<!--</div>-->
+<!--{% else %}-->
+
+
+
+
+{% extends 'base.html' %}
+{% block content %}
+
+{% if message %}
+<div class="container">
+    <button class="auth_button" type="submit" name="form_auth_submit">
+        <a href="/test/{{page_num}}">Следующий вопрос</a>
+    </button>
+</div>
+{% else %}
+<h1>Вопрос № {{ pk }}: </h1>
+<div class="container">
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <input type="submit" value="Выберите ответ">
+    </form>
+</div>
+{% endif%}
+{% endblock %}
+
+

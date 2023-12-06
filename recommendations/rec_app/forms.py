@@ -1,18 +1,23 @@
-import datetime
+# import datetime
+from datetime import timedelta, datetime, date
 
 from django import forms
 from django.forms import BaseFormSet, BaseModelFormSet
+from django.utils import timezone
 
-from .models import Profile, Question, Choice
+from address_book.models import StreetsBook
+from .models import Profile, Question, Choice, ResultOfTest
 
 
 class SignupForm(forms.Form):
     username = forms.CharField(max_length=12, label='Имя')
     password = forms.CharField(max_length=20, widget=forms.PasswordInput(), label='Пароль')
     # confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput())
-    birth_date = forms.DateField(initial=datetime.date.today,
+    birth_date = forms.DateField(initial=date.today,
                                  widget=forms.DateInput(attrs={'class': 'date'}), label='Дата рождения')
-    address = forms.CharField(max_length=255, label='Адрес')
+    # address = forms.CharField(max_length=255, label='Адрес')
+    address = forms.ModelChoiceField(queryset=StreetsBook.streets.all(), required=False, label='Адрес')
+
     gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('Мужчина', 'Мужчина'), ('Женщина', 'Женщина')],
                                label='Пол')
 
@@ -23,6 +28,15 @@ class SignupForm(forms.Form):
         if Profile.objects.filter(username=username).exists():
             raise forms.ValidationError('Такое имя уже существует.')
         return username
+
+    def clean_birth_date(self):
+        birth_date = self.cleaned_data['birth_date']
+        now = timezone.now().date()
+        if birth_date > (now - timedelta(days=30)):
+            raise forms.ValidationError('Неверная дата рождения.')
+        if (now.year - birth_date.year) > 120:
+            raise forms.ValidationError('Неверная дата рождения.')
+        return birth_date
 
     # def clean_password(self):
     #     cleaned_data = self.cleaned_data
@@ -53,35 +67,52 @@ class LoginForm(forms.Form):
 
 class AnswerForm(forms.Form):
 
-    def __init__(self, *args, page_num, **kwargs):
+    def __init__(self, *args, page_num, user, **kwargs):
         super().__init__(*args, **kwargs)
+        self.page = page_num
+        self.user = user
         choices = []
-        question_pk = page_num
-        question = Question.questions.filter(pk=question_pk).first()
+        question_pk = self.page
+        self.question = Question.questions.filter(pk=question_pk).first()
         for choice in Choice.choices.all():
             choices.append((choice.votes, choice.choice_text))
-        # for choice in question.choice_set.all():
-        # choices.append((choice.votes, choice.choice_text))
-        # self.fields['choice'] = forms.ChoiceField(label=question.question_text, required=True,
-        #                                         choices=choices, widget=forms.RadioSelect)
+
         self.fields['choice'] = forms.ChoiceField(
-            label=question.question_text,
+            label=self.question.question_text,
             required=True,
             choices=choices,
             widget=forms.RadioSelect)
 
-    class BaseAnswerFormSet(BaseModelFormSet):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.queryset = Question.questions.all()
+    def clean(self):
+        cleaned_data = super().clean()
+        # self.question = Question.questions.filter(pk=self.page - 1).first()
+        if ResultOfTest.results.filter(user=self.user, question=self.question).exists():
+            raise forms.ValidationError(f'Вы уже отвечали на вопрос {self.question.pk}.')
+        else:
+            return cleaned_data
+
+    def save(self):
+        choice = int(self.cleaned_data['choice'])
+        answer = Choice.choices.filter(votes=choice).first()
+        result = ResultOfTest(answer=answer, user=self.user, question=self.question)
+        result.save()
+
+
+class BaseAnswerFormSet(BaseModelFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.queryset = Choice.choices.all()
+        # self.queryset = Question.questions.all()
+
 
 class AnswerForm1(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         choices = []
-        question_pk = page_num
-        question = Question.questions.filter(pk=question_pk).first()
+        questions = []
+        for question in Question.questions.all():
+            questions.append(question.question_text)
         for choice in Choice.choices.all():
             choices.append((choice.votes, choice.choice_text))
         # for choice in question.choice_set.all():

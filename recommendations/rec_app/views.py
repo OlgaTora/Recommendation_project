@@ -1,13 +1,19 @@
 from django.contrib.auth import authenticate, login, logout
-from django.forms import formset_factory, modelformset_factory
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import PageNotAnInteger, Paginator, EmptyPage
+from django.db.models.query import EmptyQuerySet
+from django.forms import formset_factory, modelformset_factory, Textarea, ChoiceField
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django import http
-from django.db.models import Q
-from address_book.models import District, StreetsBook
+from django.db.models import Q, Count
+from django.urls import reverse
+from django.views import generic
+
+from address_book.models import StreetsBook
 from catalog.models import Groups, ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3
 from data_transform.street_types_dict import street_types_dict
-from .forms import SignupForm, LoginForm, AnswerForm, AnswerForm1
+from .forms import SignupForm, LoginForm, AnswerForm, BaseAnswerFormSet, AnswerForm1
 from .models import Profile, Question, Choice, ResultOfTest, TestResultDescription
 
 
@@ -73,6 +79,7 @@ def user_logout(request):
     return HttpResponseRedirect('/')
 
 
+@login_required(redirect_field_name='/')
 def recommendations(request):
     result = ResultOfTest.get_results(request.user)
     # НАДО СДЕЛАТЬ ЧТОБ В ТАБЛИЦЫ БЫЛИ ДАННЫЕ а не тут иф елс писать
@@ -104,27 +111,27 @@ def recommendations(request):
                    'groups_list': groups_list})
 
 
-# а если человек уже проходил тест?
+@login_required(redirect_field_name='/')
 def question_form(request, page_num=1):
-    message = None
-    last_question = Question.questions.latest('pk')
-    if page_num == int(last_question.pk) + 1:
-        return HttpResponseRedirect('/recommendations/')
+    message = 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'
+    last_page = int(Question.questions.latest('pk').pk) + 1
+    user = request.user
+
+    if page_num == last_page:
+        if len(ResultOfTest.results.filter(user=user).annotate(count=Count('user'))) >= last_page - 1:
+            return redirect('rec_app:recommendations')
+        else:
+            return redirect(reverse('rec_app:question_and_answers', args=(1, )))
+
+    if page_num > last_page:
+        return render(request, '404.html')
+
     question = get_object_or_404(Question, pk=page_num)
-    if request.method == 'POST':
-        form = AnswerForm(request.POST, page_num=page_num)
-        if form.is_valid():
-            """Надо сделать чтоб нельзя было вернуться назад и поменять ответ,
-            а также чтоб попадать  только на 1ый вопрос
-            """
-            choice = int(form.cleaned_data['choice'])
-            answer = Choice.choices.filter(votes=choice).first()
-            # answer = Choice.choices.filter(question=question, votes=choice).first()
-            result = ResultOfTest(answer=answer, user=request.user, question=question)
-            result.save()
-            message = 'Ответ принят'
-    else:
-        form = AnswerForm(page_num=page_num)
+    form = AnswerForm(request.POST or None, page_num=page_num, user=user)
+    if form.is_valid():
+        print(f'form valid {page_num}')
+        form.save()
+        message = 'Ответ принят'
     page_num += 1
 
     return render(request,
@@ -133,15 +140,18 @@ def question_form(request, page_num=1):
 
 
 def address_transform(address):
-    address = address.split(',')[1].strip()
-    if len(address.split()) != 1:
-        tmp = address.split()
-        for word in tmp:
-            for key, value in street_types_dict.items():
-                if word in value:
-                    street_type = key
-                    tmp.remove(word)
-                    address = (' '.join(tmp))
+    # если адрес - одно слово
+    if len(address.split(',')) != 1:
+        address = address.split(',')[1].strip()
+        # если можно выделить улицу и дом
+        if len(address.split()) != 1:
+            tmp = address.split()
+            for word in tmp:
+                for key, value in street_types_dict.items():
+                    if word in value:
+                        street_type = key
+                        tmp.remove(word)
+                        address = (' '.join(tmp))
     address = address.title()
     return address
 
@@ -182,22 +192,18 @@ def address_transform(address):
 #     except EmptyPage:
 #         questions = paginator.page(paginator.num_pages)
 #
-#
-# def test1_form(request):
-#     questions = Question.questions.filter(pk__lt=5)
-#     """ choice last"""
-#     if request.method == 'POST':
-#         form = AnswerForm(request.POST, questions)
-#         if form.is_valid():
-#             return HttpResponse('ок')
-#     else:
-#         form = AnswerForm(questions)
-#     return render(request, 'rec_app/test_form.html', {'form': form, 'questions': questions})
-#
+
 
 def test1_form(request):
     """test formset dont work question id cant recieve"""
-    AnswerFormSet = modelformset_factory(Question, fields=['question_text'])
+    choices = []
+    for choice in Choice.choices.all():
+        choices.append((choice.votes, choice.choice_text))
+
+    # AnswerFormSet = modelformset_factory(Choice, fields=['choice_text'], formset=BaseAnswerFormSet,
+    #                                      widgets={'question_text': ChoiceField(choices=choices)})
+
+    AnswerFormSet = formset_factory(AnswerForm1)
     # questions = Question.questions.all()
     # questions = Question.objects.get_queryset().order_by('id')
     # AnswerFormSet = formset_factory(AnswerForm1)
@@ -210,15 +216,65 @@ def test1_form(request):
     return render(request, 'rec_app/test_form.html', {'formset': formset})
 
 
-   # а  если 1-Я
-    # user_address = request.user.address.split(',')[1].strip()
-    # if len(user_address.split()) == 1:
-    #     user_address = user_address.title()
-    # else:
-    #     tmp = user_address.split()
-    #     for word in tmp:
-    #         for key, value in street_types_dict.items():
-    #             if word in value:
-    #                 street_type = key
-    #                 tmp.remove(word)
-    #                 user_address = (' '.join(tmp)).title()
+def test2(request):
+    message = ''
+    choices = Choice.choices.all()
+    questions = Question.questions.all()
+    paginator = Paginator(questions, 1)
+    page = request.GET.get('page')
+    print(page)
+    if request.method == 'POST':
+        try:
+            questions = paginator.page(page)
+            form = AnswerForm(request.POST, page_num=page)
+
+        except PageNotAnInteger:
+            questions = paginator.page(1)
+        except EmptyPage:
+            questions = paginator.page(paginator.num_pages)
+        return render(request, 'rec_app/test_form.html', {'form': form, 'message': message})
+    else:
+        form = AnswerForm(page_num=page)
+
+# WORKING CODE
+# def test1(request):
+#     choices = Choice.choices.all()
+#     questions = Question.questions.all()
+#     paginator = Paginator(questions, 1)
+#     page = request.GET.get('page')
+#     if request.method == 'POST':
+#         form = AnswerForm(request.POST, page_num=page)
+#     try:
+#         questions = paginator.page(page)
+#
+#     except PageNotAnInteger:
+#         questions = paginator.page(1)
+#     except EmptyPage:
+#         questions = paginator.page(paginator.num_pages)
+#     return render(request, 'rec_app/test2.html', {'questions': questions, 'choices': choices, })
+
+# if not page.has_next():
+#    print('3')
+
+
+
+# choice = int(form.cleaned_data['choice'])
+            # answer = Choice.choices.filter(votes=choice).first()
+            #
+            # # else:
+            # result = ResultOfTest(answer=answer, user=request.user, question=question)
+            # result.save()
+
+
+# а  если 1-Я
+# user_address = request.user.address.split(',')[1].strip()
+# if len(user_address.split()) == 1:
+#     user_address = user_address.title()
+# else:
+#     tmp = user_address.split()
+#     for word in tmp:
+#         for key, value in street_types_dict.items():
+#             if word in value:
+#                 street_type = key
+#                 tmp.remove(word)
+#                 user_address = (' '.join(tmp)).title()

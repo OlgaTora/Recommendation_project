@@ -12,7 +12,7 @@ body{
 .menu-item{
     color: silver;
     display: inline;
-    text-shadow: 4px 4px 4px #000;
+    text-shadow: 1px 1px 1px #000;
     font-size: 25px;
 }
 
@@ -34,20 +34,25 @@ h2{
     font-size: 40px;
     color: silver;
     text-align: center;
-    text-shadow: 1px 1px 1px #128849;
+    text-shadow: 3px 3px 3px #128849;
 }
 
 h3{
     font-size: 25px;
     color: silver;
     text-align: center;
-    text-shadow: 1px 1px 1px #128849;
+    text-shadow: 2px 2px 2px #128849;
 }
 
 h4{
     font-size: 25px;
     color: black;
     text-align: left;
+}
+
+li{
+    font-size: 20px;
+    color: black;
 }
 
 .form_login{
