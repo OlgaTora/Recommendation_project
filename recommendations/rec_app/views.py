@@ -118,11 +118,7 @@ def question_form(request, page_num=1):
     user = request.user
 
     if page_num == last_page:
-        if len(ResultOfTest.results.filter(user=user).annotate(count=Count('user'))) >= last_page - 1:
-            return redirect('rec_app:recommendations')
-        else:
-            return redirect(reverse('rec_app:question_and_answers', args=(1, )))
-
+        return redirect('rec_app:recommendations')
     if page_num > last_page:
         return render(request, '404.html')
 
@@ -132,11 +128,46 @@ def question_form(request, page_num=1):
         print(f'form valid {page_num}')
         form.save()
         message = 'Ответ принят'
+        page_num += 1
+        return redirect(reverse('rec_app:question_and_answers', args=(page_num,)))
     page_num += 1
+    return render(request,
+                  'rec_app/test_form.html',
+                  {'form': form, 'page_num': page_num, 'last_page': last_page,
+                   'pk': question.pk, 'message': message})
+
+
+@login_required(redirect_field_name='/')
+def question1_form(request, page_num=1):
+    message = 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'
+    last_page = int(Question.questions.latest('pk').pk) + 1
+    user = request.user
+
+    if page_num == last_page:
+        # if len(ResultOfTest.results.filter(user=user).annotate(count=Count('user'))) == last_page - 1:
+        return redirect('rec_app:recommendations')
+        # else:
+        #     return redirect(reverse('rec_app:question_and_answers', args=(1, )))
+    #
+    if page_num > last_page:
+        return render(request, '404.html')
+
+    question = get_object_or_404(Question, pk=page_num)
+    form = AnswerForm(request.POST or None, page_num=page_num, user=user)
+    page_num += 1
+    if form.is_valid():
+        print(f'form valid {page_num}')
+        form.save()
+        message = 'Ответ принят'
 
     return render(request,
                   'rec_app/question_form.html',
-                  {'form': form, 'page_num': page_num, 'pk': question.pk, 'message': message})
+                  {'form': form, 'page_num': page_num, 'last_page': last_page, 'pk': question.pk, 'message': message})
+
+
+@login_required(redirect_field_name='/')
+def start_test(request):
+    return redirect(reverse('rec_app:question_and_answers', args=(1,)))
 
 
 def address_transform(address):
@@ -257,13 +288,12 @@ def test2(request):
 #    print('3')
 
 
-
 # choice = int(form.cleaned_data['choice'])
-            # answer = Choice.choices.filter(votes=choice).first()
-            #
-            # # else:
-            # result = ResultOfTest(answer=answer, user=request.user, question=question)
-            # result.save()
+# answer = Choice.choices.filter(votes=choice).first()
+#
+# # else:
+# result = ResultOfTest(answer=answer, user=request.user, question=question)
+# result.save()
 
 
 # а  если 1-Я

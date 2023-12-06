@@ -92,15 +92,6 @@ input:focus{
     color:red;
 }
 
-.auth_button{
-    width: 100%;
-    padding: 16px;
-    margin: 15px 0 15px 15px;
-    cursor: pointer;
-    color: silver;
-    text-align: center;
-    text-shadow: 2px 2px 2px #000;
-}
 
 .alert{
     background-color: rgb(148, 146, 146);
