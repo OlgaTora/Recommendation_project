@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
+<button class="auth_button" type="submit">
+    <a href=" {% url 'rec_app:start_test'%}">Пройти тест заново.</a>
+</button>
 <h3>{{message}}</h3>
 <h1>Вопрос № {{ pk }}: </h1>
 <div class="container">

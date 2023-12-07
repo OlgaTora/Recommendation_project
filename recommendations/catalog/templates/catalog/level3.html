@@ -29,4 +29,5 @@
     {% else %}
     <h3>Сейчас нет свободных групп. Посмотрите другие активности. </h3>{% endif %}
 </div>
+{% include "pagination.html" with page=groups %}
 {% endblock %}

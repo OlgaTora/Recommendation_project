@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 
 from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups
@@ -57,6 +58,10 @@ def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
     level2 = get_object_or_404(ActivityLevel2, pk=pk_level2)
     level3 = get_object_or_404(ActivityLevel3, pk=pk_level3)
     groups = Groups.groups.filter(level=level3).exclude(schedule_active='')
+    paginator = Paginator(groups, 5)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(
         request,
         'catalog/level3.html',
@@ -64,5 +69,5 @@ def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
          'level2': level2,
          'level3': level3,
          'activity_type': activity_type,
-         'groups': groups}
+         'groups': page_obj}
     )
