@@ -1,10 +1,23 @@
 {% extends 'base.html' %}
-<h1> Каталог</h1>
 {% block content %}
-<h1>Выберите раздел по вкусу: </h1>
-<ul>
-    {% for activity_type in activity_types %}
-    <li><a href="{% url 'catalog:type_content' activity_type.id %}">{{ activity_type.activity_type }}</a></li>
-    {% endfor %}
-</ul>
+<div class="container-fluid">
+    <h1 class="text-center">Выберите раздел по вкусу: </h1>
+</div>
+
+<div class="container-fluid">
+    <div class="row my-5">
+        <div class="col-md-12">
+            <ul class="list-group list-group-horizontal">
+                {% for activity_type in activity_types %}
+                <li class="list-group-item list-group-item-dark" style="font-size: 50px">
+                    <a href="{% url 'catalog:type_content' activity_type.id %}">{{ activity_type.activity_type }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
+

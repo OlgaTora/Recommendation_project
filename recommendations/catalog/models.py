@@ -8,6 +8,7 @@ class ActivityTypes(models.Model):
     def __str__(self):
         return f'{self.activity_type}'
 
+
 class ActivityLevel1(models.Model):
     activity_type = models.ForeignKey(ActivityTypes, on_delete=models.CASCADE)
     id_level = models.IntegerField()

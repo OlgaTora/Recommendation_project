@@ -69,15 +69,3 @@ class Command(BaseCommand):
                     description=row[1],
                     activity_type=ActivityTypes.types.filter(activity_type=row[0]).first(),
                 )
-
-    # n = 1
-    # for i in range(1, N_QUEST + 1):
-    #     for j in range(n, int(N_ANS / N_QUEST) + n):
-    #         choice = Choice.choices.create(
-    #             question=Question.questions.get(id=i),
-    #             choice_text=choice_list[j][0],
-    #             votes=choice_list[j][1],
-    #         )
-    #         print("Choice {} added".format(j))
-    #     n += 6
-    #     print("Question {} close".format(i))

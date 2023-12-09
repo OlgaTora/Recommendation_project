@@ -1,14 +1,21 @@
 {% extends 'base.html' %}
 <h1> Каталог</h1>
 {% block content %}
-<h1>Выберите занятие по сердцу: </h1>
-<ul>
-    {% for level in level3 %}
-    <li> <a href="{% url 'catalog:level3_content' activity_type.id level1.id level2.id level.id %}">{{ level.level }}</a>
-        <br/>
-        {{level.descript_level}}
-        <p></p>
-    </li>
-    {% endfor %}
-</ul>
+<div class="container-fluid">
+    <h1>Выберите занятие по сердцу: </h1>
+</div>
+
+<div class="container-fluid">
+    <div class="row my-5">
+        <div class="col-md-12">
+            <ul class="list-group">
+                {% for level in level3 %}
+                <li class="list-group-item list-group-item-dark" style="font-size: 30px">
+                    <a href="{% url 'catalog:level3_content' activity_type.id level1.id level2.id level.id %}">{{ level.level }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
 {% endblock %}

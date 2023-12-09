@@ -5,50 +5,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static '/css/style.css' %}">
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% bootstrap_messages %}
     {% block title %}
     <title>Еще не бабушка</title>
     {% endblock %}
 </head>
-<body>
-
-<div class="header">
-    {% if user.id %}
-    <ul class="menu">
-        <li class="menu-item"><a href="/index/"
-                                 class="nav-link">Главная страница</a></li>
-        <li class="menu-item"><a href="/logout/"
-                                 class="nav-link">Выйти</a></li>
-        <li class="menu-item"><a href="/test/"
-                                 class="nav-link">Пройти тест</a></li>
-        <li class="menu-item"><a href="/catalog/"
-                                 class="nav-link">Каталог</a></li>
-    </ul>
-    {% else %}
-    <ul class="menu">
-        <li class="menu-item"><a href="/index/"
-                                 class="nav-link">Главная страница</a></li>
-        <li class="menu-item"><a href="/signup/"
-                                 class="nav-link">Зарегистрироваться</a></li>
-        <li class="menu-item"><a href="/login/"
-                                 class="nav-link">Войти</a></li>
-        <li class="menu-item"><a href="/catalog/"
-                                 class="nav-link">Каталог</a></li>
-        {% endif %}
-    </ul>
+<body class="d-flex flex-column min-vh-100" style="background-color: lightgray">
+<div class="wrapper flex-grow-1">
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #128849">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                {% if user.id %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/index/">Главная страница</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/logout/">Выйти</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/test/">Пройти тест</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/catalog/">Каталог</a></li>
+<!--                     <li class="nav-item">-->
+<!--                        <a class="nav-link active" aria-current="page" href="catalog/search/">Поиск по каталогу</a></li>-->
+                </ul>
+                {% else %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/index/">Главная страница</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/signup/">Зарегистрироваться</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/login/">Войти</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/catalog/">Каталог</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+    {% block content %}
+    {% endblock %}
 </div>
-{% if messages %}
-{% for message in messages %}
-<div class="alert {{message.tags}}" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endfor %}
-{% endif %}
-{% block content %}
-{% endblock %}
-
-<div class="footer">Наши контакты:<br/>
+<footer style="background-color: #128849; font-size: 25px">
+    Наши контакты:<br/>
     телефон: +79151234567<br/> адрес: город Москва, Московский проспект, дом 10
-</div>
+</footer>
 </body>
 </html>
+
+

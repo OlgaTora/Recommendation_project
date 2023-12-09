@@ -1,9 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import PageNotAnInteger, Paginator, EmptyPage
-from django.http import HttpResponseRedirect
+from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-from django import http
 from django.db.models import Count
 from django.urls import reverse
 
@@ -45,7 +43,7 @@ def signup(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'Вы успешно зарегистрировались.')
-            return http.HttpResponseRedirect('')
+            return redirect(reverse('rec_app:index'))
         return render(
             request,
             'rec_app/login.html',
@@ -66,7 +64,7 @@ def user_login(request):
             if profile is not None:
                 login(request, profile)
                 messages.success(request, 'Вы успешно вошли в систему.')
-                return render(request, 'rec_app/index.html')
+                return redirect(reverse('rec_app:index'))
         return render(
             request,
             'rec_app/login.html',

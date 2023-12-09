@@ -1,15 +1,22 @@
 {% extends 'base.html' %}
+{% load django_bootstrap5 %}
 {% block content %}
-<button class="auth_button" type="submit">
-    <a href=" {% url 'rec_app:start_test'%}">Пройти тест заново.</a>
-</button>
 <h3>{{message}}</h3>
 <h1>Вопрос № {{ pk }}: </h1>
 <div class="container">
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form.as_ul }}
-        <input type="submit" value="Выберите ответ">
-    </form>
+    <div class="form_test">
+        <form action="" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <input type="submit" value="Выберите ответ">
+        </form>
+    </div>
 </div>
+
+<div class="container">
+    <button class="auth_button" type="submit">
+        <a href=" {% url 'rec_app:start_test'%}">Пройти тест заново.</a>
+    </button>
+</div>
+
 {% endblock %}
