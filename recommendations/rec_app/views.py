@@ -86,14 +86,14 @@ def recommendations(request):
     result = ResultOfTest.get_results(request.user)
     # НАДО СДЕЛАТЬ ЧТОБ В ТАБЛИЦЫ БЫЛИ ДАННЫЕ а не тут иф елс писать
     if result < 16:
-        description = TestResultDescription.descriptions.filter(pk=1).first()
-        activity_type = ActivityTypes.types.filter(pk=1).first()
+        description = TestResultDescription.descriptions.get(pk=1)
+        activity_type = ActivityTypes.types.get(pk=1)
     elif 16 < result < 33:
-        description = TestResultDescription.descriptions.filter(pk=2).first()
-        activity_type = ActivityTypes.types.filter(pk=2).first()
+        description = TestResultDescription.descriptions.get(pk=2)
+        activity_type = ActivityTypes.types.get(pk=2)
     else:
-        description = TestResultDescription.descriptions.filter(pk=3).first()
-        activity_type = ActivityTypes.types.filter(pk=3).first()
+        description = TestResultDescription.descriptions.get(pk=3)
+        activity_type = ActivityTypes.types.get(pk=3)
 
     level1 = ActivityLevel1.levels.filter(activity_type=activity_type)
     level2 = ActivityLevel2.levels.filter(activity_type__in=[i.pk for i in level1])
@@ -101,7 +101,7 @@ def recommendations(request):
 
     # район по адресу пользователя
     user_address = address_transform(request.user.address)
-    user_address = StreetsBook.streets.filter(street_name=user_address).first()
+    user_address = StreetsBook.streets.get(street_name=user_address)
     district = user_address.district.admin_district.admin_district_name
 
     # группы по типу активности из теста и из района пользователя

@@ -1,18 +1,38 @@
 {% extends 'base.html' %}
+{% load django_bootstrap5 %}
 {% block content %}
+<h1>{{ message }}</h1>
 <div class="container-fluid">
-    <h1>Выберите раздел по настроению: </h1>
+    {% if groups %}
+    <ul class="list-group">
+        {% for group in groups %}
+        {% if 'ОНЛАЙН' in group.level.level %}
+        <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+            <p>{{group.level.level}}</p>
+            <p>{{group.level.descript_level}}</p>
+            <p>Номер группы: {{group.uniq_id}}.</p>
+            <p>Занятия проходят он-лайн.</p>
+            <p>Расписание: {{group.schedule_active}}</p>
+            <button class="auth_button" type="submit" name="form_auth_submit">Записаться</button>
+        </li>
+        {% else %}
+        <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+            <p>{{group.level.level}}</p>
+            <p>{{group.level.descript_level}}</p>
+            <p>Номер группы: {{group.uniq_id}}.</p>
+            <p>Адрес: {{ group.address }}</p>
+            <p>Расписание: {{group.schedule_active}}</p>
+            <button class="auth_button" type="submit" name="form_auth_submit">Записаться</button>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+    {% else %}
+    <h3>Мы ничего не нашли по вашему запросу. Попробуйте еще. </h3>{% endif %}
 </div>
-<div class="container-fluid">
-    <div class="row my-5">
-        <div class="col-md-12">
-            <ul class="list-group">
-                {% for result in results %}
-                <li class="list-group-item list-group-item-dark" style="font-size: 40px">
-                {{ result.level }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
+<div class="container">
+    {% if groups %}
+    {% include "pagination.html" with page=groups %}
+    {% endif %}
 </div>
 {% endblock %}

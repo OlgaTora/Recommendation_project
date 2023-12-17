@@ -46,8 +46,8 @@ class SignupForm(forms.Form):
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=12)
-    password = forms.CharField(widget=forms.PasswordInput)
+    username = forms.CharField(max_length=12, label='Логин')
+    password = forms.CharField(widget=forms.PasswordInput, label='Пароль')
 
     def clean(self, *args, **kwargs):
         username = self.cleaned_data['username']
@@ -62,14 +62,13 @@ class LoginForm(forms.Form):
 
 
 class AnswerForm(forms.Form):
-
     def __init__(self, *args, page_num, user, **kwargs):
         super().__init__(*args, **kwargs)
         self.page = page_num
         self.user = user
         choices = []
         question_pk = self.page
-        self.question = Question.questions.filter(pk=question_pk).first()
+        self.question = Question.questions.get(pk=question_pk)
         for choice in Choice.choices.all():
             choices.append((choice.votes, choice.choice_text))
 
@@ -80,15 +79,14 @@ class AnswerForm(forms.Form):
             widget=forms.RadioSelect)
 
     def clean(self):
-        cleaned_data = super().clean()
         if ResultOfTest.results.filter(user=self.user, question=self.question).exists():
             raise forms.ValidationError(f'Вы уже отвечали на вопросы теста.')
         else:
-            return cleaned_data
+            return super(AnswerForm, self).clean()
 
     def save(self):
         choice = int(self.cleaned_data['choice'])
-        answer = Choice.choices.filter(votes=choice).first()
+        answer = Choice.choices.get(votes=choice)
         result = ResultOfTest(answer=answer, user=self.user, question=self.question)
         result.save()
 

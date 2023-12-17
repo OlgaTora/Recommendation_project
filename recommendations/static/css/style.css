@@ -12,7 +12,7 @@
 }
 
 h1{
-    font-size: 75px;
+    font-size: 85px;
     color: silver;
     text-align: center;
     text-shadow: 4px 4px 4px #128849;
@@ -65,7 +65,7 @@ input{
 }
 
 .auth_button{
-    font-size: 35px;
+    font-size: 30px;
     background-color: #128839;
     border: 2px solid rgb(148, 146, 146);
 }
@@ -94,6 +94,9 @@ input:focus{
     text-align:center;
 }
 
+.submit{
+    display:flex;
+}
 
 .item-flex{
     display:flex;

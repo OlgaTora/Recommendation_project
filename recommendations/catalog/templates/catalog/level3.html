@@ -31,6 +31,8 @@
     <h3>Сейчас нет свободных групп. Посмотрите другие активности. </h3>{% endif %}
 </div>
 <div class="container">
+    {% if groups %}
     {% include "pagination.html" with page=groups %}
+    {% endif %}
 </div>
 {% endblock %}
