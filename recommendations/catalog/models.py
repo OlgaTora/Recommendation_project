@@ -1,9 +1,11 @@
 from django.db import models
+from users.models import Profile
 
 
 class ActivityTypes(models.Model):
-    activity_type = models.CharField(max_length=255, unique=True)
+    activity_type = models.CharField(max_length=255, unique=True, verbose_name='Тип активности')
     types = models.Manager()
+    # slug = models.SlugField(max_length=100, unique=True, db_index=True, verbose_name="URL")
 
     def __str__(self):
         return f'{self.activity_type}'
@@ -52,3 +54,18 @@ class Groups(models.Model):
 
     def __str__(self):
         return f'{self.level}'
+
+
+class Attends(models.Model):
+    uniq_id = models.IntegerField()
+    group_id = models.ForeignKey(Groups, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    online = models.BooleanField()
+    date_attend = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    attends = models.Manager()
+
+    def __str__(self):
+        return f'{self.uniq_id}'
+

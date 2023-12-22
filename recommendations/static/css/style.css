@@ -7,7 +7,7 @@
 
 .footer{
     background-color: #128849;
-    height: 120px;
+    height: 130px;
     font-size: 25px;
 }
 
@@ -96,6 +96,7 @@ input:focus{
 
 .submit{
     display:flex;
+    height: 45px;
 }
 
 .item-flex{

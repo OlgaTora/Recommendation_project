@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rec_app.apps.RecAppConfig',
     'catalog.apps.CatalogConfig',
+    'users.apps.UsersConfig',
     'address_book.apps.AddressBookConfig',
     'django_bootstrap5',
 ]
@@ -152,6 +153,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'rec_app.Profile'
+AUTH_USER_MODEL = 'users.Profile'
 
 # CRISPY_TEMPLATE_PACK = 'bootstrap5'

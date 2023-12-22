@@ -2,7 +2,11 @@
 {% block content %}
     <h1> Ваш результат: {{result}} баллов</h1>
     <h4> {{description}}</h4>
-
+<div class="container-fluid">
+    <button class="auth_button" type="submit">
+        <a href=" {% url 'rec_app:start_test'%}">Пройти тест заново.</a>
+    </button>
+</div>
 <div class="container">
     {% if groups_list %}
     <h3>Выберите место занятий: </h3>
