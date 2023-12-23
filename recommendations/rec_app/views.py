@@ -1,12 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.urls import reverse
 
-from address_book.models import StreetsBook, StreetType
+from address_book.models import StreetsBook
 from catalog.models import Groups, ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Attends
-from data_transform.street_types_dict import street_types_dict
 from .forms import AnswerForm
 from .models import Question, ResultOfTest, TestResultDescription
 from django.contrib import messages
@@ -28,25 +27,24 @@ def recommendations(request):
 
     level1 = ActivityLevel1.levels.filter(activity_type=activity_type)
     level2 = ActivityLevel2.levels.filter(activity_type__in=[i.pk for i in level1])
-    level3 = ActivityLevel3.levels.filter(activity_type__in=[i.pk for i in level2])
-
-    top_level3(request.user)
+    level3_top = Attends.get_top_level3().filter(activity_type__in=[i.pk for i in level2])
+    level3_online = level3_top.filter(level__contains='ОНЛАЙН')
 
     # район по адресу пользователя
-    user_address = address_transform(request.user.address)
+    user_address = StreetsBook.address_transform(request.user.address)
     user_address = user_address.first()
     # если адрес есть в базе адресов Москвы
     if user_address:
         district = user_address.district.admin_district.admin_district_name
         # группы по типу активности из теста и из района пользователя
-        groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3],
-                                            districts__contains=district)
+        groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3_top]) & Groups.groups.filter(
+            Q(districts__contains=district) | Q(level__in=[i.pk for i in level3_online]))
                        .order_by('uniq_id'))
     else:
-        groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3])
+        groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3_top])
                        .order_by('uniq_id'))
 
-    #сделать высплывающее окно с районом? есть улицы с одинаковым названием
+    # сделать высплывающее окно с районом? есть улицы с одинаковым названием
     # в левел3 должны быть топ активностей для данного юзера
     # if len(list(user_address)) == 1:
     #     user_address = user_address.first()
@@ -102,46 +100,6 @@ def start_test(request):
         if ResultOfTest.results.filter(user=request.user).count() < 10:
             ResultOfTest.results.filter(user=request.user).delete()
     return redirect(reverse('rec_app:question_and_answers', args=(1,)))
-
-
-def address_transform(address: str):
-    street_type = ''
-    # если адрес - одно слово
-    if len(address.split(',')) != 1:
-        address = address.split(',')[1].strip()
-        # если можно выделить улицу и дом
-        if len(address.split()) != 1:
-            tmp = address.split()
-            for word in tmp:
-                for key, value in street_types_dict.items():
-                    if word in value:
-                        street_type = key
-                        tmp.remove(word)
-                        address = (' '.join(tmp))
-    address = address.title()
-    if street_type:
-        user_address =(
-            StreetsBook.streets.filter(street_name=address,
-                                       street_type=StreetType.street_types.get(street_type=street_type)
-                                       ))
-    else:
-        user_address = (StreetsBook.streets.filter(street_name=address))
-    return user_address
-
-
-def top_level3(user):
-    # NEED TOP OF LEVELS
-    if Attends.attends.filter(user_id=user).exists():
-        top = Attends.attends.filter(user_id=user)
-    else:
-        top = Attends.attends.order_by().annotate(Count('group_id'))[:100]
-
-    groups = Groups.groups.filter(pk__in=[i.group_id.pk for i in top])
-    level3 = ActivityLevel3.levels.filter(pk__in=[i.level.pk for i in groups]).order_by().annotate(Count('level'))
-    print(level3[:5])
-
-
-
 
 
 # а  если 1-Я

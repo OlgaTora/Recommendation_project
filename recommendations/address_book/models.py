@@ -1,5 +1,7 @@
 from django.db import models
 
+from data_transform.street_types_dict import street_types_dict
+
 
 class AdministrativeDistrict(models.Model):
     admin_district_name = models.CharField(max_length=255)
@@ -35,3 +37,30 @@ class StreetsBook(models.Model):
 
     def __str__(self):
         return f'{self.street_name}'
+
+    @staticmethod
+    def address_transform(address: str):
+        """Funcion for check user address in address book"""
+        street_type = ''
+        # если адрес - одно слово
+        if len(address.split(',')) != 1:
+            address = address.split(',')[1].strip()
+            # если можно выделить улицу и дом
+            if len(address.split()) != 1:
+                tmp = address.split()
+                for word in tmp:
+                    for key, value in street_types_dict.items():
+                        if word in value:
+                            street_type = key
+                            tmp.remove(word)
+                            address = (' '.join(tmp))
+        address = address.title()
+        if street_type:
+            user_address = (
+                StreetsBook.streets.filter(street_name=address,
+                                           street_type=StreetType.street_types.get(street_type=street_type)
+                                           ))
+        else:
+            user_address = (StreetsBook.streets.filter(street_name=address))
+        return user_address
+

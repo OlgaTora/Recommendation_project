@@ -1,11 +1,15 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+
+from django.db.models import Count
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 # Стоп-слова
 import nltk
 from nltk.corpus import stopwords
+
+from catalog.models import Attends, Groups, ActivityLevel3
 
 today = datetime.today()
 
@@ -40,3 +44,4 @@ class RecModel:
         similarity_score = similarity_score[1:10]
         plan_indices = [i[0] for i in similarity_score]
         # return (df['numgroup'].iloc[plan_indices])
+
