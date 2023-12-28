@@ -58,6 +58,11 @@ class Groups(models.Model):
     def __str__(self):
         return f'{self.level}'
 
+    # @staticmethod
+    # def get_active_online_groups():
+    #     active_online_groups = Groups.groups.filter(level__contains='ОНЛАЙН').exclude(schedule_active='')
+    #     return active_online_groups
+
 
 class Attends(models.Model):
     uniq_id = models.IntegerField()
@@ -65,8 +70,8 @@ class Attends(models.Model):
     user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
     online = models.BooleanField()
     date_attend = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.CharField(max_length=32)
+    end_time = models.CharField(max_length=32)
     attends = models.Manager()
 
     def __str__(self):
@@ -77,6 +82,6 @@ class Attends(models.Model):
         """Function for get top-10 level3 in attends"""
         top = Attends.attends.values('group_id__level') \
                   .annotate(count_level3=Count('group_id__level')) \
-                  .order_by('-count_level3')[:10]
+                  .order_by('-count_level3')[:5]
         levels3 = ActivityLevel3.levels.filter(pk__in=[i.get('group_id__level') for i in top])
         return levels3

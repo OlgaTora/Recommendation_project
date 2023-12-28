@@ -5,43 +5,43 @@ from django.db.models import Count, Q
 from django.urls import reverse
 
 from address_book.models import StreetsBook
-from catalog.models import Groups, ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Attends
+from catalog.models import Groups, ActivityTypes, Attends
 from .forms import AnswerForm
-from .models import Question, ResultOfTest, TestResultDescription
+from .models import Question, ResultOfTest, TestResultDescription, VotesGroups
 from django.contrib import messages
 
 
 @login_required(redirect_field_name='/')
 def recommendations(request):
     result = ResultOfTest.get_results(request.user)
-    # НАДО СДЕЛАТЬ ЧТОБ В ТАБЛИЦЫ БЫЛИ ДАННЫЕ а не тут иф елс писать
-    if result < 16:
-        description = TestResultDescription.descriptions.get(pk=1)
-        activity_type = ActivityTypes.types.get(pk=1)
-    elif 16 < result < 33:
-        description = TestResultDescription.descriptions.get(pk=2)
-        activity_type = ActivityTypes.types.get(pk=2)
-    else:
-        description = TestResultDescription.descriptions.get(pk=3)
-        activity_type = ActivityTypes.types.get(pk=3)
+    votes_group = VotesGroups.votes_groups.get(votes=result)
+    description = TestResultDescription.descriptions.get(pk=votes_group.result_group.pk)
+    activity_type = ActivityTypes.types.get(pk=description.activity_type.pk)
+    level3_top = Attends.get_top_level3().filter(activity_type__activity_type__activity_type=activity_type)
 
-    level1 = ActivityLevel1.levels.filter(activity_type=activity_type)
-    level2 = ActivityLevel2.levels.filter(activity_type__in=[i.pk for i in level1])
-    level3_top = Attends.get_top_level3().filter(activity_type__in=[i.pk for i in level2])
+    # отфильтровать группы offline/online отдельно
+    level3_offline = level3_top.exclude(level__contains='ОНЛАЙН')
     level3_online = level3_top.filter(level__contains='ОНЛАЙН')
 
     # район по адресу пользователя
     user_address = StreetsBook.address_transform(request.user.address)
-    user_address = user_address.first()
+    # так как нет инфо по району пользователя, берем все улицы с таким названием
+    user_address = list(user_address)
+
     # если адрес есть в базе адресов Москвы
     if user_address:
-        district = user_address.district.admin_district.admin_district_name
+        district = [i.district.admin_district.admin_district_name for i in user_address]
+        # district = user_address.district.admin_district.admin_district_name
         # группы по типу активности из теста и из района пользователя
-        groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3_top]) & Groups.groups.filter(
-            Q(districts__contains=district) | Q(level__in=[i.pk for i in level3_online]))
+        groups_list = (Groups.groups.filter(
+                                        Q(level__in=[i.pk for i in level3_offline], districts__in=[district]) |
+                                        Q(level__in=[i.pk for i in level3_online])
+                                        )
+                       .exclude(schedule_active='')
                        .order_by('uniq_id'))
     else:
         groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3_top])
+                       .exclude(schedule_active='')
                        .order_by('uniq_id'))
 
     # сделать высплывающее окно с районом? есть улицы с одинаковым названием
@@ -52,7 +52,7 @@ def recommendations(request):
     # else:
     #     return redirect('users:district_choice')
 
-    paginator = Paginator(groups_list, 3)
+    paginator = Paginator(groups_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -66,7 +66,6 @@ def recommendations(request):
 def question_form(request, page_num=1):
     if ResultOfTest.results.filter(user=request.user).exists():
         if ResultOfTest.results.filter(user=request.user).count() == 10:
-            # messages.error(request, 'Вы уже отвечали на вопросы теста.')
             return redirect('rec_app:recommendations')
 
     message = 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'
@@ -101,6 +100,49 @@ def start_test(request):
             ResultOfTest.results.filter(user=request.user).delete()
     return redirect(reverse('rec_app:question_and_answers', args=(1,)))
 
+
+#
+# class DeleteObject(LoginRequiredMixin, DeleteView):
+#     model = Object
+#     template_name = 'todoList/home.html'
+#
+#     def get(self, request, *args, **kwargs):
+#         obj = get_object_or_404(Object, id=self.kwargs.get('id'))
+#         # Check for uncompleted tasks
+#         uncompleted = Data.objects.filter(objects=obj).filter(state=False).count()
+#
+#         if uncompleted == 0:
+#             obj.delete()
+#         return redirect('home')
+
+"""
+<a class="dropdown-item" data-toggle="modal" data-target="#taskModal" onclick="getUrl('{% url 'del_obj' object.id %}')">Delete</a>
+ 
+<script language="javascript">
+    function getUrl(url) {
+        del_obj.setAttribute('href', url);
+    }
+    function goto() {
+        var url = del_obj.getAttribute('href');
+        return location.href = url;
+    }
+</script>
+ 
+<div id="taskModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirm deletion</h4>
+            </div>
+            <div class="modal-body">Are your sure you want to delete?</div>
+            <div class="modal-footer">
+                <a id="del_obj" class="btn btn-danger" type="button" data-dismiss="modal" href="" onclick="goto()">Delete</a>
+                <a class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+"""
 
 # а  если 1-Я
 # user_address = request.user.address.split(',')[1].strip()

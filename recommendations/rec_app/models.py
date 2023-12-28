@@ -5,20 +5,16 @@ from users.models import Profile
 
 
 class Question(models.Model):
-    question_text = models.CharField(max_length=255, default='')
+    question_text = models.CharField(max_length=255)
     questions = models.Manager()
-
-    # def get_choices(self):
-    #     return [(choice.votes, choice.choice_text) for choice in Choice.choices.filter(question=self)]
 
     def __str__(self):
         return self.question_text
 
 
 class Choice(models.Model):
-    # question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=255)
-    votes = models.IntegerField(default=0)
+    votes = models.IntegerField()
     choices = models.Manager()
 
     def __str__(self):
@@ -47,3 +43,12 @@ class ResultOfTest(models.Model):
         for result in results:
             resume += result.answer.votes
         return resume
+
+
+class VotesGroups(models.Model):
+    result_group = models.ForeignKey(TestResultDescription, on_delete=models.CASCADE)
+    votes = models.IntegerField()
+    votes_groups = models.Manager()
+
+    def __str__(self):
+        return f'{self.votes}'
