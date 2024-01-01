@@ -1,6 +1,5 @@
 from django import forms
 
-from address_book.models import AdministrativeDistrict
 from .models import Question, Choice, ResultOfTest
 
 

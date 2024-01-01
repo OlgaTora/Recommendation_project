@@ -2,34 +2,49 @@
 {% load django_bootstrap5 %}
 {% block content %}
 <div class="container-fluid">
-    <h1 class="text-center">Выберите раздел по вкусу: </h1>
+    <div class="row my-5">
+        <h1 class="text-center">Выберите раздел по вкусу: </h1>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="col-md-3">
+        <h3> {{ message }}</h3>
+        <form action="" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <button type="submit" class="btn btn-success btn-block">Искать</button>
+        </form>
+    </div>
 </div>
 
-<div class="container-fluid">
-    <div class="row my-5">
+
+<div class="d-flex justify-content-center">
+    <div class="row my-3">
         <div class="col-md-12">
             <ul class="list-group list-group-horizontal">
                 {% for activity_type in activity_types %}
                 <li class="list-group-item list-group-item-dark" style="font-size: 50px">
-                    <a href="{% url 'catalog:type_content' activity_type.id %}">{{ activity_type.activity_type }}</a>
+                    <a class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                       href="{% url 'catalog:type_content' activity_type.id %}">{{ activity_type.activity_type }}</a>
                 </li>
                 {% endfor %}
             </ul>
         </div>
     </div>
 </div>
-<div class="container">
-    <div class="row my-5">
-        <div class="col-md-6">
-                <h3> {{ message }}</h3>
-            <form action="" method="post">
-                {% csrf_token %}
-                {% bootstrap_form form %}
-                <input type="submit" value="Искать">
-            </form>
-        </div>
+
+<div class="container item-flex">
+    <div class=img-fluid">
+        <img src="/static/catalog/images/chess.jpg" width="400px">
+    </div>
+    <div class="img-fluid">
+        <img src="/static/catalog/images/sing.jpg" width="400px">
+    </div>
+    <div class="img-fluid">
+        <img src="/static/catalog/images/swim.jpg" width="400px">
     </div>
 </div>
+
 {% endblock %}
 
 

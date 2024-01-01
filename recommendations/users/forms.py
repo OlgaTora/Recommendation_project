@@ -1,21 +1,29 @@
 from datetime import timedelta, date
+
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 
-from address_book.models import StreetsBook, AdministrativeDistrict
+from address_book.models import StreetsBook, District, StreetType
 from .models import Profile
 
 
 class SignupForm(forms.Form):
-    username = forms.CharField(max_length=12, label='Имя')
+    username = forms.CharField(max_length=12, label='Имя', initial='Введите логин для регистрации')
     password = forms.CharField(max_length=20, widget=forms.PasswordInput(), label='Пароль')
-    # confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput())
+    confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput(), label='Подтвердите пароль')
     birth_date = forms.DateField(initial=date.today,
                                  widget=forms.DateInput(attrs={'class': 'date'}), label='Дата рождения')
-    address = forms.ModelChoiceField(queryset=StreetsBook.streets.all(), required=False, label='Адрес')
+    # district = forms.ModelChoiceField(queryset=District.districts.all(), label='Выберите район из списка:')
+    address = forms.ModelChoiceField(queryset=StreetsBook.streets.all(), label='Выберите улицу из списка:')
+    # street_type = forms.ModelChoiceField(queryset=StreetType.street_types.all(), label='Выберите тип адреса из списка:')
 
     gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('Мужчина', 'Мужчина'), ('Женщина', 'Женщина')],
-                               label='Пол')
+                               label='Укажите Ваш пол')
+
+    def clean_address(self):
+        address = self.cleaned_data['address']
+        return address
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -34,19 +42,18 @@ class SignupForm(forms.Form):
             raise forms.ValidationError('Неверная дата рождения.')
         return birth_date
 
-    # def clean_password(self):
-    #     cleaned_data = self.cleaned_data
-    #     password = self.cleaned_data('password')
-    #     confirm_password = cleaned_data.get('confirm_password')
-    #
-    #     if password != confirm_password:
-    #         raise forms.ValidationError("Passwords must be same")
-    #     else:
-    #         return cleaned_data
+    def clean(self):
+        data = self.cleaned_data
+        password = data.get('password')
+        validate_password(password)
+        if password != data.get('confirm_password'):
+            raise forms.ValidationError('Пароли должны быть одинаковыми')
+        else:
+            return data
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=12, label='Логин')
+    username = forms.CharField(max_length=12, label='Логин', initial='Введите Ваш логин для входа')
     password = forms.CharField(widget=forms.PasswordInput, label='Пароль')
 
     def clean(self, *args, **kwargs):
