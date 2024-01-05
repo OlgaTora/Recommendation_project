@@ -18,6 +18,7 @@ class Command(BaseCommand):
         with open('files/moscow_streets.csv', 'r', encoding='utf-8') as address_base:
             address_list = []
             file_reader = csv.reader(address_base, delimiter=',')
+            next(file_reader)
             for row in file_reader:
                 address_list.append(row)
 
@@ -53,13 +54,13 @@ class Command(BaseCommand):
                 district_name=district_list[district][1],
             )
         # fill streets
-        for street in range(len(address_list)):
-            district = District.districts.filter(
-                district_name=address_list[street][4]).first()
-            street_type = StreetType.street_types.filter(street_type=address_list[street][1]).first()
-            StreetsBook.streets.create(
-                district=district,
-                street_type=street_type,
-                street_name=address_list[street][0],
-                index=address_list[street][2]
-            )
+        # for street in range(len(address_list)):
+        #     district = District.districts.filter(
+        #         district_name=address_list[street][4]).first()
+        #     street_type = StreetType.street_types.filter(street_type=address_list[street][1]).first()
+        #     StreetsBook.streets.create(
+        #         district=district,
+        #         street_type=street_type,
+        #         street_name=address_list[street][0],
+        #         index=address_list[street][2]
+        #     )

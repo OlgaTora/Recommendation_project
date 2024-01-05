@@ -1,4 +1,5 @@
 from django.db import models
+from smart_selects.db_fields import ChainedForeignKey
 
 from data_transform.street_types_dict import street_types_dict
 
@@ -12,7 +13,7 @@ class AdministrativeDistrict(models.Model):
 
 
 class District(models.Model):
-    admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
+    # admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
     district_name = models.CharField(max_length=255)
     districts = models.Manager()
 
@@ -28,15 +29,46 @@ class StreetType(models.Model):
         return f'{self.street_type}'
 
 
-class StreetsBook(models.Model):
-    street_type = models.ForeignKey(StreetType, on_delete=models.CASCADE, default=None)
-    district = models.ForeignKey(District, on_delete=models.CASCADE, default=None)
+class Streets(models.Model):
     street_name = models.CharField(max_length=255)
-    index = models.CharField(max_length=255)
     streets = models.Manager()
 
     def __str__(self):
         return f'{self.street_name}'
+
+
+class StreetsBook(models.Model):
+    admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
+    district = ChainedForeignKey(
+        District,
+        chained_field="admin_district",
+        chained_model_field="admin_district",
+        show_all=False,
+        auto_choose=True,
+        sort=True)
+    street_name = ChainedForeignKey(
+        Streets,
+        chained_field="district",
+        chained_model_field="district",
+        show_all=False,
+        auto_choose=True,
+        sort=True)
+    street_type = ChainedForeignKey(
+        StreetType,
+        chained_field="street_name",
+        chained_model_field="street_name",
+        show_all=False,
+        auto_choose=True,
+        sort=True)
+
+    # street_type = models.ForeignKey(StreetType, on_delete=models.CASCADE, default=None)
+    # district = models.ForeignKey(District, on_delete=models.CASCADE, default=None)
+    # street_name = models.CharField(max_length=255)
+    index = models.CharField(max_length=255)
+    streets_book = models.Manager()
+
+    def __str__(self):
+        return f'{self.street_name} {self.street_type} {self.district}'
 
     @staticmethod
     def address_transform(address: str):
@@ -63,4 +95,3 @@ class StreetsBook(models.Model):
         else:
             user_address = (StreetsBook.streets.filter(street_name=address))
         return user_address
-

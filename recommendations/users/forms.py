@@ -2,7 +2,7 @@ from datetime import timedelta, date
 from django import forms
 from django.utils import timezone
 
-from address_book.models import StreetsBook, AdministrativeDistrict
+from address_book.models import StreetsBook, AdministrativeDistrict, Streets
 from .models import Profile
 
 
@@ -12,7 +12,7 @@ class SignupForm(forms.Form):
     # confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput())
     birth_date = forms.DateField(initial=date.today,
                                  widget=forms.DateInput(attrs={'class': 'date'}), label='Дата рождения')
-    address = forms.ModelChoiceField(queryset=StreetsBook.streets.all(), required=False, label='Адрес')
+    address = forms.ModelChoiceField(queryset=Streets.streets.all(), required=False, label='Адрес')
 
     gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('Мужчина', 'Мужчина'), ('Женщина', 'Женщина')],
                                label='Пол')
