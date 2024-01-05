@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'address_book.apps.AddressBookConfig',
     'django_bootstrap5',
+    'smart_selects',
 ]
 
 MIDDLEWARE = [
@@ -157,3 +158,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.Profile'
 
 # CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+USE_DJANGO_JQUERY = True
