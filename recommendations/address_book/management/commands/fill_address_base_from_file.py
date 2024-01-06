@@ -29,7 +29,8 @@ class Command(BaseCommand):
 
         for row in address_list:
             admin_district_list.add(row[3])
-            district_list.add(row[4])
+            full_row_district = (row[3], row[4])
+            district_list.add(full_row_district)
             street_types_list.add(row[1])
             street_names_list.add(row[0])
 
@@ -45,10 +46,11 @@ class Command(BaseCommand):
         #         street_type=street_type,
         #     )
         #
-        # # fill districts
+        # fill districts
         # for district in district_list:
         #     District.districts.create(
-        #         district_name=district
+        #         admin_district=AdministrativeDistrict.admin_districts.get(admin_district_name=district[0]),
+        #         district_name=district[1]
         #     )
         # # district_list = list(unique_everseen(district_list))
         #

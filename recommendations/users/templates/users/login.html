@@ -8,8 +8,9 @@
             <form action="" method="post">
                 {% csrf_token %}
                 {{ form.media.js }}
-                {% bootstrap_form form %}
-                <input type="submit" value="Подтвердите">
+                {% bootstrap_form signup_form %}
+                {% bootstrap_form address_form %}
+                <button type="submit" class="btn btn-success btn-block">Подтвердите</button>
             </form>
         </div>
     </div>

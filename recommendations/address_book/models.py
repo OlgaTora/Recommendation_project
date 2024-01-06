@@ -13,7 +13,7 @@ class AdministrativeDistrict(models.Model):
 
 
 class District(models.Model):
-    # admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
+    admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
     district_name = models.CharField(max_length=255)
     districts = models.Manager()
 
@@ -42,7 +42,7 @@ class StreetsBook(models.Model):
     district = ChainedForeignKey(
         District,
         chained_field="admin_district",
-        chained_model_field="administrativedistrict",
+        chained_model_field="admin_district",
         show_all=False,
         auto_choose=True,
         sort=True)
@@ -67,9 +67,6 @@ class StreetsBook(models.Model):
     index = models.CharField(max_length=255)
     streets_book = models.Manager()
 
-    def __str__(self):
-        return f'{self.street_name} {self.street_type} {self.district}'
-
     @staticmethod
     def address_transform(address: str):
         """Funcion for check user address in address book"""
@@ -89,9 +86,9 @@ class StreetsBook(models.Model):
         address = address.title()
         if street_type:
             user_address = (
-                StreetsBook.streets.filter(street_name=address,
-                                           street_type=StreetType.street_types.get(street_type=street_type)
-                                           ))
+                StreetsBook.streets_book.filter(street_name=Streets.streets.get(street_name=address),
+                                                street_type=StreetType.street_types.get(street_type=street_type)
+                                                ))
         else:
-            user_address = (StreetsBook.streets.filter(street_name=address))
+            user_address = (StreetsBook.streets_book.filter(street_name=Streets.streets.get(street_name=address)))
         return user_address

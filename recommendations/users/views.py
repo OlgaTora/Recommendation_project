@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from users.forms import SignupForm, LoginForm
+from users.forms import AddressForm, LoginForm, SignupForm
 from users.models import Profile
 
 
@@ -24,9 +24,12 @@ def index(request):
 def signup(request):
     if not request.user.is_authenticated:
         message = 'Заполните данные о себе, пожалуйста'
-        form = SignupForm(request.POST or None)
-        if form.is_valid():
-            data = form.cleaned_data
+        address_form = AddressForm(request.POST or None)
+        signup_form = SignupForm(request.POST or None)
+
+        if address_form.is_valid() and signup_form.is_valid():
+            data = signup_form.cleaned_data
+            address = address_form.cleaned_data
             Profile.objects.create_user(
                 username=data['username'],
                 password=data['password'],
@@ -42,7 +45,7 @@ def signup(request):
         return render(
             request,
             'users/login.html',
-            {'form': form, 'message': message}
+            {'signup_form': signup_form, 'address_form': address_form, 'message': message}
         )
     else:
         return redirect(reverse('users:index'))
