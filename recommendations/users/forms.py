@@ -1,8 +1,9 @@
 from datetime import timedelta, date
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 
-from address_book.models import StreetsBook, AdministrativeDistrict, Streets
+from address_book.models import StreetsBook, AdministrativeDistrict, Streets, StreetType
 from .models import Profile
 
 
@@ -12,7 +13,9 @@ class SignupForm(forms.Form):
     # confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput())
     birth_date = forms.DateField(initial=date.today,
                                  widget=forms.DateInput(attrs={'class': 'date'}), label='Дата рождения')
-    address = forms.ModelChoiceField(queryset=Streets.streets.all(), required=False, label='Адрес')
+
+    address = forms.ModelChoiceField(queryset=StreetsBook.streets_book.all(), required=False, label='Адрес')
+    types = forms.ModelChoiceField(queryset=StreetsBook.streets_book.all(), required=False, label='Type')
 
     gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('Мужчина', 'Мужчина'), ('Женщина', 'Женщина')],
                                label='Пол')
@@ -34,6 +37,14 @@ class SignupForm(forms.Form):
             raise forms.ValidationError('Неверная дата рождения.')
         return birth_date
 
+    def clean(self):
+        data = self.cleaned_data
+        password = data.get('password')
+        validate_password(password)
+        if password != data.get('confirm_password'):
+            raise forms.ValidationError('Пароли должны быть одинаковыми')
+        else:
+            return data
     # def clean_password(self):
     #     cleaned_data = self.cleaned_data
     #     password = self.cleaned_data('password')

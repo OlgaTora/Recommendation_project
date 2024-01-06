@@ -34,15 +34,15 @@ def recommendations(request):
         # district = user_address.district.admin_district.admin_district_name
         # группы по типу активности из теста и из района пользователя
         groups_list = (Groups.groups.filter(
-                                        Q(level__in=[i.pk for i in level3_offline], districts__in=[district]) |
-                                        Q(level__in=[i.pk for i in level3_online])
-                                        )
-                       .exclude(schedule_active='')
-                       .order_by('uniq_id'))
+            Q(level__in=[i.pk for i in level3_offline], districts__in=[district]) |
+            Q(level__in=[i.pk for i in level3_online])
+        )
+                       .exclude(schedule_active=''))
+        # .order_by('uniq_id'))
     else:
         groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3_top])
-                       .exclude(schedule_active='')
-                       .order_by('uniq_id'))
+                       .exclude(schedule_active=''))
+        # .order_by('uniq_id'))
 
     # сделать высплывающее окно с районом? есть улицы с одинаковым названием
     # в левел3 должны быть топ активностей для данного юзера
@@ -117,7 +117,7 @@ def start_test(request):
 
 """
 <a class="dropdown-item" data-toggle="modal" data-target="#taskModal" onclick="getUrl('{% url 'del_obj' object.id %}')">Delete</a>
- 
+
 <script language="javascript">
     function getUrl(url) {
         del_obj.setAttribute('href', url);
@@ -127,7 +127,7 @@ def start_test(request):
         return location.href = url;
     }
 </script>
- 
+
 <div id="taskModal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">

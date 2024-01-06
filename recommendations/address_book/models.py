@@ -42,7 +42,7 @@ class StreetsBook(models.Model):
     district = ChainedForeignKey(
         District,
         chained_field="admin_district",
-        chained_model_field="admin_district",
+        chained_model_field="administrativedistrict",
         show_all=False,
         auto_choose=True,
         sort=True)

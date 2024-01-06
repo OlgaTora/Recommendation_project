@@ -5,7 +5,7 @@ import django
 from django.core.management.base import BaseCommand
 from more_itertools import unique_everseen
 
-from address_book.models import StreetsBook, District, AdministrativeDistrict, StreetType
+from address_book.models import StreetsBook, District, AdministrativeDistrict, StreetType, Streets
 
 
 class Command(BaseCommand):
@@ -23,44 +23,52 @@ class Command(BaseCommand):
                 address_list.append(row)
 
         admin_district_list = set()
-        district_list = []
+        district_list = set()
         street_types_list = set()
+        street_names_list = set()
 
         for row in address_list:
             admin_district_list.add(row[3])
-            full_row_district = [row[3], row[4]]
-            district_list.append(full_row_district)
+            district_list.add(row[4])
             street_types_list.add(row[1])
+            street_names_list.add(row[0])
 
-        # fill admin districts
-        for admin_district in admin_district_list:
-            AdministrativeDistrict.admin_districts.create(
-                admin_district_name=admin_district,
-            )
-
-        # fill street types
-        for street_type in street_types_list:
-            StreetType.street_types.create(
-                street_type=street_type,
-            )
-
-        # fill districts
-        district_list = list(unique_everseen(district_list))
-        for district in range(len(district_list)):
-            admin_district = AdministrativeDistrict.admin_districts.filter(
-                admin_district_name=district_list[district][0]).first()
-            District.districts.create(
-                admin_district=admin_district,
-                district_name=district_list[district][1],
-            )
-        # fill streets
-        # for street in range(len(address_list)):
-        #     district = District.districts.filter(
-        #         district_name=address_list[street][4]).first()
-        #     street_type = StreetType.street_types.filter(street_type=address_list[street][1]).first()
-        #     StreetsBook.streets.create(
-        #         district=district,
-        #         street_type=street_type,
-        #         street_name=address_list[street][0],
-        #         index=address_list[street][2]
+        # # fill admin districts
+        # for admin_district in admin_district_list:
+        #     AdministrativeDistrict.admin_districts.create(
+        #         admin_district_name=admin_district,
         #     )
+        #
+        # # fill street types
+        # for street_type in street_types_list:
+        #     StreetType.street_types.create(
+        #         street_type=street_type,
+        #     )
+        #
+        # # fill districts
+        # for district in district_list:
+        #     District.districts.create(
+        #         district_name=district
+        #     )
+        # # district_list = list(unique_everseen(district_list))
+        #
+        # # fill streets
+        # for street in street_names_list:
+        #     Streets.streets.create(
+        #         street_name=street
+        #     )
+
+        for address in range(len(address_list)):
+            admin_district = AdministrativeDistrict.admin_districts.get(admin_district_name=address_list[address][3])
+            district = District.districts.get(district_name=address_list[address][4])
+            street_type = StreetType.street_types.get(street_type=address_list[address][1])
+            street_name = Streets.streets.get(street_name=address_list[address][0],
+                                              street_name__contains=address_list[address][0])
+
+            StreetsBook.streets_book.create(
+                admin_district=admin_district,
+                district=district,
+                street_type=street_type,
+                street_name=street_name,
+                index=address_list[address][2]
+            )

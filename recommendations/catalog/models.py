@@ -55,6 +55,9 @@ class Groups(models.Model):
     schedule_plan = models.TextField(null=True)
     groups = models.Manager()
 
+    class Meta:
+        ordering = ('-uniq_id',)
+
     def __str__(self):
         return f'{self.level}'
 
