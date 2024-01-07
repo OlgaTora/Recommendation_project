@@ -3,11 +3,11 @@
 {% block content %}
 <h1>{{ message }}</h1>
 <div class="container">
-    <div class="row my-5">
-        <div class="col-md-12">
+    <div class="row my-2">
+        <div class="col-md-8">
             <form action="" method="post">
                 {% csrf_token %}
-                {{ form.media.js }}
+                {{ address_form.media.js }}
                 {% bootstrap_form signup_form %}
                 {% bootstrap_form address_form %}
                 <button type="submit" class="btn btn-success btn-block">Подтвердите</button>

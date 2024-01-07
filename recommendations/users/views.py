@@ -24,17 +24,17 @@ def index(request):
 def signup(request):
     if not request.user.is_authenticated:
         message = 'Заполните данные о себе, пожалуйста'
-        address_form = AddressForm(request.POST or None)
         signup_form = SignupForm(request.POST or None)
+        address_form = AddressForm(request.POST or None)
 
-        if address_form.is_valid() and signup_form.is_valid():
+        if signup_form.is_valid() and address_form.is_valid():
             data = signup_form.cleaned_data
             address = address_form.cleaned_data
             Profile.objects.create_user(
                 username=data['username'],
                 password=data['password'],
                 birth_date=data['birth_date'],
-                address=data['address'],
+                # address=data['address'],
                 gender=data['gender'])
             user = authenticate(username=data['username'],
                                 password=data['password'])

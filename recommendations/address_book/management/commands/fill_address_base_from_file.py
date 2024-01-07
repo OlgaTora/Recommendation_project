@@ -32,7 +32,8 @@ class Command(BaseCommand):
             full_row_district = (row[3], row[4])
             district_list.add(full_row_district)
             street_types_list.add(row[1])
-            street_names_list.add(row[0])
+            full_row_streets = (row[0], row[4], row[1])
+            street_names_list.add(full_row_streets)
 
         # # fill admin districts
         # for admin_district in admin_district_list:
@@ -57,16 +58,20 @@ class Command(BaseCommand):
         # # fill streets
         # for street in street_names_list:
         #     Streets.streets.create(
-        #         street_name=street
+        #         district=District.districts.get(district_name=street[1]),
+        #         street_type=StreetType.street_types.get(street_type=street[2]),
+        #         street_name=street[0]
         #     )
 
         for address in range(len(address_list)):
             admin_district = AdministrativeDistrict.admin_districts.get(admin_district_name=address_list[address][3])
             district = District.districts.get(district_name=address_list[address][4])
             street_type = StreetType.street_types.get(street_type=address_list[address][1])
-            street_name = Streets.streets.get(street_name=address_list[address][0],
-                                              street_name__contains=address_list[address][0])
-
+            street_name = Streets.streets.get(
+                street_name=address_list[address][0],
+                district=district,
+                street_type=street_type,
+                street_name__contains=address_list[address][0])
             StreetsBook.streets_book.create(
                 admin_district=admin_district,
                 district=district,

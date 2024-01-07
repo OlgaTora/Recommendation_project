@@ -53,7 +53,6 @@ class SignupForm(forms.ModelForm):
     #         return data
 
 
-
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=12, label='Логин')
     password = forms.CharField(widget=forms.PasswordInput, label='Пароль')

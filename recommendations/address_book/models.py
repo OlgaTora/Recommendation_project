@@ -5,8 +5,11 @@ from data_transform.street_types_dict import street_types_dict
 
 
 class AdministrativeDistrict(models.Model):
-    admin_district_name = models.CharField(max_length=255)
+    admin_district_name = models.CharField(max_length=255, verbose_name='Название округа')
     admin_districts = models.Manager()
+
+    class Meta:
+        verbose_name = 'Округ'
 
     def __str__(self):
         return f'{self.admin_district_name}'
@@ -17,6 +20,9 @@ class District(models.Model):
     district_name = models.CharField(max_length=255)
     districts = models.Manager()
 
+    class Meta:
+        verbose_name = 'Район'
+
     def __str__(self):
         return f'{self.district_name}'
 
@@ -25,13 +31,21 @@ class StreetType(models.Model):
     street_type = models.CharField(max_length=255)
     street_types = models.Manager()
 
+    class Meta:
+        verbose_name = 'Тип улицы'
+
     def __str__(self):
         return f'{self.street_type}'
 
 
 class Streets(models.Model):
+    district = models.ForeignKey(District, on_delete=models.CASCADE, default=None)
+    street_type = models.ForeignKey(StreetType, on_delete=models.CASCADE, default=None)
     street_name = models.CharField(max_length=255)
     streets = models.Manager()
+
+    class Meta:
+        verbose_name = 'Улица'
 
     def __str__(self):
         return f'{self.street_name}'
@@ -66,6 +80,9 @@ class StreetsBook(models.Model):
     # street_name = models.CharField(max_length=255)
     index = models.CharField(max_length=255)
     streets_book = models.Manager()
+
+    class Meta:
+        verbose_name = 'Адресная книга'
 
     @staticmethod
     def address_transform(address: str):
