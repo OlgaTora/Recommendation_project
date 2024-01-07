@@ -20,8 +20,8 @@ def recommendations(request):
     level3_top = Attends.get_top_level3().filter(activity_type__activity_type__activity_type=activity_type)
 
     # отфильтровать группы offline/online отдельно
-    level3_offline = level3_top.exclude(level__icontains='ОНЛАЙН')[:5]
-    level3_online = level3_top.filter(level__icontains='ОНЛАЙН')[:5]
+    level3_offline = level3_top.exclude(level__icontains='ОНЛАЙН')[:3]
+    level3_online = level3_top.filter(level__icontains='ОНЛАЙН')[:3]
 
     # район по адресу пользователя
     user_address = StreetsBook.address_transform(request.user.address)

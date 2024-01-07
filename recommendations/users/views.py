@@ -34,7 +34,7 @@ def signup(request):
                 username=data['username'],
                 password=data['password'],
                 birth_date=data['birth_date'],
-                # address=data['address'],
+                address=f"город Москва, {address['street_name']}",
                 gender=data['gender'])
             user = authenticate(username=data['username'],
                                 password=data['password'])

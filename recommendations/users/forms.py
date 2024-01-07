@@ -10,7 +10,7 @@ from .models import Profile
 class AddressForm(forms.ModelForm):
     class Meta:
         model = StreetsBook
-        exclude = ('index',)
+        exclude = ('index', 'street_type',)
 
 
 class SignupForm(forms.ModelForm):

@@ -6,7 +6,7 @@ from data_transform.street_types_dict import street_types_dict
 
 class AdministrativeDistrict(models.Model):
     admin_district_name = models.CharField(max_length=255, verbose_name='Название округа')
-    admin_districts = models.Manager()
+    objects = models.Manager()
 
     class Meta:
         verbose_name = 'Округ'
@@ -18,7 +18,7 @@ class AdministrativeDistrict(models.Model):
 class District(models.Model):
     admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
     district_name = models.CharField(max_length=255)
-    districts = models.Manager()
+    objects = models.Manager()
 
     class Meta:
         verbose_name = 'Район'
@@ -29,7 +29,7 @@ class District(models.Model):
 
 class StreetType(models.Model):
     street_type = models.CharField(max_length=255)
-    street_types = models.Manager()
+    objects = models.Manager()
 
     class Meta:
         verbose_name = 'Тип улицы'
@@ -42,13 +42,13 @@ class Streets(models.Model):
     district = models.ForeignKey(District, on_delete=models.CASCADE, default=None)
     street_type = models.ForeignKey(StreetType, on_delete=models.CASCADE, default=None)
     street_name = models.CharField(max_length=255)
-    streets = models.Manager()
+    objects = models.Manager()
 
     class Meta:
         verbose_name = 'Улица'
 
     def __str__(self):
-        return f'{self.street_name}'
+        return f'{self.street_name} {self.street_type}'
 
 
 class StreetsBook(models.Model):
@@ -67,19 +67,17 @@ class StreetsBook(models.Model):
         show_all=False,
         auto_choose=True,
         sort=True)
-    street_type = ChainedForeignKey(
-        StreetType,
-        chained_field="street_name",
-        chained_model_field="street_name",
-        show_all=False,
-        auto_choose=True,
-        sort=True)
+    # street_type = ChainedForeignKey(
+    #     StreetType,
+    #     chained_field="street_name",
+    #     chained_model_field="streets",
+    #     show_all=False,
+    #     auto_choose=True,
+    #     sort=True)
 
-    # street_type = models.ForeignKey(StreetType, on_delete=models.CASCADE, default=None)
-    # district = models.ForeignKey(District, on_delete=models.CASCADE, default=None)
-    # street_name = models.CharField(max_length=255)
+    street_type = models.ForeignKey(StreetType, on_delete=models.CASCADE, default=None)
     index = models.CharField(max_length=255)
-    streets_book = models.Manager()
+    objects = models.Manager()
 
     class Meta:
         verbose_name = 'Адресная книга'
@@ -100,12 +98,12 @@ class StreetsBook(models.Model):
                             street_type = key
                             tmp.remove(word)
                             address = (' '.join(tmp))
-        address = address.title()
+        # address = address.title()
         if street_type:
             user_address = (
-                StreetsBook.streets_book.filter(street_name=Streets.streets.get(street_name=address),
-                                                street_type=StreetType.street_types.get(street_type=street_type)
+                StreetsBook.objects.filter(street_name=Streets.objects.get(street_name=address),
+                                                street_type=StreetType.objects.get(street_type=street_type)
                                                 ))
         else:
-            user_address = (StreetsBook.streets_book.filter(street_name=Streets.streets.get(street_name=address)))
+            user_address = (StreetsBook.objects.filter(street_name=Streets.objects.get(street_name=address)))
         return user_address
