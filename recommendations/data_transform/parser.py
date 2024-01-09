@@ -10,21 +10,8 @@ class Parser:
     def __init__(self):
         self.df = pd.DataFrame(columns=['Наименование', 'Тип', 'Индекс', 'Административный округ', 'Район'])
 
-    #
-    # def create_dataframe(self):
-    #     response = requests.get(f'{URL}.html')
-    #     soup = BeautifulSoup(response.text)
-    #     table = soup.find('table', {'class': 'table table-striped table-bordered'})
-    #     headers = []
-    #     for i in table.find_all('th'):
-    #         title = i.text
-    #         headers.append(title)
-    #     df = pd.DataFrame(columns=headers)
-    #     return df
-
     def get_data(self, page_number):
         response = requests.get(f'{URL}?page={page_number}')
-        # response = requests.get(f'{URL}')
         soup = BeautifulSoup(response.text, features='html.parser')
         all_items = soup.find('table', {'class': 'table table-striped table-bordered'})
         for j in all_items.find_all('tr')[1:]:
