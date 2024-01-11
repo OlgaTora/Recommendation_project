@@ -50,7 +50,7 @@ def signup(request):
 
 def user_login(request):
     if not request.user.is_authenticated:
-        message = 'Введите ваше имя и пароль'
+        message = 'Введите ваше имя и пароль:'
         form = LoginForm(request.POST or None)
         if form.is_valid():
             username = form.cleaned_data['username']
