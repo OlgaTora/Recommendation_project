@@ -20,8 +20,8 @@ def recommendations(request):
     level3_top = Attends.get_top_level3().filter(activity_type__activity_type__activity_type=activity_type)
 
     # отфильтровать группы offline/online отдельно
-    level3_offline = level3_top.exclude(level__contains='ОНЛАЙН')
-    level3_online = level3_top.filter(level__contains='ОНЛАЙН')
+    level3_offline = level3_top.exclude(level__icontains='ОНЛАЙН')[:3]
+    level3_online = level3_top.filter(level__icontains='ОНЛАЙН')[:3]
 
     # район по адресу пользователя
     user_address = StreetsBook.address_transform(request.user.address)
@@ -30,19 +30,17 @@ def recommendations(request):
 
     # если адрес есть в базе адресов Москвы
     if user_address:
-        district = [i.district.admin_district.admin_district_name for i in user_address]
-        # district = user_address.district.admin_district.admin_district_name
+        admin_district = [i.admin_district.admin_district_name for i in user_address]
+
         # группы по типу активности из теста и из района пользователя
         groups_list = (Groups.groups.filter(
-                                        Q(level__in=[i.pk for i in level3_offline], districts__in=[district]) |
-                                        Q(level__in=[i.pk for i in level3_online])
-                                        )
+            Q(level__in=[i.pk for i in level3_offline], districts__in=[admin_district]) |
+            Q(level__in=[i.pk for i in level3_online])
+        )
                        .exclude(schedule_active=''))
-                       # .order_by('uniq_id'))
     else:
         groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3_top])
                        .exclude(schedule_active=''))
-                       # .order_by('uniq_id'))
 
     # сделать высплывающее окно с районом? есть улицы с одинаковым названием
     # в левел3 должны быть топ активностей для данного юзера
@@ -101,6 +99,13 @@ def start_test(request):
     return redirect(reverse('rec_app:question_and_answers', args=(1,)))
 
 
+@login_required(redirect_field_name='/')
+def restart_test(request):
+    if ResultOfTest.results.filter(user=request.user).exists():
+        ResultOfTest.results.filter(user=request.user).delete()
+    return redirect(reverse('rec_app:question_and_answers', args=(1,)))
+
+
 #
 # class DeleteObject(LoginRequiredMixin, DeleteView):
 #     model = Object
@@ -117,7 +122,7 @@ def start_test(request):
 
 """
 <a class="dropdown-item" data-toggle="modal" data-target="#taskModal" onclick="getUrl('{% url 'del_obj' object.id %}')">Delete</a>
- 
+
 <script language="javascript">
     function getUrl(url) {
         del_obj.setAttribute('href', url);
@@ -127,7 +132,7 @@ def start_test(request):
         return location.href = url;
     }
 </script>
- 
+
 <div id="taskModal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">

@@ -71,8 +71,7 @@ input:focus{
     height: 150px;
     display: inline-block;
     margin: 10px 10px 10px 10px;
-    margin-top: 50px
-
+    margin-top: 30px
 }
 
 .auth_button:focus{

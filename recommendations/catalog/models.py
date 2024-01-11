@@ -85,6 +85,6 @@ class Attends(models.Model):
         """Function for get top-10 level3 in attends"""
         top = Attends.attends.values('group_id__level') \
                   .annotate(count_level3=Count('group_id__level')) \
-                  .order_by('-count_level3')[:5]
+                  .order_by('-count_level3')[:50]
         levels3 = ActivityLevel3.levels.filter(pk__in=[i.get('group_id__level') for i in top])
         return levels3

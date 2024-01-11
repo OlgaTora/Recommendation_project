@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{% static 'smart-selects/admin/js/chainedfk.js' %}"></script>
+    <script src="{% static 'smart-selects/admin/js/bindfields.js' %}"></script>
     <link rel="stylesheet" href="{% static '/css/style.css' %}">
     {% load django_bootstrap5 %}
     {% bootstrap_css %}
@@ -28,8 +30,8 @@
                         <a class="nav-link active" aria-current="page" href="/test/">Пройти тест</a></li>
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/catalog/">Каталог</a></li>
-<!--                     <li class="nav-item">-->
-<!--                        <a class="nav-link active" aria-current="page" href="catalog/search/">Поиск по каталогу</a></li>-->
+                    <!--                     <li class="nav-item">-->
+                    <!--                        <a class="nav-link active" aria-current="page" href="catalog/search/">Поиск по каталогу</a></li>-->
                 </ul>
                 {% else %}
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -48,11 +50,12 @@
     </nav>
     {% block content %}
     {% endblock %}
+    <footer style="background-color: #128849; font-size: 25px">
+        Наши контакты:<br/>
+        телефон: +79151234567<br/> адрес: город Москва, Московский проспект, дом 10
+    </footer>
 </div>
-<footer style="background-color: #128849; font-size: 25px">
-    Наши контакты:<br/>
-    телефон: +79151234567<br/> адрес: город Москва, Московский проспект, дом 10
-</footer>
+
 </body>
 </html>
 
