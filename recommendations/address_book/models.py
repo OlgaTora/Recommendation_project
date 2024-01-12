@@ -52,21 +52,30 @@ class Streets(models.Model):
 
 
 class StreetsBook(models.Model):
-    admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
+    admin_district = models.ForeignKey(
+        AdministrativeDistrict,
+        on_delete=models.CASCADE,
+        default=None,
+        verbose_name='Округ'
+        )
     district = ChainedForeignKey(
         District,
-        chained_field="admin_district",
-        chained_model_field="admin_district",
+        chained_field='admin_district',
+        chained_model_field='admin_district',
         show_all=False,
         auto_choose=True,
-        sort=True)
+        sort=True,
+        verbose_name='Район'
+    )
     street_name = ChainedForeignKey(
         Streets,
-        chained_field="district",
-        chained_model_field="district",
+        chained_field='district',
+        chained_model_field='district',
         show_all=False,
         auto_choose=True,
-        sort=True)
+        sort=True,
+        verbose_name='Улица'
+    )
     # street_type = ChainedForeignKey(
     #     StreetType,
     #     chained_field="street_name",
@@ -102,8 +111,8 @@ class StreetsBook(models.Model):
         if street_type:
             user_address = (
                 StreetsBook.objects.filter(street_name=Streets.objects.get(street_name=address),
-                                                street_type=StreetType.objects.get(street_type=street_type)
-                                                ))
+                                           street_type=StreetType.objects.get(street_type=street_type)
+                                           ))
         else:
             user_address = (StreetsBook.objects.filter(street_name=Streets.objects.get(street_name=address)))
         return user_address
