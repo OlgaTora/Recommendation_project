@@ -3,8 +3,10 @@
     <h1> Ваш результат: {{result}} баллов</h1>
     <h4> {{description}}</h4>
 <div class="container-fluid">
-    <button class="auth_button" type="submit">
-        <a href=" {% url 'rec_app:restart_test'%}">Пройти тест заново.</a>
+    <button type="submit" class="btn btn-success btn-block">
+        <a class="link-white link-offset-2"
+           href=" {% url 'rec_app:restart_test'%}"
+           style="font-size:40px">Пройти тест заново</a>
     </button>
 </div>
 <div class="container">

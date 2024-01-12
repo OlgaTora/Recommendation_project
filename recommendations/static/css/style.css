@@ -5,7 +5,7 @@
     font-size: 25px;
 }
 
-.footer{
+footer{
     background-color: #128849;
     font-size: 25px;
 }
@@ -18,10 +18,10 @@ h2{
 }
 
 h3{
-    font-size: 30px;
-    color: silver;
+    font-size: 35px;
+    color: black;
     text-align: center;
-    text-shadow: 1px 1px 1px #128849;
+    text-shadow: 1px  #128849;
 }
 
 h4{
@@ -96,7 +96,7 @@ input:focus{
 }
 
 .nav-item{
-    font-size: 25px;
+    font-size: 30px;
 }
 
 .content{

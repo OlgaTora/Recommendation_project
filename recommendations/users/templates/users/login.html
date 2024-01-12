@@ -8,8 +8,10 @@
             <form action="" method="post">
                 {% csrf_token %}
                 {{ address_form.media.js }}
-                {% bootstrap_form signup_form %}
-                {% bootstrap_form address_form %}
+                {% bootstrap_form form %}
+                {% if address_form%}
+                    {% bootstrap_form address_form %}
+                {% endif %}
                 <button type="submit" class="btn btn-success btn-block">Подтвердите</button>
             </form>
         </div>

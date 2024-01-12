@@ -12,8 +12,7 @@
                 {% for level in level3 %}
                 <li class="list-group-item list-group-item-dark" style="font-size: 30px">
                     <a class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                       href="{% url 'catalog:level3_content' activity_type.id level1.id level2.id level.id %}">{{
-                        level.level }}</a></li>
+                       href="{% url 'catalog:level3_content' activity_type.id level1.id level2.id level.id %}">{{level.level }}</a></li>
                 {% endfor %}
             </ul>
         </div>

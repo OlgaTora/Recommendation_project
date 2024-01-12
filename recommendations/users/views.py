@@ -45,7 +45,7 @@ def signup(request):
         return render(
             request,
             'users/login.html',
-            {'signup_form': signup_form, 'address_form': address_form, 'message': message}
+            {'form': signup_form, 'address_form': address_form, 'message': message}
         )
     else:
         return redirect(reverse('users:index'))
