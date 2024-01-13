@@ -9,9 +9,11 @@
         <div class="col-md-12">
             <ul class="list-group">
                 {% for level in level1 %}
-                <li class="list-group-item list-group-item-dark" style="font-size: 40px">
-                    <a class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                       href="{% url 'catalog:level1_content' activity_type.id level.id %}">{{ level.level }}</a></li>
+                <li class="list-group-item list-group-item-dark">
+                    <a class="btn btn-success btn-block btn-lg" role="button"
+                       href="{% url 'catalog:level1_content' activity_type.id level.id %}"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">
+                        {{ level.level }}</a></li>
                 {% endfor %}
             </ul>
         </div>

@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
 {% block content %}
-
-
 <div class="container-fluid">
     {% if groups %}
     <div class="row my-5">
@@ -10,29 +8,37 @@
             <h1>{{ message }}</h1>
         </div>
     </div>
-    <ul class="list-group">
-        {% for group in groups %}
-        {% if 'ОНЛАЙН' in group.level.level %}
-        <li class="list-group-item list-group-item-dark" style="font-size: 25px">
-            <p>{{group.level.level}}</p>
-            <p>{{group.level.descript_level}}</p>
-            <p>Номер группы: {{group.uniq_id}}.</p>
-            <p>Занятия проходят он-лайн.</p>
-            <p>Расписание: {{group.schedule_active}}</p>
-            <button class="auth_button" type="submit" name="form_auth_submit">Записаться</button>
-        </li>
-        {% else %}
-        <li class="list-group-item list-group-item-dark" style="font-size: 25px">
-            <p>{{group.level.level}}</p>
-            <p>{{group.level.descript_level}}</p>
-            <p>Номер группы: {{group.uniq_id}}.</p>
-            <p>Адрес: {{ group.address }}</p>
-            <p>Расписание: {{group.schedule_active}}</p>
-            <button class="auth_button" type="submit" name="form_auth_submit">Записаться</button>
-        </li>
-        {% endif %}
-        {% endfor %}
-    </ul>
+    <div class="row my-5">
+        <div class="col-md-9">
+            <ul class="list-group">
+                {% for group in groups %}
+                {% if 'ОНЛАЙН' in group.level.level %}
+                <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+                    <p><b>{{group.level.level}}</b></p>
+                    <p><i>{{group.level.descript_level}}</i></p>
+                    <p><b>Номер группы:</b> {{group.uniq_id}}.</p>
+                    <p>Занятия проходят он-лайн.</p>
+                    <p><b>Расписание:</b> {{group.schedule_active}}</p>
+                    <a class="btn btn-success btn-block btn-lg"
+                       href=" {% url 'catalog:signup2group' group.id %}" role="button"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">Записаться</a>
+                </li>
+                {% else %}
+                <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+                    <p><b>{{group.level.level}}</b></p>
+                    <p><i>{{group.level.descript_level}}</i></p>
+                    <p><b>Номер группы:</b> {{group.uniq_id}}.</p>
+                    <p><b>Адрес:</b> {{ group.address }}</p>
+                    <p><b>Расписание:</b> {{group.schedule_active}}</p>
+                    <a class="btn btn-success btn-block btn-lg"
+                       href=" {% url 'catalog:signup2group' group.id %}" role="button"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">Записаться</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
     {% else %}
     <div class="col-md-12">
         <img src="/static/images/ups.png" class="mx-auto d-block" width="400px">

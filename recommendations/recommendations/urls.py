@@ -24,3 +24,4 @@ urlpatterns = [
     path('catalog/', include('catalog.urls')),
     re_path('chaining/', include('smart_selects.urls'))
 ]
+

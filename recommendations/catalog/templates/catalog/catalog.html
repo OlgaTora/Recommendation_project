@@ -7,22 +7,26 @@
     </div>
 </div>
 <div class="container-fluid">
-    <div class="col-md-3">
-        <h3> {{ message }}</h3>
-        <form action="" method="post">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            <button type="submit" class="btn btn-success btn-block">Искать</button>
-        </form>
+    <div class="row my-5">
+        <div class="col-md-3">
+            <h3> {{ message }}</h3>
+            <form action="" method="post">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <button type="submit" class="btn btn-success btn-block">Искать</button>
+            </form>
+        </div>
     </div>
 </div>
+
 <div class="col-md-12 col-md-push-3">
     <div class="row">
         {% for activity_type in activity_types %}
-        <div class="col-sm-4">
-            <a class="link-success link-offset-2 text-uppercase text-center"
-               style="font-size: 50px"
-               href="{% url 'catalog:type_content' activity_type.id %}">{{ activity_type.activity_type }} </a>
+        <div class="col-sm-4 text-center" >
+            <a class="btn btn-success btn-block btn-lg"
+               href="{% url 'catalog:type_content' activity_type.id %}" role="button"
+               style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 2.75rem;">
+                {{ activity_type.activity_type }}</a>
         </div>
         {% endfor %}
     </div>
@@ -31,17 +35,18 @@
     <div class="row">
         <div class="col-sm-4">
             <div class="panel">
-                <img src="/static/catalog/images/chess.jpg" class="img-fluid img-thumbnail">
+                <img src="/static/catalog/images/chess_play.jpg"
+                     class="img-fluid img-thumbnail border border-success">
             </div>
         </div>
         <div class="col-sm-4">
             <div class="panel">
-                <img src="/static/catalog/images/sing.jpg" class="img-fluid img-thumbnail">
+                <img src="/static/catalog/images/play.jpg" class="img-fluid img-thumbnail border border-success">
             </div>
         </div>
         <div class="col-sm-4">
             <div class="panel">
-                <img src="/static/catalog/images/swim.jpg" class="img-fluid img-thumbnail">
+                <img src="/static/catalog/images/snow.jpg" class="img-fluid img-thumbnail border border-success">
             </div>
         </div>
     </div>

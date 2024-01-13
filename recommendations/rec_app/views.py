@@ -33,10 +33,10 @@ def recommendations(request):
         admin_district = [i.admin_district.admin_district_name for i in user_address]
 
         # группы по типу активности из теста и из района пользователя
-        groups_list = (Groups.groups.filter(
-            Q(level__in=[i.pk for i in level3_offline], districts__in=[admin_district]) |
-            Q(level__in=[i.pk for i in level3_online])
-        )
+        groups_list = (Groups.groups.filter
+                       (Q(level__in=[i.pk for i in level3_offline], districts__in=[admin_district]) |
+                        Q(level__in=[i.pk for i in level3_online])
+                        )
                        .exclude(schedule_active=''))
     else:
         groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3_top])
@@ -50,7 +50,7 @@ def recommendations(request):
     # else:
     #     return redirect('users:district_choice')
 
-    paginator = Paginator(groups_list, 10)
+    paginator = Paginator(groups_list, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -96,14 +96,15 @@ def start_test(request):
     if ResultOfTest.results.filter(user=request.user).exists():
         if ResultOfTest.results.filter(user=request.user).count() < 10:
             ResultOfTest.results.filter(user=request.user).delete()
+        else:
+            return redirect(reverse('rec_app:restart_test'))
     return redirect(reverse('rec_app:question_and_answers', args=(1,)))
 
 
 @login_required(redirect_field_name='/')
 def restart_test(request):
     if ResultOfTest.results.filter(user=request.user).exists():
-        ResultOfTest.results.filter(user=request.user).delete()
-    return redirect(reverse('rec_app:question_and_answers', args=(1,)))
+        return render(request, 'rec_app/restart_test.html')
 
 
 #
@@ -148,16 +149,3 @@ def restart_test(request):
     </div>
 </div>
 """
-
-# а  если 1-Я
-# user_address = request.user.address.split(',')[1].strip()
-# if len(user_address.split()) == 1:
-#     user_address = user_address.title()
-# else:
-#     tmp = user_address.split()
-#     for word in tmp:
-#         for key, value in street_types_dict.items():
-#             if word in value:
-#                 street_type = key
-#                 tmp.remove(word)
-#                 user_address = (' '.join(tmp)).title()

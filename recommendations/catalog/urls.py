@@ -13,4 +13,5 @@ urlpatterns = [
     re_path(r"^(?P<pk_type>[0-9]+)/(?P<pk_level1>[0-9]+)/(?P<pk_level2>[0-9]+)/(?P<pk_level3>[0-9]+)$",
             views.level3_content, name='level3_content'),
     path('search/<str:search_string>', views.search, name='search'),
+    path('signup2group/<str:group>', views.signup2group, name='signup2group'),
 ]

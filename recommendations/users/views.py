@@ -21,6 +21,7 @@ def index(request):
     return render(request, 'users/index.html', {'description': description})
 
 
+
 def signup(request):
     if not request.user.is_authenticated:
         message = 'Заполните данные о себе, пожалуйста'

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row my-5">
+        <h1 class="text-center">Вы успешно записались!</h1>
+    </div>
+</div>
+<div class="col-md-12">
+    <h5 class="text-center">{{message}}</h5>
+    {% if 'ОНЛАЙН' in group.level %}
+        <h5>{{group.level}}</h5>
+        <p><b>Номер группы: </b> {{group.uniq_id}}.</p>
+        <p>Занятия проходят он-лайн.</p>
+        <p><b>Расписание:</b> {{group.schedule_active}}</p>
+    {% else %}
+        <h5>{{group.level}}</h5>
+        <p><b>Номер группы: </b>{{group.uniq_id}}.</p>
+        <p><b>Адрес:</b> {{ group.address }}</p>
+        <p><b>Расписание:</b> {{group.schedule_active}}</p>
+    {% endif %}
+    <img src="/static/images/success.png" class="mx-auto d-block" width="400px">
+</div>
+{% endblock %}

@@ -10,11 +10,16 @@ footer{
     font-size: 25px;
 }
 
+.description{
+    background-color: rgb(152, 251, 152);
+    font-size: 25px;
+}
+
 h2{
     font-size: 45px;
-    color: silver;
+    color: black;
     text-align: center;
-    text-shadow: 2px 2px 2px #000;
+    text-shadow: 2px 2px 2px #128849;
 }
 
 h3{
@@ -28,6 +33,11 @@ h4{
     font-size: 25px;
     color: black;
     text-align: left;
+}
+
+h5{
+    font-size: 24px;
+    color: black;
 }
 
 li{
@@ -56,11 +66,6 @@ input{
     display: inline-block;
 }
 
-.auth_button{
-    font-size: 30px;
-    background-color: #128839;
-    border: 2px solid rgb(148, 146, 146);
-}
 
 input:focus{
     color: red;

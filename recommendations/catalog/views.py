@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -21,7 +22,7 @@ def index(request):
     )
 
 
-def search(request, search_string):
+def search(request, search_string: str):
     message = 'Результаты поиска:'
     level3 = list(ActivityLevel3.levels.filter(level__icontains=search_string))
     groups = Groups.groups.filter(level__in=level3).exclude(schedule_active='')
@@ -86,3 +87,20 @@ def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
         {'level3': level3,
          'groups': page_obj}
     )
+
+
+@login_required
+def signup2group(request, group: Groups):
+    group = get_object_or_404(Groups, pk=group)
+
+    # group = Groups.groups.get(id=group)
+    # Attends.attends.create(
+    #     uniq_id=id,
+    #     group_id=group.uniq_id,
+    #     user_id=request.user.pk,
+    #     online='',
+    #     date_attend,
+    #     start_time,
+    #     end_time
+    # )
+    return render(request, 'catalog/signup2group_result.html', {'group': group})
