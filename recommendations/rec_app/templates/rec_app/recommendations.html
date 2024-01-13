@@ -11,7 +11,7 @@
 </div>
 <div class="container">
     {% if groups_list %}
-    <h3>Выберите место занятий: </h3>
+    <h3>Выберите место занятий: </h3><br/>
     <ul>
         {% for group in groups_list %}
         {% if 'ОНЛАЙН' in group.level.level %}

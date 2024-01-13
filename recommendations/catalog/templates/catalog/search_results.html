@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
 {% block content %}
-<h1>{{ message }}</h1>
+
+
 <div class="container-fluid">
     {% if groups %}
+    <div class="row my-5">
+        <div class="col-md-6">
+            <h1>{{ message }}</h1>
+        </div>
+    </div>
     <ul class="list-group">
         {% for group in groups %}
         {% if 'ОНЛАЙН' in group.level.level %}
@@ -28,7 +34,10 @@
         {% endfor %}
     </ul>
     {% else %}
-    <h3>Мы ничего не нашли по вашему запросу. Попробуйте еще. </h3>{% endif %}
+    <div class="col-md-12">
+        <img src="/static/images/ups.png" class="mx-auto d-block" width="400px">
+        <h3>Мы ничего не нашли по вашему запросу.<br/>Попробуйте еще. </h3>{% endif %}
+    </div>
 </div>
 <div class="container">
     {% if groups %}
