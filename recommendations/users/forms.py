@@ -18,6 +18,7 @@ class SignupForm(forms.ModelForm):
         model = Profile
         fields = ['username', 'password', 'birth_date', 'gender']
 
+
     username = forms.CharField(max_length=12, label='Имя')
     password = forms.CharField(max_length=20, widget=forms.PasswordInput(), label='Пароль')
     #confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput())
