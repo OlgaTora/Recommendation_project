@@ -28,7 +28,7 @@ class Command(BaseCommand):
         # душа, тело, ум
         set_types = get_set(0)
         for activity in set_types:
-            ActivityTypes.types.create(
+            ActivityTypes.objects.create(
                 activity_type=activity,
             )
         #
@@ -39,8 +39,8 @@ class Command(BaseCommand):
             lst_types.append(full_row)
         lst_types = list(unique_everseen(lst_types))
         for i in range(len(lst_types)):
-            ActivityLevel1.levels.create(
-                activity_type=ActivityTypes.types.get(activity_type=lst_types[i][0]),
+            ActivityLevel1.objects.create(
+                activity_type=ActivityTypes.objects.get(activity_type=lst_types[i][0]),
                 id_level=lst_types[i][1],
                 level=lst_types[i][2],
             )
@@ -52,9 +52,9 @@ class Command(BaseCommand):
             lst_types.append(full_row)
         lst_types = list(unique_everseen(lst_types))
         for i in range(len(lst_types)):
-            activity_type = ActivityTypes.types.get(activity_type=lst_types[i][0])
-            level1 = ActivityLevel1.levels.get(id_level=lst_types[i][1], activity_type=activity_type)
-            ActivityLevel2.levels.create(
+            activity_type = ActivityTypes.objects.get(activity_type=lst_types[i][0])
+            level1 = ActivityLevel1.objects.get(id_level=lst_types[i][1], activity_type=activity_type)
+            ActivityLevel2.objects.create(
                 activity_type=level1,
                 id_level=lst_types[i][2],
                 level=lst_types[i][3],
@@ -64,11 +64,11 @@ class Command(BaseCommand):
         for row in sheet.iter_rows(min_row=2, values_only=True):
             lst_types.append(row)
         for i in range(len(lst_types)):
-            activity_type = ActivityTypes.types.get(activity_type=lst_types[i][0])
-            level1 = ActivityLevel1.levels.get(id_level=lst_types[i][1], activity_type=activity_type)
-            level2 = ActivityLevel2.levels.get(id_level=lst_types[i][3], activity_type=level1)
+            activity_type = ActivityTypes.objects.get(activity_type=lst_types[i][0])
+            level1 = ActivityLevel1.objects.get(id_level=lst_types[i][1], activity_type=activity_type)
+            level2 = ActivityLevel2.objects.get(id_level=lst_types[i][3], activity_type=level1)
 
-            ActivityLevel3.levels.create(
+            ActivityLevel3.objects.create(
                 activity_type=level2,
                 id_level=lst_types[i][5],
                 level=lst_types[i][6],
@@ -103,10 +103,10 @@ class Command(BaseCommand):
             for row in file_reader:
                 address = clean_group_address(row[4])
                 districts = clean_group_district(row[5])
-                activity_type = ActivityLevel2.levels.get(level=row[2])
-                Groups.groups.create(
+                activity_type = ActivityLevel2.objects.get(level=row[2])
+                Groups.objects.create(
                     uniq_id=row[0],
-                    level=ActivityLevel3.levels.get(level=row[3], activity_type=activity_type),
+                    level=ActivityLevel3.objects.get(level=row[3], activity_type=activity_type),
                     address=address,
                     districts=districts,
                     schedule_active=row[7],
@@ -122,9 +122,9 @@ class Command(BaseCommand):
             for row in file_reader:
                 print(row[0])
                 # attends_list.append(row)
-                Attends.attends.create(
+                Attends.objects.create(
                     uniq_id=row[1],
-                    group_id=Groups.groups.get(uniq_id=row[2]),
+                    group_id=Groups.objects.get(uniq_id=row[2]),
                     user_id=Profile.objects.get(username=row[3]),
                     online=True if row[6] == 'Да' else False,
                     date_attend=row[7],

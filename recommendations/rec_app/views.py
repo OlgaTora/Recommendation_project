@@ -16,7 +16,7 @@ def recommendations(request):
     result = ResultOfTest.get_results(request.user)
     votes_group = VotesGroups.votes_groups.get(votes=result)
     description = TestResultDescription.descriptions.get(pk=votes_group.result_group.pk)
-    activity_type = ActivityTypes.types.get(pk=description.activity_type.pk)
+    activity_type = ActivityTypes.objects.get(pk=description.activity_type.pk)
     level3_top = Attends.get_top_level3().filter(activity_type__activity_type__activity_type=activity_type)
 
     # отфильтровать группы offline/online отдельно
@@ -33,13 +33,13 @@ def recommendations(request):
         admin_district = [i.admin_district.admin_district_name for i in user_address]
 
         # группы по типу активности из теста и из района пользователя
-        groups_list = (Groups.groups.filter
+        groups_list = (Groups.objects.filter
                        (Q(level__in=[i.pk for i in level3_offline], districts__in=[admin_district]) |
                         Q(level__in=[i.pk for i in level3_online])
                         )
                        .exclude(schedule_active=''))
     else:
-        groups_list = (Groups.groups.filter(level__in=[i.pk for i in level3_top])
+        groups_list = (Groups.objects.filter(level__in=[i.pk for i in level3_top])
                        .exclude(schedule_active=''))
 
     # сделать высплывающее окно с районом? есть улицы с одинаковым названием

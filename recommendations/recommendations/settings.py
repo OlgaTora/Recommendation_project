@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'address_book.apps.AddressBookConfig',
     'django_bootstrap5',
     'smart_selects',
+    'django_filters',
 ]
 
 MIDDLEWARE = [

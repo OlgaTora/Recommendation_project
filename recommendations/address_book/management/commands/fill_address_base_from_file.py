@@ -64,15 +64,15 @@ class Command(BaseCommand):
         #     )
 
         for address in range(len(address_list)):
-            admin_district = AdministrativeDistrict.admin_districts.get(admin_district_name=address_list[address][3])
-            district = District.districts.get(district_name=address_list[address][4])
-            street_type = StreetType.street_types.get(street_type=address_list[address][1])
-            street_name = Streets.streets.get(
+            admin_district = AdministrativeDistrict.objects.get(admin_district_name=address_list[address][3])
+            district = District.objects.get(district_name=address_list[address][4])
+            street_type = StreetType.objects.get(street_type=address_list[address][1])
+            street_name = Streets.objects.get(
                 street_name=address_list[address][0],
                 district=district,
                 street_type=street_type,
                 street_name__contains=address_list[address][0])
-            StreetsBook.streets_book.create(
+            StreetsBook.objects.create(
                 admin_district=admin_district,
                 district=district,
                 street_type=street_type,

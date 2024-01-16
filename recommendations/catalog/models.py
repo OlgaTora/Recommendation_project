@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db import models
 from django.db.models import Count
 
@@ -6,7 +8,7 @@ from users.models import Profile
 
 class ActivityTypes(models.Model):
     activity_type = models.CharField(max_length=255, unique=True, verbose_name='Тип активности')
-    types = models.Manager()
+    objects = models.Manager()
 
     # slug = models.SlugField(max_length=100, unique=True, db_index=True, verbose_name="URL")
 
@@ -18,7 +20,7 @@ class ActivityLevel1(models.Model):
     activity_type = models.ForeignKey(ActivityTypes, on_delete=models.CASCADE)
     id_level = models.IntegerField()
     level = models.CharField(max_length=255)
-    levels = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return f'{self.level}'
@@ -28,7 +30,7 @@ class ActivityLevel2(models.Model):
     activity_type = models.ForeignKey(ActivityLevel1, on_delete=models.CASCADE)
     id_level = models.IntegerField()
     level = models.CharField(max_length=255)
-    levels = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return f'{self.level}'
@@ -39,7 +41,7 @@ class ActivityLevel3(models.Model):
     id_level = models.IntegerField()
     level = models.CharField(max_length=255)
     descript_level = models.TextField(null=True)
-    levels = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return f'{self.level}\n{self.descript_level}'
@@ -53,7 +55,7 @@ class Groups(models.Model):
     schedule_active = models.TextField(null=True)
     schedule_past = models.TextField(null=True)
     schedule_plan = models.TextField(null=True)
-    groups = models.Manager()
+    objects = models.Manager()
 
     class Meta:
         ordering = ('-uniq_id',)
@@ -61,10 +63,57 @@ class Groups(models.Model):
     def __str__(self):
         return f'{self.level}'
 
-    # @staticmethod
-    # def get_active_online_groups():
-    #     active_online_groups = Groups.groups.filter(level__contains='ОНЛАЙН').exclude(schedule_active='')
-    #     return active_online_groups
+    @property
+    def extract(self):
+        s = str(self.schedule_active)
+        result = defaultdict(list)
+        if s.count(';') == 0:
+            if s.count('перерыв') > 1:
+                result = case_two_dates_two_time(s)
+            else:
+                result = case_one_time(s)
+        else:
+            """
+            обработка случая 'c 01.06.2022 по 11.08.2022, Пн., Ср. 12:05-13:05, без перерыва;
+            c 01.01.2022 по 31.05.2022, Пн., Ср. 12:15-13:15, без перерыва;
+            """
+            spl = [i.strip() for i in s.split(';')]
+            for lst in spl:
+                if lst.count('перерыв') > 1:
+                    dct = case_two_dates_two_time(lst)
+                    result.update(dct)
+                else:
+                    dct = case_one_time(lst)
+                    result.update(dct)
+        return result
+
+    @property
+    def extract_time(self):
+        dct = self.extract
+        time_list = []
+        for key, value in dct.items():
+            for i in value:
+                for key, value in i.items():
+                    time_list.append(str(value))
+        return time_list
+
+    @property
+    def extract_period(self):
+        dct = self.extract
+        dates_list = []
+        for key in dct:
+            dates_list.append(key)
+        return dates_list
+
+    @property
+    def extract_weekdays(self):
+        dct = self.extract
+        weekdays_list = []
+        for value in dct.values():
+            for i in value:
+                for key in i.keys():
+                    weekdays_list.append(key)
+        return weekdays_list
 
 
 class Attends(models.Model):
@@ -75,7 +124,7 @@ class Attends(models.Model):
     date_attend = models.DateField()
     start_time = models.CharField(max_length=32)
     end_time = models.CharField(max_length=32)
-    attends = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return f'{self.uniq_id}'
@@ -83,8 +132,60 @@ class Attends(models.Model):
     @staticmethod
     def get_top_level3():
         """Function for get top-10 level3 in attends"""
-        top = Attends.attends.values('group_id__level') \
+        top = Attends.objects.values('group_id__level') \
                   .annotate(count_level3=Count('group_id__level')) \
                   .order_by('-count_level3')[:50]
-        levels3 = ActivityLevel3.levels.filter(pk__in=[i.get('group_id__level') for i in top])
+        levels3 = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top])
         return levels3
+
+
+def clean_str(s: str):
+    str_clean = (s.replace('c', '')
+                 .replace('по', '')
+                 .replace('без перерыва', '')
+                 .replace(',', '')).strip()
+    return str_clean
+
+
+def case_one_time(s: str):
+    """
+    обработка случая 'c 31.03.2023 по 31.12.2023, Пн., Ср. 17:00-19:00, без перерыва'
+    """
+    str_clean = clean_str(s)
+    spl = [i for i in str_clean.split(' ')]
+    dct = defaultdict(list)
+    times, weekdays = extract_time_and_weekday(spl)
+    for day in weekdays:
+        dct[f'{spl[0]}-{spl[2]}'].append({day: times})
+    return dct
+
+
+def extract_time_and_weekday(elem: list):
+    weeksdays_list = ['Пн.', 'Вт.', 'Ср.', 'Чт.', 'Пт.', 'Сб.', 'Вс.']
+    times = []
+    weeksdays = []
+    for j in elem:
+        if j in weeksdays_list:
+            weeksdays.append(j[:-1])
+        if '-' in j:
+            times.append(j)
+    return times, weeksdays
+
+
+def case_two_dates_two_time(s: str):
+    """
+    обработка случая 'c 31.03.2023 по 31.12.2023, Вт. 17:00-19:00, без перерыва, Пт. 13:00-15:00, без перерыва'
+    """
+    str_split = s.split('без перерыва')
+    str_clean = clean_str(str_split[0])
+    spl = [i for i in str_clean.split(' ')]
+    dct = defaultdict(list)
+    times, weekdays = extract_time_and_weekday(spl)
+    for day in weekdays:
+        dct[f'{spl[0]}-{spl[2]}'] = [{day: times}]
+    for i in range(1, len(str_split)):
+        new_str_split = [i for i in clean_str(str_split[i]).split(' ')]
+        times_j, weekdays_j = extract_time_and_weekday(new_str_split)
+        for day in weekdays_j:
+            dct[f'{spl[0]}-{spl[2]}'].append({day: times_j})
+    return dct
