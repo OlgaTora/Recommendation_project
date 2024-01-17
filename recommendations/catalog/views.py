@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
-from catalog.filters import GroupsFilter
+from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
 from catalog.forms import SearchForm, DateTimeChoiceForm
 from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups
 
@@ -29,13 +29,16 @@ def search(request, search_string: str):
     level3 = ActivityLevel3.objects.filter(Q(descript_level__icontains=search_string) |
                                            Q(level__icontains=search_string))
     groups = Groups.objects.filter(level__in=list(level3)).exclude(schedule_active='')
-    paginator = Paginator(groups, 5)
+    myFilter = GroupsFilterSearch(request.GET, queryset=groups)
+    groups = myFilter.qs
+
+    paginator = Paginator(groups, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(
         request,
         'catalog/search_results.html',
-        {'groups': page_obj, 'message': message}
+        {'groups': page_obj, 'message': message, 'myFilter': myFilter}
     )
 
 
@@ -81,17 +84,16 @@ def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
     level3 = get_object_or_404(ActivityLevel3, pk=pk_level3)
     groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
 
-    myFilter = GroupsFilter(request.GET, queryset=groups)
+    myFilter = GroupsFilterCatalog(request.GET, queryset=groups)
     groups = myFilter.qs
-    paginator = Paginator(groups, 5)
+    paginator = Paginator(groups, 25)
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(
         request,
         'catalog/level3.html',
-        {'level3': level3,
-         'groups': page_obj, 'myFilter': myFilter, }
+        {'groups': page_obj, 'myFilter': myFilter, 'level3': level3}
     )
 
 
@@ -113,4 +115,3 @@ def signup2group(request, group: Groups):
     # )
     return render(request, 'catalog/signup_group_details.html',
                   {'group': group, 'form': form})
-
