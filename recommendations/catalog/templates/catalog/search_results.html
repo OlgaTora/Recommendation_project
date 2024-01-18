@@ -42,7 +42,6 @@
             <h4>Введите адрес или район для поиска</h4>
             <h5>оффлайн занятий:</h5>
             <form method="GET" action="">
-                {% csrf_token %}
                 <div style="display: grid">
                     {% for field in myFilter.form %}
                     <div id="form-field-{{ forloop.counter0 }}">

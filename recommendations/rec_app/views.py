@@ -17,29 +17,30 @@ def recommendations(request):
     votes_group = VotesGroups.votes_groups.get(votes=result)
     description = TestResultDescription.descriptions.get(pk=votes_group.result_group.pk)
     activity_type = ActivityTypes.objects.get(pk=description.activity_type.pk)
-    level3_top = Attends.get_top_level3().filter(activity_type__activity_type__activity_type=activity_type)
 
     # отфильтровать группы offline/online отдельно
-    level3_offline = level3_top.exclude(level__icontains='ОНЛАЙН')[:3]
-    level3_online = level3_top.filter(level__icontains='ОНЛАЙН')[:3]
+    level3_offline, level3_online = Attends.get_top_level3()
+    level3_offline = level3_offline.filter(activity_type__activity_type__activity_type=activity_type)
+    level3_online = level3_online.filter(activity_type__activity_type__activity_type=activity_type)
 
     # район по адресу пользователя
+    print(request.user.address)
     user_address = StreetsBook.address_transform(request.user.address)
     # так как нет инфо по району пользователя, берем все улицы с таким названием
     user_address = list(user_address)
 
     # если адрес есть в базе адресов Москвы
     if user_address:
-        admin_district = [i.admin_district.admin_district_name for i in user_address]
-
+        admin_districts = [i.admin_district.admin_district_name for i in user_address]
+        print(admin_districts)
         # группы по типу активности из теста и из района пользователя
         groups_list = (Groups.objects.filter
-                       (Q(level__in=[i.pk for i in level3_offline], districts__in=[admin_district]) |
+                       (Q(level__in=[i.pk for i in level3_offline], districts__in=[admin_districts]) |
                         Q(level__in=[i.pk for i in level3_online])
                         )
                        .exclude(schedule_active=''))
     else:
-        groups_list = (Groups.objects.filter(level__in=[i.pk for i in level3_top])
+        groups_list = (Groups.objects.filter(level__in=[i.pk for i in level3_online])
                        .exclude(schedule_active=''))
 
     # сделать высплывающее окно с районом? есть улицы с одинаковым названием

@@ -35,6 +35,7 @@ class GroupsFilterSearch(django_filters.FilterSet):
 
     def filter_offline_district(self, queryset, name, value):
         # только группы оффлайн.
+        value = f'{str(value).split(" ")[0]}'
         return queryset.filter(districts__icontains=value).exclude(level__level__icontains='ОНЛАЙН')
 
     def filter_offline(self, queryset, name, value):
@@ -47,18 +48,23 @@ class GroupsFilterSearch(django_filters.FilterSet):
 
     class Meta:
         model = Groups
-        fields = ['address', 'districts']
+        fields = ['address', 'districts', ]
 
 
 class GroupsFilterCatalog(django_filters.FilterSet):
     districts = filters.ModelChoiceFilter(
         queryset=AdministrativeDistrict.objects.all(),
         label='Район',
+        method='filter_district'
     )
     address = CharFilter(
         field_name='address',
         label='Адрес',
         lookup_expr='icontains')
+
+    def filter_district(self, queryset, name, value):
+        value = f'{str(value).split(" ")[0]}'
+        return queryset.filter(districts__icontains=value)
 
     # date = DateTimeFromToRangeFilter(
     #               widget=django_filters.widgets.RangeWidget(
@@ -69,5 +75,5 @@ class GroupsFilterCatalog(django_filters.FilterSet):
         model = Groups
         fields = [
             'address',
-            'districts'
+            'districts',
         ]

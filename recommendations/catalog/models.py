@@ -66,12 +66,14 @@ class Groups(models.Model):
     @property
     def extract(self):
         s = str(self.schedule_active)
-        result = defaultdict(list)
+        result = []#defaultdict(list)
         if s.count(';') == 0:
             if s.count('перерыв') > 1:
-                result = case_two_dates_two_time(s)
+                lst = case_two_dates_two_time(s)
+                result.append(lst)
             else:
-                result = case_one_time(s)
+                lst = case_one_time(s)
+                result.append(lst)
         else:
             """
             обработка случая 'c 01.06.2022 по 11.08.2022, Пн., Ср. 12:05-13:05, без перерыва;
@@ -80,40 +82,14 @@ class Groups(models.Model):
             spl = [i.strip() for i in s.split(';')]
             for lst in spl:
                 if lst.count('перерыв') > 1:
-                    dct = case_two_dates_two_time(lst)
-                    result.update(dct)
+                    lst = case_two_dates_two_time(lst)
+                    result.append(lst)
+                #                    result.update(dct)
                 else:
-                    dct = case_one_time(lst)
-                    result.update(dct)
+                    lst = case_one_time(lst)
+                    result.append(lst)
+                    # result.update(dct)
         return result
-
-    @property
-    def extract_time(self):
-        dct = self.extract
-        time_list = []
-        for key, value in dct.items():
-            for i in value:
-                for key, value in i.items():
-                    time_list.append(str(value))
-        return time_list
-
-    @property
-    def extract_period(self):
-        dct = self.extract
-        dates_list = []
-        for key in dct:
-            dates_list.append(key)
-        return dates_list
-
-    @property
-    def extract_weekdays(self):
-        dct = self.extract
-        weekdays_list = []
-        for value in dct.values():
-            for i in value:
-                for key in i.keys():
-                    weekdays_list.append(key)
-        return weekdays_list
 
 
 class Attends(models.Model):
@@ -131,12 +107,18 @@ class Attends(models.Model):
 
     @staticmethod
     def get_top_level3():
-        """Function for get top-10 level3 in attends"""
-        top = Attends.objects.values('group_id__level') \
-                  .annotate(count_level3=Count('group_id__level')) \
-                  .order_by('-count_level3')[:50]
-        levels3 = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top])
-        return levels3
+        """Function for get top level3 in attends"""
+        top_off = Attends.objects.exclude(online='1') \
+                      .values('group_id__level') \
+                      .annotate(count_level3=Count('group_id__level')) \
+                      .order_by('-count_level3')[:50]
+        levels3_off = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top_off])
+        top_on = Attends.objects.filter(online='1') \
+                      .values('group_id__level') \
+                      .annotate(count_level3=Count('group_id__level')) \
+                      .order_by('-count_level3')[:5]
+        levels3_on = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top_on])
+        return levels3_off, levels3_on
 
 
 def clean_str(s: str):
@@ -153,11 +135,13 @@ def case_one_time(s: str):
     """
     str_clean = clean_str(s)
     spl = [i for i in str_clean.split(' ')]
-    dct = defaultdict(list)
+    lst = []
+#    dct = defaultdict(list)
     times, weekdays = extract_time_and_weekday(spl)
     for day in weekdays:
-        dct[f'{spl[0]}-{spl[2]}'].append({day: times})
-    return dct
+        # dct[f'{spl[0]}-{spl[2]}'].append({day: times})
+        lst.append(f'{spl[0]}-{spl[2]}, {day}, {times}')
+    return lst#dct
 
 
 def extract_time_and_weekday(elem: list):
@@ -168,7 +152,7 @@ def extract_time_and_weekday(elem: list):
         if j in weeksdays_list:
             weeksdays.append(j[:-1])
         if '-' in j:
-            times.append(j)
+            times = j
     return times, weeksdays
 
 
@@ -179,13 +163,16 @@ def case_two_dates_two_time(s: str):
     str_split = s.split('без перерыва')
     str_clean = clean_str(str_split[0])
     spl = [i for i in str_clean.split(' ')]
-    dct = defaultdict(list)
+    #dct = defaultdict(list)
+    lst = []
     times, weekdays = extract_time_and_weekday(spl)
     for day in weekdays:
-        dct[f'{spl[0]}-{spl[2]}'] = [{day: times}]
+        lst.append(f'{spl[0]}-{spl[2]}, {day}, {times}')
+#        dct[f'{spl[0]}-{spl[2]}'] = [{day: times}]
     for i in range(1, len(str_split)):
         new_str_split = [i for i in clean_str(str_split[i]).split(' ')]
         times_j, weekdays_j = extract_time_and_weekday(new_str_split)
         for day in weekdays_j:
-            dct[f'{spl[0]}-{spl[2]}'].append({day: times_j})
-    return dct
+            lst.append(f'{spl[0]}-{spl[2]}, {day}, {times_j}')
+#            dct[f'{spl[0]}-{spl[2]}'].append({day: times_j})
+    return lst#dct

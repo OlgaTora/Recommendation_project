@@ -57,7 +57,7 @@ class StreetsBook(models.Model):
         on_delete=models.CASCADE,
         default=None,
         verbose_name='Округ'
-        )
+    )
     district = ChainedForeignKey(
         District,
         chained_field='admin_district',
@@ -107,12 +107,15 @@ class StreetsBook(models.Model):
                             street_type = key
                             tmp.remove(word)
                             address = (' '.join(tmp))
-        # address = address.title()
         if street_type:
-            user_address = (
-                StreetsBook.objects.filter(street_name=Streets.objects.get(street_name=address),
-                                           street_type=StreetType.objects.get(street_type=street_type)
-                                           ))
+            street_names = Streets.objects.filter(
+                street_name=address,
+                street_type=StreetType.objects.get(street_type=street_type))
+            user_address = StreetsBook.objects.filter(
+                street_name__in=street_names,
+                street_type=StreetType.objects.get(street_type=street_type)
+            )
         else:
-            user_address = (StreetsBook.objects.filter(street_name=Streets.objects.get(street_name=address)))
+            street_names = Streets.objects.filter(street_name=address)
+            user_address = StreetsBook.objects.filter(street_name__in=street_names)
         return user_address
