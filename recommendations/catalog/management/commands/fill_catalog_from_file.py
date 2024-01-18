@@ -97,7 +97,6 @@ class Command(BaseCommand):
 
         # группы
         with open('files/groups.csv', 'r', encoding='utf-8') as address_base:
-            # groups_list = []
             file_reader = csv.reader(address_base, delimiter=',')
             next(file_reader)
             for row in file_reader:
@@ -120,7 +119,6 @@ class Command(BaseCommand):
             file_reader = csv.reader(attends, delimiter=',')
             next(file_reader)
             for row in file_reader:
-                print(row[0])
                 # attends_list.append(row)
                 Attends.objects.create(
                     uniq_id=row[1],

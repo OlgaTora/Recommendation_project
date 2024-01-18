@@ -4,19 +4,24 @@
 <div class="container-fluid">
     <div class="row my-5">
         <h1 class="text-center">Выберите время и дату посещения:</h1>
+        <div class="col-md-6">
+            <div class="container">
+                <h5 class="text-center">{{group.level.level}}</h5>
+                <h6 class="text-center">{{group.level.descript_level}}</h6>
+                <h5 class="text-center">{{group.schedule_active}}</h5>
+            </div>
+            <div class="container">
+                <form action="" method="post">
+                    {{ form.media }}
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <button type="submit" class="btn btn-success btn-block btn-lg">Записаться</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <img src="/static/images/choice_2.png" class="mx-auto d-block" width="400px">
+        </div>
     </div>
-</div>
-
-<div class="container">
-        <form action="" method="post">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-                <button type="submit" class="btn btn-success btn-block">Выберите ответ</button>
-        </form>
-</div>
-
-<div class="col-md-12">
-    <h5 class="text-center">{{group.schedule_active}}</h5>
-    <img src="/static/images/success.png" class="mx-auto d-block" width="400px">
 </div>
 {% endblock %}

@@ -89,7 +89,7 @@ class Groups(models.Model):
 
 
 class Attends(models.Model):
-    uniq_id = models.IntegerField()
+    uniq_id = models.IntegerField(null=True)
     group_id = models.ForeignKey(Groups, on_delete=models.CASCADE)
     user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
     online = models.BooleanField()

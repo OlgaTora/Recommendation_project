@@ -14,4 +14,5 @@ urlpatterns = [
             views.level3_content, name='level3_content'),
     path('search/<str:search_string>', views.search, name='search'),
     path('signup2group/<str:group>', views.signup2group, name='signup2group'),
+    path('success_signup2group/<str:group>', views.success_signup2group, name='success_signup2group'),
 ]

@@ -14,6 +14,9 @@
     {% block title %}
     <title>Еще не бабушка</title>
     {% endblock %}
+    {% block extrahead %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    {% endblock extrahead %}
 </head>
 <body class="d-flex flex-column min-vh-100" style="background-color: lightgray">
 <div class="wrapper flex-grow-1">
@@ -50,10 +53,10 @@
     {% endblock %}
 </div>
 </body>
-   <footer>
-        Наши контакты:<br/>
-        телефон: +79151234567<br/> адрес: город Москва, Московский проспект, дом 10
-    </footer>
+<footer>
+    Наши контакты:<br/>
+    телефон: +79151234567<br/> адрес: город Москва, Московский проспект, дом 10
+</footer>
 </html>
 
 

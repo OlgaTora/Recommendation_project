@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'smart_selects',
     'django_filters',
     'widget_tweaks',
+    'bootstrap_datepicker_plus',
 ]
 
 MIDDLEWARE = [

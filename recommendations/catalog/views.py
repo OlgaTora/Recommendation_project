@@ -100,18 +100,16 @@ def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
 @login_required
 def signup2group(request, group: Groups):
     group = get_object_or_404(Groups, pk=group)
-    form = DateTimeChoiceForm(request.POST or None, group=group)
+    user = request.user
+    form = DateTimeChoiceForm(request.POST or None, group=group, user=user)
     if form.is_valid():
-        return redirect('users.index.html')
-    # group = Groups.groups.get(id=group)
-    # Attends.attends.create(
-    #     uniq_id=id,
-    #     group_id=group.uniq_id,
-    #     user_id=request.user.pk,
-    #     online='',
-    #     date_attend,
-    #     start_time,
-    #     end_time
-    # )
+        form.save()
+        return redirect(reverse('catalog:success_signup2group', args=(group.pk,)))
     return render(request, 'catalog/signup_group_details.html',
                   {'group': group, 'form': form})
+
+
+def success_signup2group(request, group: Groups):
+    group = get_object_or_404(Groups, pk=group)
+    return render(request, 'catalog/signup2group_result.html',
+                  {'group': group})
