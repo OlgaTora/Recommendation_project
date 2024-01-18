@@ -19,13 +19,13 @@ class DateTimeChoiceForm(forms.Form):
         lst = group.extract
         print(lst)
         for i in lst:
+            print(i)
             res = ''
-            i = i[0].split(',')
-            for j in i:
-                res += f'{j}'
+            #i = i[0].split(',')
+            #for j in i:
+             #   res += f'{j}'
             #     res = f"{j[1]} {j[2]}"
-            print(res)
-            weekdays_time_choices.append((res, res))
+            weekdays_time_choices.append((' '.join(i), ' '.join(i)))
 
         import datetime as DT
         import pandas as pd

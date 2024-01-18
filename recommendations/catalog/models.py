@@ -66,14 +66,12 @@ class Groups(models.Model):
     @property
     def extract(self):
         s = str(self.schedule_active)
-        result = []#defaultdict(list)
+        result = []
         if s.count(';') == 0:
             if s.count('перерыв') > 1:
-                lst = case_two_dates_two_time(s)
-                result.append(lst)
+                result = case_two_dates_two_time(s)
             else:
-                lst = case_one_time(s)
-                result.append(lst)
+                result = case_one_time(s)
         else:
             """
             обработка случая 'c 01.06.2022 по 11.08.2022, Пн., Ср. 12:05-13:05, без перерыва;
@@ -83,12 +81,10 @@ class Groups(models.Model):
             for lst in spl:
                 if lst.count('перерыв') > 1:
                     lst = case_two_dates_two_time(lst)
-                    result.append(lst)
-                #                    result.update(dct)
+                    result += lst
                 else:
                     lst = case_one_time(lst)
-                    result.append(lst)
-                    # result.update(dct)
+                    result += lst
         return result
 
 
@@ -114,9 +110,9 @@ class Attends(models.Model):
                       .order_by('-count_level3')[:50]
         levels3_off = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top_off])
         top_on = Attends.objects.filter(online='1') \
-                      .values('group_id__level') \
-                      .annotate(count_level3=Count('group_id__level')) \
-                      .order_by('-count_level3')[:5]
+                     .values('group_id__level') \
+                     .annotate(count_level3=Count('group_id__level')) \
+                     .order_by('-count_level3')[:5]
         levels3_on = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top_on])
         return levels3_off, levels3_on
 
@@ -136,24 +132,11 @@ def case_one_time(s: str):
     str_clean = clean_str(s)
     spl = [i for i in str_clean.split(' ')]
     lst = []
-#    dct = defaultdict(list)
-    times, weekdays = extract_time_and_weekday(spl)
-    for day in weekdays:
-        # dct[f'{spl[0]}-{spl[2]}'].append({day: times})
-        lst.append(f'{spl[0]}-{spl[2]}, {day}, {times}')
-    return lst#dct
-
-
-def extract_time_and_weekday(elem: list):
-    weeksdays_list = ['Пн.', 'Вт.', 'Ср.', 'Чт.', 'Пт.', 'Сб.', 'Вс.']
-    times = []
-    weeksdays = []
-    for j in elem:
-        if j in weeksdays_list:
-            weeksdays.append(j[:-1])
-        if '-' in j:
-            times = j
-    return times, weeksdays
+    schedule_dict = extract_time_weekday(spl)
+    if schedule_dict:
+        for day, times in schedule_dict.items():
+            lst.append([spl[0], spl[2], day, times])
+    return lst
 
 
 def case_two_dates_two_time(s: str):
@@ -163,16 +146,37 @@ def case_two_dates_two_time(s: str):
     str_split = s.split('без перерыва')
     str_clean = clean_str(str_split[0])
     spl = [i for i in str_clean.split(' ')]
-    #dct = defaultdict(list)
     lst = []
-    times, weekdays = extract_time_and_weekday(spl)
-    for day in weekdays:
-        lst.append(f'{spl[0]}-{spl[2]}, {day}, {times}')
-#        dct[f'{spl[0]}-{spl[2]}'] = [{day: times}]
+    schedule_dict = extract_time_weekday(spl)
+    if schedule_dict:
+        for day, times in schedule_dict.items():
+            lst.append([spl[0], spl[2], day, times])
     for i in range(1, len(str_split)):
         new_str_split = [i for i in clean_str(str_split[i]).split(' ')]
-        times_j, weekdays_j = extract_time_and_weekday(new_str_split)
-        for day in weekdays_j:
-            lst.append(f'{spl[0]}-{spl[2]}, {day}, {times_j}')
-#            dct[f'{spl[0]}-{spl[2]}'].append({day: times_j})
-    return lst#dct
+        schedule_dict_ = extract_time_weekday(new_str_split)
+        if schedule_dict_:
+            for day_, times_ in schedule_dict_.items():
+                lst.append([spl[0], spl[2], day_, times_])
+    return lst
+
+
+def extract_time_weekday(elem: list):
+    weeksdays_list = ['Пн.', 'Вт.', 'Ср.', 'Чт.', 'Пт.', 'Сб.', 'Вс.']
+    times = []
+    weeksdays = []
+    schedule_dict = {}
+    for j in elem:
+        if j in weeksdays_list:
+            weeksdays.append(j[:-1])
+        if '-' in j:
+            times.append(j)
+    if len(weeksdays) == len(times):
+        schedule_dict = dict(zip(weeksdays, times))
+    elif len(weeksdays) > len(times):
+        for i in weeksdays:
+            schedule_dict[i] = times[0]
+    else:
+        for i in times:
+            times[i] = weeksdays
+    if schedule_dict:
+        return schedule_dict
