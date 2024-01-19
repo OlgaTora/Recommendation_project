@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container-fluid">
+    {% if groups %}
+    <div class="row my-5">
+        <div class="col-md-6">
+            <h2>{{level3.level}}</h2>
+            <br/>
+            <h3>{{level3.descript_level}}</h3>
+        </div>
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-4">
+            {% if not 'ОНЛАЙН' in level3.level %}
+            <h4>Введите адрес или район для поиска:</h4>
+            <form method="GET" action="">
+                {% csrf_token %}
+                <div style="display: grid">
+                    {% for field in myFilter.form %}
+                    <div id="form-field-{{ forloop.counter0 }}">
+                        {{ field.label_tag }}
+                        {% render_field field class="form-control" %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-success mb-3 mt-2">Выбрать
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row my-3">
+        <div class="col-md-9">
+            <h4>Выберите удобную для Вас группу:</h4>
+            <ul class="list-group">
+                {% for group in groups %}
+                {% if 'ОНЛАЙН' in group.level.level %}
+                <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+                    <p><b>Номер группы:</b> {{group.uniq_id}}.</p>
+                    <p>Занятия проходят он-лайн.</p>
+                    <p><b>Расписание:</b> {{group.schedule_active}}</p>
+                    <a class="btn btn-success btn-block btn-lg"
+                       href=" {% url 'catalog:signup2group' group.id %}" role="button"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">Записаться</a>
+                </li>
+                {% else %}
+                <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+                    <p><b>Номер группы:</b> {{group.uniq_id}}.</p>
+                    <p><b>Адрес:</b> {{ group.address }}</p>
+                    <p><b>Расписание:</b> {{group.schedule_active}}</p>
+                    <a class="btn btn-success btn-block btn-lg"
+                       href=" {% url 'catalog:signup2group' group.id %}" role="button"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">Записаться</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-md-12">
+        <img src="/static/images/ups.png" class="mx-auto d-block" width="400px">
+        <h3>Мы ничего не нашли по вашему запросу.<br/>Попробуйте еще. </h3>
+    </div>
+    {% endif %}
+</div>
+<div class="container">
+    {% if groups %}
+    {% include "pagination.html" with page=groups %}
+    {% endif %}
+</div>
+{% endblock %}

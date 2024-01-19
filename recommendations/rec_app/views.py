@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.urls import reverse
 
 from address_book.models import StreetsBook
+from catalog.filters import GroupsFilterSearch
 from catalog.models import Groups, ActivityTypes, Attends
 from .forms import AnswerForm
 from .models import Question, ResultOfTest, TestResultDescription, VotesGroups
@@ -13,6 +14,8 @@ from django.contrib import messages
 
 @login_required(redirect_field_name='/')
 def recommendations(request):
+    """Recommendation based on test results and user address, priority - offline"""
+    global groups_list
     result = ResultOfTest.get_results(request.user)
     votes_group = VotesGroups.votes_groups.get(votes=result)
     description = TestResultDescription.descriptions.get(pk=votes_group.result_group.pk)
@@ -23,62 +26,62 @@ def recommendations(request):
     level3_offline = level3_offline.filter(activity_type__activity_type__activity_type=activity_type)
     level3_online = level3_online.filter(activity_type__activity_type__activity_type=activity_type)
 
-    # район по адресу пользователя
-    print(request.user.address)
-    user_address = StreetsBook.address_transform(request.user.address)
+    # адрес пользователя
     # так как нет инфо по району пользователя, берем все улицы с таким названием
+    user_address = StreetsBook.address_transform(request.user.address)
     user_address = list(user_address)
-
     # если адрес есть в базе адресов Москвы
     if user_address:
         admin_districts = [i.admin_district.admin_district_name for i in user_address]
-        print(admin_districts)
         # группы по типу активности из теста и из района пользователя
-        groups_list = (Groups.objects.filter
-                       (Q(level__in=[i.pk for i in level3_offline], districts__in=[admin_districts]) |
-                        Q(level__in=[i.pk for i in level3_online])
-                        )
-                       .exclude(schedule_active=''))
+        for district in admin_districts:
+            groups_list = (Groups.objects.filter(
+                level__in=level3_offline,
+                districts__icontains=district)
+            .exclude(
+                schedule_active=''))
+            groups_list.union(groups_list)
+        # ТУТ НЕВЕРНО СДЕЛАНО. почему-то фильтр не выбирает результаты он лайн
+        groups_list_on = Groups.objects.filter(level__in=level3_online).exclude(schedule_active='')
+        groups_list.union(groups_list_on)
     else:
-        groups_list = (Groups.objects.filter(level__in=[i.pk for i in level3_online])
+        groups_list = (Groups.objects.filter(level__in=level3_online)
                        .exclude(schedule_active=''))
 
-    # сделать высплывающее окно с районом? есть улицы с одинаковым названием
-    # в левел3 должны быть топ активностей для данного юзера
-    # if len(list(user_address)) == 1:
-    #     user_address = user_address.first()
-    #     district = user_address.district.admin_district.admin_district_name
-    # else:
-    #     return redirect('users:district_choice')
+    group_filter = GroupsFilterSearch(request.GET, queryset=groups_list)
+    groups_list = group_filter.qs
 
-    paginator = Paginator(groups_list, 5)
+    paginator = Paginator(groups_list, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'rec_app/recommendations.html',
                   {'result': result,
                    'description': description,
+                   'group_filter': group_filter,
                    'groups_list': page_obj})
 
 
 @login_required(redirect_field_name='/')
 def question_form(request, page_num=1):
-    if ResultOfTest.results.filter(user=request.user).exists():
-        if ResultOfTest.results.filter(user=request.user).count() == 10:
-            return redirect('rec_app:recommendations')
-
+    """Testing"""
     message = 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'
     last_page = int(Question.questions.latest('pk').pk) + 1
     user = request.user
     if page_num > last_page:
         return render(request, '404.html')
-
+    # когда ответил на последний вопрос
     if page_num == last_page:
         if len(ResultOfTest.results.filter(user=user).annotate(count=Count('user'))) == last_page - 1:
             return redirect('rec_app:recommendations')
         else:
             messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
             return redirect(reverse('rec_app:question_and_answers', args=(1,)))
+    # если хочет пройти тест заново
+    if ResultOfTest.results.filter(user=request.user).exists():
+        if ResultOfTest.results.filter(user=request.user).count() == 10:
+            ResultOfTest.results.filter(user=request.user).delete()
+
 
     question = get_object_or_404(Question, pk=page_num)
     form = AnswerForm(request.POST or None, page_num=page_num, user=user)
@@ -94,6 +97,7 @@ def question_form(request, page_num=1):
 
 @login_required(redirect_field_name='/')
 def start_test(request):
+    """Start test"""
     if ResultOfTest.results.filter(user=request.user).exists():
         if ResultOfTest.results.filter(user=request.user).count() < 10:
             ResultOfTest.results.filter(user=request.user).delete()
@@ -104,49 +108,6 @@ def start_test(request):
 
 @login_required(redirect_field_name='/')
 def restart_test(request):
+    """Choice: results or restart test"""
     if ResultOfTest.results.filter(user=request.user).exists():
         return render(request, 'rec_app/restart_test.html')
-
-
-#
-# class DeleteObject(LoginRequiredMixin, DeleteView):
-#     model = Object
-#     template_name = 'todoList/home.html'
-#
-#     def get(self, request, *args, **kwargs):
-#         obj = get_object_or_404(Object, id=self.kwargs.get('id'))
-#         # Check for uncompleted tasks
-#         uncompleted = Data.objects.filter(objects=obj).filter(state=False).count()
-#
-#         if uncompleted == 0:
-#             obj.delete()
-#         return redirect('home')
-
-"""
-<a class="dropdown-item" data-toggle="modal" data-target="#taskModal" onclick="getUrl('{% url 'del_obj' object.id %}')">Delete</a>
-
-<script language="javascript">
-    function getUrl(url) {
-        del_obj.setAttribute('href', url);
-    }
-    function goto() {
-        var url = del_obj.getAttribute('href');
-        return location.href = url;
-    }
-</script>
-
-<div id="taskModal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Confirm deletion</h4>
-            </div>
-            <div class="modal-body">Are your sure you want to delete?</div>
-            <div class="modal-footer">
-                <a id="del_obj" class="btn btn-danger" type="button" data-dismiss="modal" href="" onclick="goto()">Delete</a>
-                <a class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</a>
-            </div>
-        </div>
-    </div>
-</div>
-"""

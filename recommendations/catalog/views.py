@@ -28,9 +28,9 @@ def search(request, search_string: str):
     message = 'Результаты поиска:'
     level3 = ActivityLevel3.objects.filter(Q(descript_level__icontains=search_string) |
                                            Q(level__icontains=search_string))
-    groups = Groups.objects.filter(level__in=list(level3)).exclude(schedule_active='')
-    myFilter = GroupsFilterSearch(request.GET, queryset=groups)
-    groups = myFilter.qs
+    groups = Groups.objects.filter(level__in=level3).exclude(schedule_active='')
+    group_filter = GroupsFilterSearch(request.GET, queryset=groups)
+    groups = group_filter.qs
 
     paginator = Paginator(groups, 25)
     page_number = request.GET.get('page')
@@ -38,7 +38,7 @@ def search(request, search_string: str):
     return render(
         request,
         'catalog/search_results.html',
-        {'groups': page_obj, 'message': message, 'myFilter': myFilter}
+        {'groups': page_obj, 'message': message, 'group_filter': group_filter}
     )
 
 

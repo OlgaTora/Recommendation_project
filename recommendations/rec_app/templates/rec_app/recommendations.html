@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load django_bootstrap5 %}
 {% block content %}
 <div class="description">
     <div class="row my-5">
@@ -10,13 +12,15 @@
 </div>
 <div class="container-fluid">
     {% if groups_list %}
-    <h4>Выберите место занятий: </h4>
+    <h4>Выберите занятие: </h4>
     <div class="row my-5">
-        <div class="col-md-9">
+        <div class="col-md-8">
             <ul class="list-group">
                 {% for group in groups_list %}
                 {% if 'ОНЛАЙН' in group.level.level %}
-                <li class="list-group-item list-group-item-dark" style="font-size: 25px"> {{group.level}}
+                <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+                    <p><b>{{group.level.level}}</b></p>
+                    <p><i>{{group.level.descript_level}}</i></p>
                     <p><b>Номер группы: </b> {{group.uniq_id}}.</p>
                     <p>Занятия проходят он-лайн.</p>
                     <p><b>Расписание:</b> {{group.schedule_active}}</p>
@@ -25,8 +29,10 @@
                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">Записаться</a>
                 </li>
                 {% else %}
-                <li class="list-group-item list-group-item-dark" style="font-size: 25px"> {{group.level}}
-                    <p><b>Номер группы:</b>{{group.uniq_id}}.</p>
+                <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+                    <p><b>{{group.level.level}}</b></p>
+                    <p><i>{{group.level.descript_level}}</i></p>
+                    <p><b>Номер группы: </b>{{group.uniq_id}}.</p>
                     <p><b>Адрес:</b> {{ group.address }}</p>
                     <p><b>Расписание:</b> {{group.schedule_active}}</p>
                     <a class="btn btn-success btn-block btn-lg"
@@ -37,16 +43,32 @@
                 {% endfor %}
             </ul>
         </div>
-    </div>
-    {% else %}
-    <div class="col-md-12">
-        <img src="/static/images/ups.png" class="mx-auto d-block" width="400px">
-        <h3>Мы ничего не нашли по вашему запросу.<br/>Попробуйте еще. </h3>
-        {% endif %}
+        <div class="col-md-4">
+            <h4>Уточните адрес или район для поиска</h4>
+            <h5>оффлайн занятий:</h5>
+            <form method="GET" action="">
+                <div style="display: grid">
+                    {% for field in group_filter.form %}
+                    <div id="form-field-{{ forloop.counter0 }}">
+                        {{ field.label_tag }}
+                        {% render_field field class="form-control" %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-success mb-3 mt-2">Выбрать
+                </button>
+            </form>
+        </div>
     </div>
 </div>
+<div class="col-md-12">
+    {% else %}
+    <img src="/static/images/ups.png" class="mx-auto d-block" width="400px">
+    <h3>Мы ничего не нашли по вашему запросу.<br/>Попробуйте еще. </h3>
+    {% endif %}
+</div>
 <div class="container">
-    {% if groups %}
+    {% if groups_list %}
     {% include "pagination.html" with page=groups_list %}
     {% endif %}
 </div>

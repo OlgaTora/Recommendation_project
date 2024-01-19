@@ -43,7 +43,7 @@
             <h5>оффлайн занятий:</h5>
             <form method="GET" action="">
                 <div style="display: grid">
-                    {% for field in myFilter.form %}
+                    {% for field in group_filter.form %}
                     <div id="form-field-{{ forloop.counter0 }}">
                         {{ field.label_tag }}
                         {% render_field field class="form-control" %}

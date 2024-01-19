@@ -44,7 +44,7 @@ class ActivityLevel3(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return f'{self.level}\n{self.descript_level}'
+        return f'{self.level}:\n{self.descript_level}'
 
 
 class Groups(models.Model):
@@ -107,7 +107,7 @@ class Attends(models.Model):
         top_off = Attends.objects.exclude(online='1') \
                       .values('group_id__level') \
                       .annotate(count_level3=Count('group_id__level')) \
-                      .order_by('-count_level3')[:50]
+                      .order_by('-count_level3')[:10]
         levels3_off = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top_off])
         top_on = Attends.objects.filter(online='1') \
                      .values('group_id__level') \

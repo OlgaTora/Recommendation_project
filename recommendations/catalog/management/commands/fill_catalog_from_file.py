@@ -77,12 +77,17 @@ class Command(BaseCommand):
 
         def clean_group_address(address: str):
             """Function for delete replicas in address"""
-            address = (address.replace('город', '')
-                       .replace('г.', '')
-                       .replace('Город', '')
-                       .replace('Г', '')
-                       .replace('г.о.', ''))
-            addresses = address.split('Москва,')
+            address = address.replace('г.о.', 'город')
+            addresses = address.split(',')
+            for i in range(len(addresses)):
+                if 'Москва' in addresses[i] or 'москва' in addresses[i]:
+                    addresses[i] = (addresses[i].replace('город', '')
+                                    .replace('г.', '')
+                                    .replace('Город', '')
+                                    .replace('Г', '')
+                                    )
+            addresses = ', '.join(addresses)
+            addresses = addresses.split('Москва,')
             # убрать пустой список вначале, запятые в конце списка
             addresses = ['город Москва, ' + i.strip().strip(',') for i in addresses if i != ' ' and i != '']
             addresses = ', '.join(list(set(addresses)))
@@ -95,7 +100,7 @@ class Command(BaseCommand):
             districts = ', '.join(list(set(districts_list)))
             return districts
 
-        # группы
+        #группы
         with open('files/groups.csv', 'r', encoding='utf-8') as address_base:
             file_reader = csv.reader(address_base, delimiter=',')
             next(file_reader)
@@ -114,12 +119,10 @@ class Command(BaseCommand):
                 )
 
         # attends
-        with open('files/attends.csv', 'r', encoding='utf-8') as attends:
-            # attends_list = []
+        with open('files/attends_reduct.csv', 'r', encoding='utf-8') as attends:
             file_reader = csv.reader(attends, delimiter=',')
             next(file_reader)
             for row in file_reader:
-                # attends_list.append(row)
                 Attends.objects.create(
                     uniq_id=row[1],
                     group_id=Groups.objects.get(uniq_id=row[2]),
@@ -129,3 +132,4 @@ class Command(BaseCommand):
                     start_time=row[8],
                     end_time=row[9],
                 )
+                print(row[1])
