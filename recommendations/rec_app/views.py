@@ -40,17 +40,23 @@ def recommendations(request):
                 districts__icontains=district)
             .exclude(
                 schedule_active=''))
+            print('every district list')
+            print(groups_list)
+            # не работает такое соединение выборок!!!
             groups_list.union(groups_list)
         # ТУТ НЕВЕРНО СДЕЛАНО. почему-то фильтр не выбирает результаты он лайн
         groups_list_on = Groups.objects.filter(level__in=level3_online).exclude(schedule_active='')
-        groups_list.union(groups_list_on)
+        print('every online list')
+        print(groups_list_on)
+        groups_list_on.union(groups_list)
+        print('every union list')
+        print(groups_list)
     else:
         groups_list = (Groups.objects.filter(level__in=level3_online)
                        .exclude(schedule_active=''))
 
     group_filter = GroupsFilterSearch(request.GET, queryset=groups_list)
     groups_list = group_filter.qs
-
     paginator = Paginator(groups_list, 25)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -72,7 +78,8 @@ def question_form(request, page_num=1):
         return render(request, '404.html')
     # когда ответил на последний вопрос
     if page_num == last_page:
-        if len(ResultOfTest.results.filter(user=user).annotate(count=Count('user'))) == last_page - 1:
+        votes = len(ResultOfTest.results.filter(user=user).annotate(count=Count('user')))
+        if votes >= last_page - 1:
             return redirect('rec_app:recommendations')
         else:
             messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
@@ -81,7 +88,6 @@ def question_form(request, page_num=1):
     if ResultOfTest.results.filter(user=request.user).exists():
         if ResultOfTest.results.filter(user=request.user).count() == 10:
             ResultOfTest.results.filter(user=request.user).delete()
-
 
     question = get_object_or_404(Question, pk=page_num)
     form = AnswerForm(request.POST or None, page_num=page_num, user=user)
@@ -101,6 +107,7 @@ def start_test(request):
     if ResultOfTest.results.filter(user=request.user).exists():
         if ResultOfTest.results.filter(user=request.user).count() < 10:
             ResultOfTest.results.filter(user=request.user).delete()
+            return redirect(reverse('rec_app:question_and_answers', args=(1,)))
         else:
             return redirect(reverse('rec_app:restart_test'))
     return redirect(reverse('rec_app:question_and_answers', args=(1,)))

@@ -1,23 +1,31 @@
 import django_filters
-from django_filters import DateTimeFromToRangeFilter, CharFilter, filters, BooleanFilter
+from django.forms import CheckboxInput
+from django_filters import CharFilter, filters, BooleanFilter, ChoiceFilter
 from django_filters.widgets import BooleanWidget
 from django.utils.translation import gettext as _
 from address_book.models import AdministrativeDistrict
 from catalog.models import Groups
 
+# class CustomBooleanWidget(BooleanWidget):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.choices = (("", _("--------")),("False", _("Все занятия")), ("True", _("Только оффлайн")))
 
-class CustomBooleanWidget(BooleanWidget):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.choices = (("False", _("Все занятия")), ("True", _("Только оффлайн")))
+CHOICES = (('Онлайн', 'Все занятия'), ('Оффлайн', 'Только оффлайн'))
 
 
 class GroupsFilterSearch(django_filters.FilterSet):
-    offline = BooleanFilter(
-        widget=CustomBooleanWidget(),
+    offline = ChoiceFilter(
+        choices=CHOICES,
         label='Онлайн/Оффлайн',
         method='filter_offline'
     )
+
+    # offline = BooleanFilter(
+    #     widget=CustomBooleanWidget(),
+    #     label='Онлайн/Оффлайн',
+    #     method='filter_offline'
+    # )
 
     districts = filters.ModelChoiceFilter(
         queryset=AdministrativeDistrict.objects.all(),
@@ -39,12 +47,13 @@ class GroupsFilterSearch(django_filters.FilterSet):
         return queryset.filter(districts__icontains=value).exclude(level__level__icontains='ОНЛАЙН')
 
     def filter_offline(self, queryset, name, value):
-        return queryset.exclude(level__level__icontains='ОНЛАЙН')
-
-    # date = DateTimeFromToRangeFilter(
-    #               widget=django_filters.widgets.RangeWidget(
-    #               attrs={'type': 'date'}
-    # )
+        #print(value)
+        #return queryset.exclude(level__level__icontains='ОНЛАЙН')
+        if value != 'Онлайн':
+            print('aa')
+            return queryset.exclude(level__level__icontains='ОНЛАЙН')
+        else:
+            return queryset
 
     class Meta:
         model = Groups
@@ -65,11 +74,6 @@ class GroupsFilterCatalog(django_filters.FilterSet):
     def filter_district(self, queryset, name, value):
         value = f'{str(value).split(" ")[0]}'
         return queryset.filter(districts__icontains=value)
-
-    # date = DateTimeFromToRangeFilter(
-    #               widget=django_filters.widgets.RangeWidget(
-    #               attrs={'type': 'date'}
-    # )
 
     class Meta:
         model = Groups

@@ -84,7 +84,7 @@ def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
     level3 = get_object_or_404(ActivityLevel3, pk=pk_level3)
     groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
 
-    myFilter = GroupsFilterCatalog(request.GET, queryset=groups)
+    myFilter = GroupsFilterSearch(request.GET, queryset=groups)
     groups = myFilter.qs
     paginator = Paginator(groups, 25)
 

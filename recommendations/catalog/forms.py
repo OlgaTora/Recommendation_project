@@ -55,7 +55,7 @@ class DateTimeChoiceForm(forms.Form):
         data = self.cleaned_data
         date_choice = data.get('date_choice')
         weekday_choice = data.get('weekday_choice')
-        if weekday_choice:
+        if weekday_choice and date_choice:
             weekday = date_choice.weekday()
             weekday_choice = int(WEEKDAYS_DICT[weekday_choice[:2]])
             if weekday_choice != weekday:
