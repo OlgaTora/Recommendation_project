@@ -1,10 +1,10 @@
 from django import forms
 from bootstrap_datepicker_plus.widgets import DatePickerInput
-import datetime as DT
+import datetime as dt
 
-from data_transform.weekdays_dict import WEEKDAYS_DICT
 
 from catalog.models import Attends, Groups
+from catalog.weekdays_dict import WEEKDAYS_DICT
 from users.models import Profile
 
 
@@ -28,8 +28,8 @@ class DateTimeChoiceForm(forms.Form):
         for i in lst:
             res = f'{i[2]} {i[3]}'
             weekdays_time_choices.append((res, res))
-            period.append(DT.datetime.strptime(i[0], '%d.%m.%Y'))
-            period.append(DT.datetime.strptime(i[1], '%d.%m.%Y'))
+            period.append(dt.datetime.strptime(i[0], '%d.%m.%Y'))
+            period.append(dt.datetime.strptime(i[1], '%d.%m.%Y'))
 
         start_date = min(period)
         end_date = max(period)

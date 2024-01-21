@@ -4,16 +4,19 @@
 <div class="container-fluid">
     <h1>{{ message }}</h1>
     <div class="row my-2">
-        <div class="col-md-8">
+        <div class="col-md-6">
             <form action="" method="post">
                 {% csrf_token %}
                 {{ address_form.media.js }}
                 {% bootstrap_form form %}
                 {% if address_form%}
-                    {% bootstrap_form address_form %}
+                {% bootstrap_form address_form %}
                 {% endif %}
                 <button type="submit" class="btn btn-success btn-block">Подтвердите</button>
             </form>
+        </div>
+        <div class="col-md-6">
+            <img src="/static/users/images/login.png" class="mx-auto d-block" width="400px">
         </div>
     </div>
 </div>

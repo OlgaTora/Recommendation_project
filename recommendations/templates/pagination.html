@@ -1,7 +1,8 @@
   {% if page.has_previous %}
-      <a href="?page={{ page.previous_page_number }}">Предыдущая</a>
+      <a class="page-link" href="?page={{ page.previous_page_number }}">Предыдущая</a>
   {% endif %}
   Страница {{ page.number }} из {{ page.paginator.num_pages }}.
   {% if page.has_next %}
-        <a href="?page={{ page.next_page_number }}">Следующая</a>
+        <a class="page-link" href="?page={{ page.next_page_number }}">Следующая</a>
   {% endif %}
+

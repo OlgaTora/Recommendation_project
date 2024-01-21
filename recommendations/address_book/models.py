@@ -1,7 +1,7 @@
 from django.db import models
 from smart_selects.db_fields import ChainedForeignKey
 
-from data_transform.street_types_dict import street_types_dict
+from address_book.address_parser.street_types_dict import street_types_dict
 
 
 class AdministrativeDistrict(models.Model):
@@ -76,13 +76,6 @@ class StreetsBook(models.Model):
         sort=True,
         verbose_name='Улица'
     )
-    # street_type = ChainedForeignKey(
-    #     StreetType,
-    #     chained_field="street_name",
-    #     chained_model_field="streets",
-    #     show_all=False,
-    #     auto_choose=True,
-    #     sort=True)
 
     street_type = models.ForeignKey(StreetType, on_delete=models.CASCADE, default=None)
     index = models.CharField(max_length=255)
