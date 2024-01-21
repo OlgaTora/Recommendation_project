@@ -79,16 +79,3 @@ def user_logout(request):
         logout(request)
     return redirect(reverse('users:index'))
 
-#
-# @login_required(redirect_field_name='/')
-# def district_choice(request):
-#     message = ''
-#     form = DistrictForm(request.POST or None)
-#     if form.is_valid():
-#         district = form.cleaned_data['district']
-#         return redirect(reverse('rec_app:recommendations'))
-#     return render(
-#         request,
-#         'users/login.html',
-#         {'form': form, 'user': request.user, 'message': message}
-#     )

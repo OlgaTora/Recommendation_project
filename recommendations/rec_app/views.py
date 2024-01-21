@@ -17,8 +17,8 @@ def recommendations(request):
     """Recommendation based on test results and user address, priority - offline"""
     global groups_list
     result = ResultOfTest.get_results(request.user)
-    votes_group = VotesGroups.votes_groups.get(votes=result)
-    description = TestResultDescription.descriptions.get(pk=votes_group.result_group.pk)
+    votes_group = VotesGroups.objects.get(votes=result)
+    description = TestResultDescription.objects.get(pk=votes_group.result_group.pk)
     activity_type = ActivityTypes.objects.get(pk=description.activity_type.pk)
 
     # отфильтровать группы offline/online отдельно
@@ -38,7 +38,7 @@ def recommendations(request):
             groups_list = (Groups.objects.filter(
                 level__in=level3_offline,
                 districts__icontains=district)
-            .exclude(
+                .exclude(
                 schedule_active=''))
             print('every district list')
             print(groups_list)
@@ -72,22 +72,22 @@ def recommendations(request):
 def question_form(request, page_num=1):
     """Testing"""
     message = 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'
-    last_page = int(Question.questions.latest('pk').pk) + 1
+    last_page = int(Question.objects.latest('pk').pk) + 1
     user = request.user
     if page_num > last_page:
         return render(request, '404.html')
     # когда ответил на последний вопрос
     if page_num == last_page:
-        votes = len(ResultOfTest.results.filter(user=user).annotate(count=Count('user')))
+        votes = len(ResultOfTest.objects.filter(user=user).annotate(count=Count('user')))
         if votes >= last_page - 1:
             return redirect('rec_app:recommendations')
         else:
             messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
             return redirect(reverse('rec_app:question_and_answers', args=(1,)))
     # если хочет пройти тест заново
-    if ResultOfTest.results.filter(user=request.user).exists():
-        if ResultOfTest.results.filter(user=request.user).count() == 10:
-            ResultOfTest.results.filter(user=request.user).delete()
+    if ResultOfTest.objects.filter(user=request.user).exists():
+        if ResultOfTest.objects.filter(user=request.user).count() == 10:
+            ResultOfTest.objects.filter(user=request.user).delete()
 
     question = get_object_or_404(Question, pk=page_num)
     form = AnswerForm(request.POST or None, page_num=page_num, user=user)
@@ -104,9 +104,9 @@ def question_form(request, page_num=1):
 @login_required(redirect_field_name='/')
 def start_test(request):
     """Start test"""
-    if ResultOfTest.results.filter(user=request.user).exists():
-        if ResultOfTest.results.filter(user=request.user).count() < 10:
-            ResultOfTest.results.filter(user=request.user).delete()
+    if ResultOfTest.objects.filter(user=request.user).exists():
+        if ResultOfTest.objects.filter(user=request.user).count() < 10:
+            ResultOfTest.objects.filter(user=request.user).delete()
             return redirect(reverse('rec_app:question_and_answers', args=(1,)))
         else:
             return redirect(reverse('rec_app:restart_test'))
@@ -116,5 +116,5 @@ def start_test(request):
 @login_required(redirect_field_name='/')
 def restart_test(request):
     """Choice: results or restart test"""
-    if ResultOfTest.results.filter(user=request.user).exists():
+    if ResultOfTest.objects.filter(user=request.user).exists():
         return render(request, 'rec_app/restart_test.html')

@@ -6,7 +6,7 @@ from users.models import Profile
 
 class Question(models.Model):
     question_text = models.CharField(max_length=255)
-    questions = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return self.question_text
@@ -15,7 +15,7 @@ class Question(models.Model):
 class Choice(models.Model):
     choice_text = models.CharField(max_length=255)
     votes = models.IntegerField()
-    choices = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return self.choice_text
@@ -24,7 +24,7 @@ class Choice(models.Model):
 class TestResultDescription(models.Model):
     activity_type = models.ForeignKey(ActivityTypes, on_delete=models.CASCADE)
     description = models.TextField()
-    descriptions = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return self.description
@@ -34,11 +34,11 @@ class ResultOfTest(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     answer = models.ForeignKey(Choice, on_delete=models.CASCADE)
-    results = models.Manager()
+    objects = models.Manager()
 
     @staticmethod
     def get_results(user):
-        results = ResultOfTest.results.filter(user=user)
+        results = ResultOfTest.objects.filter(user=user)
         resume = 0
         for result in results:
             resume += result.answer.votes
@@ -48,7 +48,7 @@ class ResultOfTest(models.Model):
 class VotesGroups(models.Model):
     result_group = models.ForeignKey(TestResultDescription, on_delete=models.CASCADE)
     votes = models.IntegerField()
-    votes_groups = models.Manager()
+    objects = models.Manager()
 
     def __str__(self):
         return f'{self.votes}'
