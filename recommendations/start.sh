@@ -1,6 +1,6 @@
 # Script to create database and super user
 
-mysql -uroot -e "create database Recservice"
+mysql -uroot -e "create database Recservice;"
 mysql -uroot -e "create user 'torres'@'localhost' identified by 'torres';"
 mysql -uroot -e "grant all privileges on Recservice.* to 'torres'@'localhost' with grant option;"
 
