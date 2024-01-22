@@ -18,15 +18,15 @@
         </div>
     </div>
 </div>
-
 <div class="col-md-12 col-md-push-3">
     <div class="row">
         {% for activity_type in activity_types %}
         <div class="col-sm-4 text-center" >
             <a class="btn btn-success btn-block btn-lg"
-               href="{% url 'catalog:type_content' activity_type.id %}" role="button"
+               href="catalog/type_content/{{ activity_type.activity_type }}" role="button"
                style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 2.75rem;">
-                {{ activity_type.activity_type }}</a>
+                {{ activity_type.activity_type }}
+                </a>
         </div>
         {% endfor %}
     </div>
