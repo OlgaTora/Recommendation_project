@@ -31,7 +31,7 @@ class Command(BaseCommand):
             ActivityTypes.objects.create(
                 activity_type=activity,
             )
-        #
+
         # направление 1
         lst_types = []
         for row in sheet.iter_rows(min_row=2, values_only=True):

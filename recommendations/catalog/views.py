@@ -3,10 +3,34 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.views import View
 
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
 from catalog.forms import SearchForm, DateTimeChoiceForm
 from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups
+
+
+#
+# class IndexView(View):
+#
+#     def get_context_data(self, *args, **kwargs):
+#         context = super().get_context_data(*args, **kwargs)
+#         context['message'] = 'Поиск по каталогу занятий'
+#         return context
+#
+#     def render(self, request):
+#         return render(request, 'catalog/catalog.html', {'form': self.form})
+#
+#     def post(self, request):
+#         self.form = SearchForm(request.POST)
+#         if self.form.is_valid():
+#             search_activity = self.form.cleaned_data['search_activity']
+#             return redirect('post_list')
+#         return self.render(request)
+#
+#     def get(self, request):
+#         self.form = SearchForm()
+#         return self.render(request)
 
 
 def index(request):
@@ -42,8 +66,10 @@ def search(request, search_string: str):
     )
 
 
-def type_content(request, pk_type):
-    activity_type = get_object_or_404(ActivityTypes, pk=pk_type)
+def type_content(request, type_slug):
+    print(type_slug)
+
+    activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
     level1 = ActivityLevel1.objects.filter(activity_type=activity_type).order_by('id')
     return render(
         request,
@@ -107,6 +133,28 @@ def signup2group(request, group: Groups):
         return redirect(reverse('catalog:success_signup2group', args=(group.pk,)))
     return render(request, 'catalog/signup_group_details.html',
                   {'group': group, 'form': form})
+
+#
+# class Signup2GroupView(View):
+#     def get_object(self, queryset=None):
+#         group = get_object_or_404(Women.published, pk=self.kwargs[self.slug_url_kwarg])
+#         return group
+#
+#     group = get_object_or_404(Groups, pk=group)
+#     user = request.user
+#     template_name = 'catalog/signup_group_details.html'
+#     form_class = DateTimeChoiceForm
+#
+#     def get(self, request, *args, **kwargs):
+#         form = self.form_class
+#         return render(request, self.template_name, {'form': form})
+#
+#     def post(self, request, *args, **kwargs):
+#         form = self.form_class(request.POST, group=group, user=user)
+#         if form.is_valid():
+#             return redirect(reverse('catalog:success_signup2group', args=(group.pk,)))
+#         else:
+#             return render(request, self.template_name, {'form': form})
 
 
 def success_signup2group(request, group: Groups):

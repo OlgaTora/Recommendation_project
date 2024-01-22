@@ -99,3 +99,8 @@ input:focus{
 .content{
     display: flex;
 }
+
+.page-link{
+    font-size: 25px;
+    color: #128849
+}

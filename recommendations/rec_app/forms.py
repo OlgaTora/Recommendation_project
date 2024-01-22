@@ -10,8 +10,8 @@ class AnswerForm(forms.Form):
         self.user = user
         choices = []
         question_pk = self.page
-        self.question = Question.questions.get(pk=question_pk)
-        for choice in Choice.choices.all():
+        self.question = Question.objects.get(pk=question_pk)
+        for choice in Choice.objects.all():
             choices.append((choice.votes, choice.choice_text))
 
         self.fields['choice'] = forms.ChoiceField(
@@ -22,7 +22,11 @@ class AnswerForm(forms.Form):
 
     def save(self):
         choice = int(self.cleaned_data['choice'])
-        answer = Choice.choices.get(votes=choice)
-        result = ResultOfTest(answer=answer, user=self.user, question=self.question)
-        result.save()
-
+        answer = Choice.objects.get(votes=choice)
+        if ResultOfTest.objects.filter(user=self.user, question=self.question).exists():
+            result = ResultOfTest.objects.get(user=self.user, question=self.question)
+            result.answer = answer
+            result.save(update_fields=['answer'])
+        else:
+            result = ResultOfTest(answer=answer, user=self.user, question=self.question)
+            result.save()

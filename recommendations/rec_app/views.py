@@ -76,6 +76,7 @@ def question_form(request, page_num=1):
     user = request.user
     if page_num > last_page:
         return render(request, '404.html')
+
     # когда ответил на последний вопрос
     if page_num == last_page:
         votes = len(ResultOfTest.objects.filter(user=user).annotate(count=Count('user')))
@@ -84,10 +85,6 @@ def question_form(request, page_num=1):
         else:
             messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
             return redirect(reverse('rec_app:question_and_answers', args=(1,)))
-    # если хочет пройти тест заново
-    if ResultOfTest.objects.filter(user=request.user).exists():
-        if ResultOfTest.objects.filter(user=request.user).count() == 10:
-            ResultOfTest.objects.filter(user=request.user).delete()
 
     question = get_object_or_404(Question, pk=page_num)
     form = AnswerForm(request.POST or None, page_num=page_num, user=user)
@@ -95,7 +92,7 @@ def question_form(request, page_num=1):
         form.save()
         page_num += 1
         return redirect(reverse('rec_app:question_and_answers', args=(page_num,)))
-    page_num += 1
+    #page_num += 1
     return render(request,
                   'rec_app/test_form.html',
                   {'form': form, 'pk': question.pk, 'message': message})
@@ -118,3 +115,5 @@ def restart_test(request):
     """Choice: results or restart test"""
     if ResultOfTest.objects.filter(user=request.user).exists():
         return render(request, 'rec_app/restart_test.html')
+    else:
+        return redirect(reverse('rec_app:start_test'))

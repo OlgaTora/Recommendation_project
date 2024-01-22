@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
 {% block content %}
-<h3>{{message}}</h3>
-<h1>Вопрос № {{ pk }}: </h1>
-<div class="container">
-        <form action="" method="post" style="fontsize: 20px">
-            {% csrf_token %}
-            {% bootstrap_form form %}
+<div class="container-fluid">
+    <h2>{{message}}</h2>
+    <div class="row my-5">
+        <h1>Вопрос № {{ pk }}: </h1>
+        <div class="col-md-6">
+            <form action="" method="post" style="font-size: 30px">
+                {% csrf_token %}
+                {% bootstrap_form form %}
                 <button type="submit" class="btn btn-success btn-block">Выберите ответ</button>
-        </form>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <img src="/static/rec_app/images/test.png" class="mx-auto d-block" width="500">
+        </div>
+    </div>
 </div>
 {% endblock %}

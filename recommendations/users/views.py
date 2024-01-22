@@ -3,12 +3,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.views import View
+from django.views.generic import TemplateView
 
 from users.forms import AddressForm, LoginForm, SignupForm
 from users.models import Profile
 
 
-def index(request):
+class IndexView(TemplateView):
+    template_name = 'users/index.html'
     description = ('Миссия и цели: организация «Еще не бабушка» выроса из одноименного волонтерского движения, '
                    'главной задачей которого было улучшение жизни пожилых людей в интернатах и уменьшение '
                    'того эмоционального вакуума, в котором они оказываются после попадания в интернат. '
@@ -18,8 +21,41 @@ def index(request):
                    'Миссия организации: Мы стараемся объединить ресурсы общества и государства для улучшения качества'
                    ' жизни пожилых людей. Наша стратегическая цель: Выстроить в стране систему помощи, '
                    'которая будет доступна каждому пожилому человеку, нуждающемуся в помощи.')
-    return render(request, 'users/index.html', {'description': description})
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['description'] = self.description
+        return context
+
+#
+# def signup(request):
+#     if not request.user.is_authenticated:
+#         message = 'Заполните данные о себе, пожалуйста'
+#         signup_form = SignupForm(request.POST or None)
+#         address_form = AddressForm(request.POST or None)
+#
+#         if signup_form.is_valid() and address_form.is_valid():
+#             data = signup_form.cleaned_data
+#             address = address_form.cleaned_data
+#             Profile.objects.create_user(
+#                 username=data['username'],
+#                 password=data['password'],
+#                 birth_date=data['birth_date'],
+#                 address=f"город Москва, {address['street_name']}",
+#                 gender=data['gender'])
+#             user = authenticate(username=data['username'],
+#                                 password=data['password'])
+#             if user is not None:
+#                 login(request, user)
+#                 messages.success(request, 'Вы успешно зарегистрировались.')
+#             return redirect(reverse('users:index'))
+#         return render(
+#             request,
+#             'users/login.html',
+#             {'form': signup_form, 'address_form': address_form, 'message': message}
+#         )
+#     else:
+#         return redirect(reverse('users:index'))
 
 
 def signup(request):
@@ -27,7 +63,6 @@ def signup(request):
         message = 'Заполните данные о себе, пожалуйста'
         signup_form = SignupForm(request.POST or None)
         address_form = AddressForm(request.POST or None)
-
         if signup_form.is_valid() and address_form.is_valid():
             data = signup_form.cleaned_data
             address = address_form.cleaned_data
@@ -35,7 +70,7 @@ def signup(request):
                 username=data['username'],
                 password=data['password'],
                 birth_date=data['birth_date'],
-                address=f"город Москва, {address['street_name']}",
+                address=address['address'],
                 gender=data['gender'])
             user = authenticate(username=data['username'],
                                 password=data['password'])
@@ -78,4 +113,3 @@ def user_logout(request):
     if request.user is not None:
         logout(request)
     return redirect(reverse('users:index'))
-

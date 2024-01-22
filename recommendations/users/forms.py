@@ -8,10 +8,16 @@ from .models import Profile
 
 RETIREMENT_AGE = 58
 
+
 class AddressForm(forms.ModelForm):
     class Meta:
         model = StreetsBook
         exclude = ('index', 'street_type',)
+
+    def clean_address(self):
+        address = self.cleaned_data.get('address_form')
+        address = f"город Москва, {address['street_name']}"
+        return address
 
 
 class SignupForm(forms.ModelForm):
@@ -39,11 +45,14 @@ class SignupForm(forms.ModelForm):
         year = timedelta(days=365)
         birth_date = self.cleaned_data['birth_date']
         now = timezone.now().date()
-        if birth_date > (now - RETIREMENT_AGE*year):
+        if birth_date > (now - RETIREMENT_AGE * year):
             raise forms.ValidationError('Неверная дата рождения.')
         if (now.year - birth_date.year) > 120:
             raise forms.ValidationError('Неверная дата рождения.')
         return birth_date
+
+    def save(self, commit=True):
+        pass
 
     # def clean(self):
     #     data = self.cleaned_data
@@ -69,4 +78,5 @@ class LoginForm(forms.Form):
             return super(LoginForm, self).clean()
         except Profile.DoesNotExist:
             raise forms.ValidationError('Неправильно введено имя.')
+
 
