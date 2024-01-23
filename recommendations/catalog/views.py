@@ -44,7 +44,8 @@ def index(request):
     return render(
         request,
         'catalog/catalog.html',
-        {'activity_types': activity_types, 'form': form, 'message': message}
+        {'activity_types': activity_types,
+         'form': form, 'message': message}
     )
 
 
@@ -62,56 +63,61 @@ def search(request, search_string: str):
     return render(
         request,
         'catalog/search_results.html',
-        {'groups': page_obj, 'message': message, 'group_filter': group_filter}
+        {'groups': page_obj,
+         'message': message,
+         'group_filter': group_filter}
     )
 
 
 def type_content(request, type_slug):
-    print(type_slug)
-
+    message = 'Выберите раздел по вкусу:'
     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
     level1 = ActivityLevel1.objects.filter(activity_type=activity_type).order_by('id')
     return render(
         request,
         'catalog/types.html',
-        {'level1': level1, 'activity_type': activity_type}
+        {
+            'level1': level1,
+            'message': message}
     )
 
 
-def level1_content(request, pk_type, pk_level1):
-    activity_type = get_object_or_404(ActivityTypes, pk=pk_type)
-    level1 = get_object_or_404(ActivityLevel1, pk=pk_level1)
+def level1_content(request, type_slug, level1_slug):
+    message = 'Выберите раздел по настроению'
+    activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
+    level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
     level2 = ActivityLevel2.objects.filter(activity_type=level1)
     return render(
         request,
         'catalog/level1.html',
-        {'level1': level1, 'level2': level2, 'activity_type': activity_type}
+        {'level2': level2,
+         'message': message}
     )
 
 
-def level2_content(request, pk_type, pk_level1, pk_level2):
-    activity_type = get_object_or_404(ActivityTypes, pk=pk_type)
-    level1 = get_object_or_404(ActivityLevel1, pk=pk_level1)
-    level2 = get_object_or_404(ActivityLevel2, pk=pk_level2)
+def level2_content(request, type_slug, level1_slug, level2_slug):
+    message = 'Выберите раздел по любви'
+    activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
+    level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
+    level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
     level3 = ActivityLevel3.objects.filter(activity_type=level2)
     return render(
         request,
         'catalog/level2.html',
-        {'level1': level1,
-         'level2': level2,
-         'level3': level3,
-         'activity_type': activity_type, })
+        {'level3': level3,
+         'message': message}
+    )
 
 
-def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
-    # activity_type = get_object_or_404(ActivityTypes, pk=pk_type)
-    # level1 = get_object_or_404(ActivityLevel1, pk=pk_level1)
-    # level2 = get_object_or_404(ActivityLevel2, pk=pk_level2)
-    level3 = get_object_or_404(ActivityLevel3, pk=pk_level3)
+def level3_content(request, type_slug, level1_slug, level2_slug, level3_slug):
+    activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
+    level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
+    level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
+    level3 = get_object_or_404(ActivityLevel3, slug=level3_slug)
     groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
 
-    myFilter = GroupsFilterSearch(request.GET, queryset=groups)
-    groups = myFilter.qs
+    groups_filter = GroupsFilterCatalog(request.GET, queryset=groups)
+    groups = groups_filter.qs
     paginator = Paginator(groups, 25)
 
     page_number = request.GET.get('page')
@@ -119,7 +125,7 @@ def level3_content(request, pk_type, pk_level1, pk_level2, pk_level3):
     return render(
         request,
         'catalog/level3.html',
-        {'groups': page_obj, 'myFilter': myFilter, 'level3': level3}
+        {'groups': page_obj, 'groups_filter': groups_filter, 'level3': level3}
     )
 
 
@@ -133,6 +139,7 @@ def signup2group(request, group: Groups):
         return redirect(reverse('catalog:success_signup2group', args=(group.pk,)))
     return render(request, 'catalog/signup_group_details.html',
                   {'group': group, 'form': form})
+
 
 #
 # class Signup2GroupView(View):

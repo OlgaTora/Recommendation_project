@@ -11,7 +11,7 @@
                 {% for level in level2 %}
                 <li class="list-group-item list-group-item-dark">
                     <a class="btn btn-success btn-block btn-lg" role="button"
-                       href="{% url 'catalog:level2_content' activity_type.id level1.id level.id %}"
+                       href="level2/{{ level.slug }}"
                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">
                         {{ level.level }}</a></li>
                 {% endfor %}

@@ -2,9 +2,8 @@
 <h1> Каталог</h1>
 {% block content %}
 <div class="container-fluid">
-    <h1>Выберите занятие по сердцу: </h1>
+    <h1>{{ message }}: </h1>
 </div>
-
 <div class="container-fluid">
     <div class="row my-5">
         <div class="col-md-12">
@@ -12,7 +11,7 @@
                 {% for level in level3 %}
                 <li class="list-group-item list-group-item-dark">
                     <a class="btn btn-success btn-block btn-lg" role="button"
-                       href="{% url 'catalog:level3_content' activity_type.id level1.id level2.id level.id %}"
+                       href="level3/{{ level.slug }}"
                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">
                         {{level.level }}</a></li>
                 {% endfor %}

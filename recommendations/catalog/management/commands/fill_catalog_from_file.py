@@ -119,17 +119,17 @@ class Command(BaseCommand):
                 )
 
         # attends
-        with open('files/attends_reduct.csv', 'r', encoding='utf-8') as attends:
-            file_reader = csv.reader(attends, delimiter=',')
-            next(file_reader)
-            for row in file_reader:
-                Attends.objects.create(
-                    uniq_id=row[1],
-                    group_id=Groups.objects.get(uniq_id=row[2]),
-                    user_id=Profile.objects.get(username=row[3]),
-                    online=True if row[6] == 'Да' else False,
-                    date_attend=row[7],
-                    start_time=row[8],
-                    end_time=row[9],
-                )
-                print(row[1])
+        # with open('files/attends_reduct.csv', 'r', encoding='utf-8') as attends:
+        #     file_reader = csv.reader(attends, delimiter=',')
+        #     next(file_reader)
+        #     for row in file_reader:
+        #         Attends.objects.create(
+        #             uniq_id=row[1],
+        #             group_id=Groups.objects.get(uniq_id=row[2]),
+        #             user_id=Profile.objects.get(username=row[3]),
+        #             online=True if row[6] == 'Да' else False,
+        #             date_attend=row[7],
+        #             start_time=row[8],
+        #             end_time=row[9],
+        #         )
+        #         print(row[1])

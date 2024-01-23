@@ -15,22 +15,22 @@ class Command(BaseCommand):
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'recommendations.settings')
         django.setup()
 
-        # with open('files/list_questions.csv', 'r', encoding='utf-8') as questions:
-        #     file_reader = csv.reader(questions, delimiter=';')
-        #     next(file_reader)
-        #     for row in file_reader:
-        #         Question.objects.create(
-        #                     question_text=row[0],
-        #                  )
-        #
-        # with open('files/list_answers.csv', 'r', encoding='utf_8') as choices:
-        #     file_reader = csv.reader(choices, delimiter=';')
-        #     next(file_reader)
-        #     for row in file_reader:
-        #         Choice.objects.create(
-        #                      choice_text=row[0],
-        #                      votes=row[1]
-        #         )
+        with open('files/list_questions.csv', 'r', encoding='utf-8') as questions:
+            file_reader = csv.reader(questions, delimiter=';')
+            next(file_reader)
+            for row in file_reader:
+                Question.objects.create(
+                            question_text=row[0],
+                         )
+
+        with open('files/list_answers.csv', 'r', encoding='utf_8') as choices:
+            file_reader = csv.reader(choices, delimiter=';')
+            next(file_reader)
+            for row in file_reader:
+                Choice.objects.create(
+                             choice_text=row[0],
+                             votes=row[1]
+                )
 
         with open('files/test_result.csv', 'r', encoding='utf-8') as results:
             file_reader = csv.reader(results, delimiter=';')
@@ -45,7 +45,7 @@ class Command(BaseCommand):
             file_reader = csv.reader(votes, delimiter=';')
             next(file_reader)
             for row in file_reader:
-                VotesGroups.votes_groups.create(
+                VotesGroups.objects.create(
                     votes=row[0],
                     result_group=TestResultDescription.objects.get(pk=row[1]),
                 )

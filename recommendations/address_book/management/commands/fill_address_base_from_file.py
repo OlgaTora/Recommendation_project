@@ -53,7 +53,6 @@ class Command(BaseCommand):
                 admin_district=AdministrativeDistrict.objects.get(admin_district_name=district[0]),
                 district_name=district[1]
             )
-        # district_list = list(unique_everseen(district_list))
 
         # fill streets
         for street in street_names_list:

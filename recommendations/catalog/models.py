@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
@@ -40,11 +38,11 @@ class ActivityLevel1(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = unique_slugify(self, self.activity_type)
+            self.slug = unique_slugify(self, self.level)
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('level1', kwargs={'slug': self.slug})
+        return reverse('level1', kwargs={'level_slug': self.slug})
 
 
 class ActivityLevel2(models.Model):
@@ -57,6 +55,14 @@ class ActivityLevel2(models.Model):
     def __str__(self):
         return f'{self.level}'
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = unique_slugify(self, self.level)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('level2', kwargs={'level_slug': self.slug})
+
 
 class ActivityLevel3(models.Model):
     activity_type = models.ForeignKey(ActivityLevel2, on_delete=models.CASCADE)
@@ -68,6 +74,14 @@ class ActivityLevel3(models.Model):
 
     def __str__(self):
         return f'{self.level}:\n{self.descript_level}'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = unique_slugify(self, self.level)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('level3', kwargs={'level_slug': self.slug})
 
 
 class Groups(models.Model):
@@ -86,6 +100,14 @@ class Groups(models.Model):
 
     def __str__(self):
         return f'{self.level}'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = unique_slugify(self, self.uniq_id)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('groups', kwargs={'groups_slug': self.slug})
 
     @property
     def extract(self):
@@ -120,7 +142,6 @@ class Attends(models.Model):
     date_attend = models.DateField()
     start_time = models.CharField(max_length=32)
     end_time = models.CharField(max_length=32)
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     objects = models.Manager()
 
     def __str__(self):

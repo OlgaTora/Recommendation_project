@@ -18,7 +18,7 @@
             <form method="GET" action="">
                 {% csrf_token %}
                 <div style="display: grid">
-                    {% for field in myFilter.form %}
+                    {% for field in groups_filter.form %}
                     <div id="form-field-{{ forloop.counter0 }}">
                         {{ field.label_tag }}
                         {% render_field field class="form-control" %}
@@ -39,15 +39,14 @@
                 {% if 'ОНЛАЙН' in group.level.level %}
                 <li class="list-group-item list-group-item-dark" style="font-size: 25px">
                     <p><b>Номер группы:</b> {{group.uniq_id}}.</p>
-                    <p>Занятия проходят он-лайн.</p>
                     <p><b>Расписание:</b> {{group.schedule_active}}</p>
+                    <p>Занятия проходят он-лайн.</p>
                     {% if user.is_authenticated %}
-
                     <a class="btn btn-success btn-block btn-lg"
                        href=" {% url 'catalog:signup2group' group.id %}" role="button"
                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">Записаться</a>
                     {% else %}
-                    <p>Занятия проходят он-лайн.</p>
+                    <p>Для записи необходимо войти в систему.</p>
                     {% endif %}
                 </li>
                 {% else %}
@@ -56,12 +55,11 @@
                     <p><b>Адрес:</b> {{ group.address }}</p>
                     <p><b>Расписание:</b> {{group.schedule_active}}</p>
                     {% if user.is_authenticated %}
-
                     <a class="btn btn-success btn-block btn-lg"
                        href=" {% url 'catalog:signup2group' group.id %}" role="button"
                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">Записаться</a>
                     {% else %}
-                    <p>Занятия проходят он-лайн.</p>
+                    <p>Для записи необходимо войти в систему.</p>
                     {% endif %}
                 </li>
                 {% endif %}
