@@ -1,5 +1,4 @@
 import django_filters
-from django.forms import CheckboxInput
 from django_filters import CharFilter, filters, BooleanFilter, ChoiceFilter
 from django_filters.widgets import BooleanWidget
 from django.utils.translation import gettext as _
@@ -39,18 +38,15 @@ class GroupsFilterSearch(django_filters.FilterSet):
 
     def filter_offline_address(self, queryset, name, value):
         # только группы оффлайн.
-        return queryset.filter(address__icontains=value).exclude(level__level__icontains='ОНЛАЙН')
+        return queryset.filter(address__icontains=value)#.exclude(level__level__icontains='ОНЛАЙН')
 
     def filter_offline_district(self, queryset, name, value):
         # только группы оффлайн.
         value = f'{str(value).split(" ")[0]}'
-        return queryset.filter(districts__icontains=value).exclude(level__level__icontains='ОНЛАЙН')
+        return queryset.filter(districts__icontains=value)#.exclude(level__level__icontains='ОНЛАЙН')
 
     def filter_offline(self, queryset, name, value):
-        #print(value)
-        #return queryset.exclude(level__level__icontains='ОНЛАЙН')
         if value != 'Онлайн':
-            print('aa')
             return queryset.exclude(level__level__icontains='ОНЛАЙН')
         else:
             return queryset

@@ -3,7 +3,7 @@
 {% load widget_tweaks %}
 {% block content %}
 <div class="container-fluid">
-    {% if groups %}
+    {% if object_list %}
     <div class="row my-5">
         <div class="col-md-6">
             <h2>{{level3.level}}</h2>
@@ -18,7 +18,7 @@
             <form method="GET" action="">
                 {% csrf_token %}
                 <div style="display: grid">
-                    {% for field in groups_filter.form %}
+                    {% for field in filter.form %}
                     <div id="form-field-{{ forloop.counter0 }}">
                         {{ field.label_tag }}
                         {% render_field field class="form-control" %}
@@ -35,7 +35,7 @@
         <div class="col-md-9">
             <h4>Выберите удобную для Вас группу:</h4>
             <ul class="list-group">
-                {% for group in groups %}
+                {% for group in object_list %}
                 {% if 'ОНЛАЙН' in group.level.level %}
                 <li class="list-group-item list-group-item-dark" style="font-size: 25px">
                     <p><b>Номер группы:</b> {{group.uniq_id}}.</p>
@@ -74,9 +74,9 @@
     </div>
     {% endif %}
 </div>
-<div class="container">
-    {% if groups %}
-    {% include "pagination.html" with page=groups %}
-    {% endif %}
-</div>
+<!--<div class="container">-->
+<!--    {% if groups %}-->
+<!--    {% include "pagination.html" with page=groups %}-->
+<!--    {% endif %}-->
+<!--</div>-->
 {% endblock %}

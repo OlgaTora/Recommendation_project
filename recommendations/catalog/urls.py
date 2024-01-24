@@ -1,23 +1,16 @@
-from django.urls import path, re_path
+from django.urls import path
 from . import views
 
 app_name = 'catalog'
 
 urlpatterns = [
     path('', views.index, name='catalog'),
-    # re_path(r"^(?P<pk_type>[0-9]+)/$", views.type_content, name='type_content'),
-    path('types/<slug:type_slug>/', views.type_content, name='types'),
-    path('types/<slug:type_slug>/level1/<slug:level1_slug>/', views.level1_content, name='level1'),
+    path('types/<slug:type_slug>/', views.TypeView.as_view(), name='types'),
+    path('types/<slug:type_slug>/level1/<slug:level1_slug>/', views.Level1View.as_view(), name='level1'),
     path('types/<slug:type_slug>/level1/<slug:level1_slug>/level2/<slug:level2_slug>/',
-         views.level2_content, name='level2'),
+         views.Level2View.as_view(), name='level2'),
     path('types/<slug:type_slug>/level1/<slug:level1_slug>/level2/<slug:level2_slug>/level3/<slug:level3_slug>/',
-         views.level3_content, name='level3'),
-    # re_path(r"^(?P<pk_type>[0-9]+)/(?P<pk_level1>[0-9]+)/$", views.level1_content,
-    #         name='level1_content'),
-    # re_path(r"^(?P<pk_type>[0-9]+)/(?P<pk_level1>[0-9]+)/(?P<pk_level2>[0-9]+)$", views.level2_content,
-    #         name='level2_content'),
-    # re_path(r"^(?P<pk_type>[0-9]+)/(?P<pk_level1>[0-9]+)/(?P<pk_level2>[0-9]+)/(?P<pk_level3>[0-9]+)$",
-    #         views.level3_content, name='level3_content'),
+         views.Level3View.as_view(), name='level3'),
     path('search/<str:search_string>', views.search, name='search'),
     path('signup2group/<str:group>', views.signup2group, name='signup2group'),
     path('success_signup2group/<str:group>', views.success_signup2group, name='success_signup2group'),

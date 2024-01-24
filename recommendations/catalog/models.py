@@ -158,7 +158,7 @@ class Attends(models.Model):
         top_on = Attends.objects.filter(online='1') \
                      .values('group_id__level') \
                      .annotate(count_level3=Count('group_id__level')) \
-                     .order_by('-count_level3')[:2]
+                     .order_by('-count_level3')[:10]
         levels3_on = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top_on])
         return levels3_off, levels3_on
 

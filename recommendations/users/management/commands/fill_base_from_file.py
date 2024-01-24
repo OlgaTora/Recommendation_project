@@ -14,17 +14,20 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'recommendations.settings')
         django.setup()
-
         with open('files/users.csv', 'r', encoding='utf-8') as users:
+            profiles = []
             file_reader = csv.reader(users, delimiter=',')
             next(file_reader)
             for row in file_reader:
-                Profile.objects.create(
-                    username=row[0],
-                    password=make_password(row[0]),
-                    date_joined=row[1],
-                    gender=row[2],
-                    birth_date=row[3],
-                    address=row[4],
-                )
+                profiles.append(row)
 
+        for row in range(46800, len(profiles)):
+            Profile.objects.create(
+                    username=profiles[row][0],
+                    password=make_password(profiles[row][0]),
+                    date_joined=profiles[row][1],
+                    gender=profiles[row][2],
+                    birth_date=profiles[row][3],
+                    address=profiles[row][4],
+                )
+            print(row)

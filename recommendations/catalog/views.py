@@ -3,34 +3,12 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.views import View
+from django.views.generic import ListView
+from django_filters.views import FilterView
 
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
 from catalog.forms import SearchForm, DateTimeChoiceForm
 from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups
-
-
-#
-# class IndexView(View):
-#
-#     def get_context_data(self, *args, **kwargs):
-#         context = super().get_context_data(*args, **kwargs)
-#         context['message'] = 'Поиск по каталогу занятий'
-#         return context
-#
-#     def render(self, request):
-#         return render(request, 'catalog/catalog.html', {'form': self.form})
-#
-#     def post(self, request):
-#         self.form = SearchForm(request.POST)
-#         if self.form.is_valid():
-#             search_activity = self.form.cleaned_data['search_activity']
-#             return redirect('post_list')
-#         return self.render(request)
-#
-#     def get(self, request):
-#         self.form = SearchForm()
-#         return self.render(request)
 
 
 def index(request):
@@ -69,64 +47,136 @@ def search(request, search_string: str):
     )
 
 
-def type_content(request, type_slug):
-    message = 'Выберите раздел по вкусу:'
-    activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
-    level1 = ActivityLevel1.objects.filter(activity_type=activity_type).order_by('id')
-    return render(
-        request,
-        'catalog/types.html',
-        {
-            'level1': level1,
-            'message': message}
-    )
+class TypeView(ListView):
+    model = ActivityLevel1
+    template_name = 'catalog/catalog_levels_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['message'] = 'Выберите раздел по вкусу:'
+        context['next_page'] = 'level1/'
+        return context
+
+    def get_queryset(self):
+        type_slug = self.kwargs['type_slug']
+        activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
+        level1 = ActivityLevel1.objects.filter(activity_type=activity_type).order_by('id')
+        return level1
 
 
-def level1_content(request, type_slug, level1_slug):
-    message = 'Выберите раздел по настроению'
-    activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
-    level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
-    level2 = ActivityLevel2.objects.filter(activity_type=level1)
-    return render(
-        request,
-        'catalog/level1.html',
-        {'level2': level2,
-         'message': message}
-    )
+class Level1View(ListView):
+    model = ActivityLevel2
+    template_name = 'catalog/catalog_levels_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['message'] = 'Выберите раздел по настроению:'
+        context['next_page'] = 'level2/'
+        return context
+
+    def get_queryset(self):
+        level1_slug = self.kwargs['level1_slug']
+        level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
+        level2 = ActivityLevel2.objects.filter(activity_type=level1)
+        return level2
 
 
-def level2_content(request, type_slug, level1_slug, level2_slug):
-    message = 'Выберите раздел по любви'
-    activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
-    level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
-    level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
-    level3 = ActivityLevel3.objects.filter(activity_type=level2)
-    return render(
-        request,
-        'catalog/level2.html',
-        {'level3': level3,
-         'message': message}
-    )
+class Level2View(ListView):
+    model = ActivityLevel3
+    template_name = 'catalog/catalog_levels_page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['message'] = 'Выберите раздел по любви:'
+        context['next_page'] = 'level3/'
+        return context
+
+    def get_queryset(self):
+        level2_slug = self.kwargs['level2_slug']
+        level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
+        level3 = ActivityLevel3.objects.filter(activity_type=level2)
+        return level3
 
 
-def level3_content(request, type_slug, level1_slug, level2_slug, level3_slug):
-    activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
-    level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
-    level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
-    level3 = get_object_or_404(ActivityLevel3, slug=level3_slug)
-    groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
+class Level3View(FilterView):
+    model = Groups
+    paginate_by = 25
+    template_name = 'catalog/groups.html'
+    context_object_name = 'groups'
+    filterset_class = GroupsFilterCatalog
 
-    groups_filter = GroupsFilterCatalog(request.GET, queryset=groups)
-    groups = groups_filter.qs
-    paginator = Paginator(groups, 25)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        level3_slug = self.kwargs['level3_slug']
+        context['level3'] = get_object_or_404(ActivityLevel3, slug=level3_slug)
+        return context
 
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(
-        request,
-        'catalog/level3.html',
-        {'groups': page_obj, 'groups_filter': groups_filter, 'level3': level3}
-    )
+    def get_queryset(self):
+        level3_slug = self.kwargs['level3_slug']
+        level3 = get_object_or_404(ActivityLevel3, slug=level3_slug)
+        groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
+        return groups
+
+
+#
+# def type_content(request, type_slug):
+#     message = 'Выберите раздел по вкусу:'
+#     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
+#     level1 = ActivityLevel1.objects.filter(activity_type=activity_type).order_by('id')
+#     return render(
+#         request,
+#         'catalog/types.html',
+#         {
+#             'level1': level1,
+#             'message': message}
+#     )
+#
+#
+# def level1_content(request, type_slug, level1_slug):
+#     message = 'Выберите раздел по настроению'
+#     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
+#     level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
+#     level2 = ActivityLevel2.objects.filter(activity_type=level1)
+#     return render(
+#         request,
+#         'catalog/level1.html',
+#         {'level2': level2,
+#          'message': message}
+#     )
+#
+#
+# def level2_content(request, type_slug, level1_slug, level2_slug):
+#     message = 'Выберите раздел по любви'
+#     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
+#     level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
+#     level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
+#     level3 = ActivityLevel3.objects.filter(activity_type=level2)
+#     return render(
+#         request,
+#         'catalog/level2.html',
+#         {'level3': level3,
+#          'message': message}
+#     )
+#
+#
+# def level3_content(request, type_slug, level1_slug, level2_slug, level3_slug):
+#     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
+#     level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
+#     level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
+#     level3 = get_object_or_404(ActivityLevel3, slug=level3_slug)
+#     groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
+#
+#     groups_filter = GroupsFilterCatalog(request.GET, queryset=groups)
+#     groups = groups_filter.qs
+#     paginator = Paginator(groups, 25)
+#
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+#     return render(
+#         request,
+#         'catalog/level3.html',
+#         {'groups': page_obj, 'groups_filter': groups_filter, 'level3': level3}
+#     )
 
 
 @login_required

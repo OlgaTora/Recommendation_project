@@ -15,7 +15,6 @@ from django.contrib import messages
 @login_required(redirect_field_name='/')
 def recommendations(request):
     """Recommendation based on test results and user address, priority - offline"""
-    global groups_list
     result = ResultOfTest.get_results(request.user)
     votes_group = VotesGroups.objects.get(votes=result)
     description = TestResultDescription.objects.get(pk=votes_group.result_group.pk)
@@ -25,32 +24,36 @@ def recommendations(request):
     level3_offline, level3_online = Attends.get_top_level3()
     level3_offline = level3_offline.filter(activity_type__activity_type__activity_type=activity_type)
     level3_online = level3_online.filter(activity_type__activity_type__activity_type=activity_type)
+    print(level3_online)
 
     # адрес пользователя
     # так как нет инфо по району пользователя, берем все улицы с таким названием
     user_address = StreetsBook.address_transform(request.user.address)
     user_address = list(user_address)
     # если адрес есть в базе адресов Москвы
+    #MyModel.objects.none()
     if user_address:
         admin_districts = [i.admin_district.admin_district_name for i in user_address]
+        print(admin_districts)
         # группы по типу активности из теста и из района пользователя
-        for district in admin_districts:
-            groups_list = (Groups.objects.filter(
-                level__in=level3_offline,
-                districts__icontains=district)
-                .exclude(
-                schedule_active=''))
-            print('every district list')
-            print(groups_list)
-            # не работает такое соединение выборок!!!
-            groups_list.union(groups_list)
-        # ТУТ НЕВЕРНО СДЕЛАНО. почему-то фильтр не выбирает результаты он лайн
-        groups_list_on = Groups.objects.filter(level__in=level3_online).exclude(schedule_active='')
-        print('every online list')
-        print(groups_list_on)
-        groups_list_on.union(groups_list)
-        print('every union list')
+        groups_list = (Groups.objects.filter(
+            level__in=level3_offline,
+            districts__icontains=admin_districts[0])
+                       .exclude(schedule_active=''))
+        print('groups list')
         print(groups_list)
+        if len(admin_districts) > 1:
+            for i in range(1, len(admin_districts)):
+                print(admin_districts[i])
+                groups = (Groups.objects.filter(
+                    level__in=level3_offline,
+                    districts__icontains=admin_districts[i])
+                          .exclude(schedule_active=''))
+                print('groups')
+                print(groups)
+                groups_list = groups_list | groups
+        groups_list_on = Groups.objects.filter(level__in=level3_online).exclude(schedule_active='')
+        groups_list = groups_list | groups_list_on
     else:
         groups_list = (Groups.objects.filter(level__in=level3_online)
                        .exclude(schedule_active=''))
@@ -92,7 +95,7 @@ def question_form(request, page_num=1):
         form.save()
         page_num += 1
         return redirect(reverse('rec_app:question_and_answers', args=(page_num,)))
-    #page_num += 1
+    # page_num += 1
     return render(request,
                   'rec_app/test_form.html',
                   {'form': form, 'pk': question.pk, 'message': message})
