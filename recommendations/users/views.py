@@ -70,7 +70,7 @@ def signup(request):
                 username=data['username'],
                 password=data['password'],
                 birth_date=data['birth_date'],
-                address=address['address'],
+                address=address,
                 gender=data['gender'])
             user = authenticate(username=data['username'],
                                 password=data['password'])

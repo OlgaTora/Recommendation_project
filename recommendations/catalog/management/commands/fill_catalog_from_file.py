@@ -122,29 +122,25 @@ class Command(BaseCommand):
         with open('files/attends_reduct.csv', 'r', encoding='utf-8') as attends:
             file_reader = csv.reader(attends, delimiter=',')
             next(file_reader)
-            att = []
             for row in file_reader:
-                att.append(row)
+                Attends.objects.create(
+                    uniq_id=row[1],
+                    group_id=Groups.objects.get(uniq_id=row[2]),
+                    user_id=Profile.objects.get(username=row[3]),
+                    online=True if row[6] == 'Да' else False,
+                    date_attend=row[7],
+                    start_time=row[8],
+                    end_time=row[9],
+                )
 
-        for row in range(109886, len(att)):
-            Attends.objects.create(
-                uniq_id=att[row][1],
-                group_id=Groups.objects.get(uniq_id=att[row][2]),
-                user_id=Profile.objects.get(username=att[row][3]),
-                online=True if att[row][6] == 'Да' else False,
-                date_attend=att[row][7],
-                start_time=att[row][8],
-                end_time=att[row][9],
-            )
-            print(row)
-            #
-            # for row in file_reader:
+            # for row in range(127221, len(att)):
             #     Attends.objects.create(
-            #         uniq_id=row[1],
-            #         group_id=Groups.objects.get(uniq_id=row[2]),
-            #         user_id=Profile.objects.get(username=row[3]),
-            #         online=True if row[6] == 'Да' else False,
-            #         date_attend=row[7],
-            #         start_time=row[8],
-            #         end_time=row[9],
+            #         uniq_id=att[row][1],
+            #         group_id=Groups.objects.get(uniq_id=att[row][2]),
+            #         user_id=Profile.objects.get(username=att[row][3]),
+            #         online=True if att[row][6] == 'Да' else False,
+            #         date_attend=att[row][7],
+            #         start_time=att[row][8],
+            #         end_time=att[row][9],
             #     )
+            #     print(row)

@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.views import View
 from django.views.generic import ListView
 from django_filters.views import FilterView
 
@@ -27,24 +28,44 @@ def index(request):
     )
 
 
-def search(request, search_string: str):
-    message = 'Результаты поиска:'
-    level3 = ActivityLevel3.objects.filter(Q(descript_level__icontains=search_string) |
-                                           Q(level__icontains=search_string))
-    groups = Groups.objects.filter(level__in=level3).exclude(schedule_active='')
-    group_filter = GroupsFilterSearch(request.GET, queryset=groups)
-    groups = group_filter.qs
+class SearchView(FilterView):
+    model = Groups
+    paginate_by = 25
+    template_name = 'catalog/search_results.html'
+    context_object_name = 'groups'
+    filterset_class = GroupsFilterSearch
 
-    paginator = Paginator(groups, 25)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(
-        request,
-        'catalog/search_results.html',
-        {'groups': page_obj,
-         'message': message,
-         'group_filter': group_filter}
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['message'] = 'Результаты поиска'
+        return context
+
+    def get_queryset(self):
+        search_string = self.kwargs['search_string']
+        level3 = ActivityLevel3.objects.filter(Q(descript_level__icontains=search_string) |
+                                               Q(level__icontains=search_string))
+        groups = Groups.objects.filter(level__in=level3).exclude(schedule_active='')
+        return groups
+
+
+# def search(request, search_string: str):
+#     message = 'Результаты поиска:'
+#     level3 = ActivityLevel3.objects.filter(Q(descript_level__icontains=search_string) |
+#                                            Q(level__icontains=search_string))
+#     groups = Groups.objects.filter(level__in=level3).exclude(schedule_active='')
+#     group_filter = GroupsFilterSearch(request.GET, queryset=groups)
+#     groups = group_filter.qs
+#
+#     paginator = Paginator(groups, 25)
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+#     return render(
+#         request,
+#         'catalog/search_results.html',
+#         {'groups': page_obj,
+#          'message': message,
+#          'group_filter': group_filter}
+#     )
 
 
 class TypeView(ListView):
@@ -186,35 +207,12 @@ def signup2group(request, group: Groups):
     form = DateTimeChoiceForm(request.POST or None, group=group, user=user)
     if form.is_valid():
         form.save()
-        return redirect(reverse('catalog:success_signup2group', args=(group.pk,)))
-    return render(request, 'catalog/signup_group_details.html',
+        return redirect(reverse('catalog:group_success_signup', args=(group.pk,)))
+    return render(request, 'catalog/group_details.html',
                   {'group': group, 'form': form})
-
-
-#
-# class Signup2GroupView(View):
-#     def get_object(self, queryset=None):
-#         group = get_object_or_404(Women.published, pk=self.kwargs[self.slug_url_kwarg])
-#         return group
-#
-#     group = get_object_or_404(Groups, pk=group)
-#     user = request.user
-#     template_name = 'catalog/signup_group_details.html'
-#     form_class = DateTimeChoiceForm
-#
-#     def get(self, request, *args, **kwargs):
-#         form = self.form_class
-#         return render(request, self.template_name, {'form': form})
-#
-#     def post(self, request, *args, **kwargs):
-#         form = self.form_class(request.POST, group=group, user=user)
-#         if form.is_valid():
-#             return redirect(reverse('catalog:success_signup2group', args=(group.pk,)))
-#         else:
-#             return render(request, self.template_name, {'form': form})
 
 
 def success_signup2group(request, group: Groups):
     group = get_object_or_404(Groups, pk=group)
-    return render(request, 'catalog/signup2group_result.html',
+    return render(request, 'catalog/group_success_signup.html',
                   {'group': group})
