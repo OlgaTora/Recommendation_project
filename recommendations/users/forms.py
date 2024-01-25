@@ -27,7 +27,7 @@ class SignupForm(forms.ModelForm):
 
     username = forms.CharField(max_length=12, label='Имя')
     password = forms.CharField(max_length=20, widget=forms.PasswordInput(), label='Пароль')
-    # confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput())
+    confirm_password = forms.CharField(max_length=20, widget=forms.PasswordInput())
     birth_date = forms.DateField(initial=date.today,
                                  widget=forms.DateInput(attrs={'class': 'date'}), label='Дата рождения')
     gender = forms.ChoiceField(widget=forms.RadioSelect, choices=[('Мужчина', 'Мужчина'), ('Женщина', 'Женщина')],
@@ -51,17 +51,19 @@ class SignupForm(forms.ModelForm):
             raise forms.ValidationError('Неверная дата рождения.')
         return birth_date
 
+    def clean(self):
+        data = self.cleaned_data
+        password = data.get('password')
+        validate_password(password)
+        if password != data.get('confirm_password'):
+            raise forms.ValidationError('Пароли должны быть одинаковыми')
+        else:
+            return data
+
     def save(self, commit=True):
         pass
 
-    # def clean(self):
-    #     data = self.cleaned_data
-    #     password = data.get('password')
-    #     validate_password(password)
-    #     if password != data.get('confirm_password'):
-    #         raise forms.ValidationError('Пароли должны быть одинаковыми')
-    #     else:
-    #         return data
+
 
 
 class LoginForm(forms.Form):

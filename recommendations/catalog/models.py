@@ -109,6 +109,12 @@ class Groups(models.Model):
     def get_absolute_url(self):
         return reverse('groups', kwargs={'groups_slug': self.slug})
 
+    @staticmethod
+    def get_user_groups(user):
+        user_attends = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
+        user_groups = Groups.objects.filter(pk__in=user_attends)
+        return user_groups
+
     @property
     def extract(self):
         s = str(self.schedule_active)
@@ -148,19 +154,28 @@ class Attends(models.Model):
         return f'{self.uniq_id}'
 
     @staticmethod
-    def get_top_level3():
-        """Function for get top level3 in attends"""
+    def get_top_level3(activity_type: ActivityTypes):
+        """Function for get top level3 in attends, priority - offline"""
         top_off = Attends.objects.exclude(online='1') \
                       .values('group_id__level') \
                       .annotate(count_level3=Count('group_id__level')) \
-                      .order_by('-count_level3')[:10]
-        levels3_off = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top_off])
+                      .order_by('-count_level3')[:25]
+        top_offline = ActivityLevel3.objects.filter(
+            pk__in=[i.get('group_id__level') for i in top_off])
+        level3_offline = top_offline.filter(activity_type__activity_type__activity_type=activity_type)
+
         top_on = Attends.objects.filter(online='1') \
                      .values('group_id__level') \
                      .annotate(count_level3=Count('group_id__level')) \
                      .order_by('-count_level3')[:10]
-        levels3_on = ActivityLevel3.objects.filter(pk__in=[i.get('group_id__level') for i in top_on])
-        return levels3_off, levels3_on
+        top_online = ActivityLevel3.objects.filter(
+            pk__in=[i.get('group_id__level') for i in top_on])
+        level3_online = top_online.filter(activity_type__activity_type__activity_type=activity_type)
+
+        # если нет level3 по этому типу активности в топе
+        if not level3_online.exists() and not level3_offline.exists():
+            return top_offline, top_online
+        return level3_offline, level3_online
 
 
 def clean_str(s: str):

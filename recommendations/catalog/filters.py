@@ -1,14 +1,8 @@
 import django_filters
-from django_filters import CharFilter, filters, BooleanFilter, ChoiceFilter
-from django_filters.widgets import BooleanWidget
-from django.utils.translation import gettext as _
+from django_filters import CharFilter, filters, ChoiceFilter
 from address_book.models import AdministrativeDistrict
 from catalog.models import Groups
 
-# class CustomBooleanWidget(BooleanWidget):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.choices = (("", _("--------")),("False", _("Все занятия")), ("True", _("Только оффлайн")))
 
 CHOICES = (('Онлайн', 'Все занятия'), ('Оффлайн', 'Только оффлайн'))
 
@@ -19,12 +13,6 @@ class GroupsFilterSearch(django_filters.FilterSet):
         label='Онлайн/Оффлайн',
         method='filter_offline'
     )
-
-    # offline = BooleanFilter(
-    #     widget=CustomBooleanWidget(),
-    #     label='Онлайн/Оффлайн',
-    #     method='filter_offline'
-    # )
 
     districts = filters.ModelChoiceFilter(
         queryset=AdministrativeDistrict.objects.all(),
@@ -38,12 +26,12 @@ class GroupsFilterSearch(django_filters.FilterSet):
 
     def filter_offline_address(self, queryset, name, value):
         # только группы оффлайн.
-        return queryset.filter(address__icontains=value)#.exclude(level__level__icontains='ОНЛАЙН')
+        return queryset.filter(address__icontains=value).exclude(level__level__icontains='ОНЛАЙН')
 
     def filter_offline_district(self, queryset, name, value):
         # только группы оффлайн.
         value = f'{str(value).split(" ")[0]}'
-        return queryset.filter(districts__icontains=value)#.exclude(level__level__icontains='ОНЛАЙН')
+        return queryset.filter(districts__icontains=value).exclude(level__level__icontains='ОНЛАЙН')
 
     def filter_offline(self, queryset, name, value):
         if value != 'Онлайн':

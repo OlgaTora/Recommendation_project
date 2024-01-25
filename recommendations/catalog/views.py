@@ -9,7 +9,7 @@ from django_filters.views import FilterView
 
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
 from catalog.forms import SearchForm, DateTimeChoiceForm
-from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups
+from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups, Attends
 
 
 def index(request):
@@ -202,6 +202,7 @@ class Level3View(FilterView):
 
 @login_required
 def signup2group(request, group: Groups):
+    message = 'Выберите время и дату посещения'
     group = get_object_or_404(Groups, pk=group)
     user = request.user
     form = DateTimeChoiceForm(request.POST or None, group=group, user=user)
@@ -209,10 +210,16 @@ def signup2group(request, group: Groups):
         form.save()
         return redirect(reverse('catalog:group_success_signup', args=(group.pk,)))
     return render(request, 'catalog/group_details.html',
-                  {'group': group, 'form': form})
+                  {'group': group, 'message': message, 'form': form})
 
 
 def success_signup2group(request, group: Groups):
     group = get_object_or_404(Groups, pk=group)
+    attends_count = Attends.objects.filter(group_id=group.pk).count()
+    if group is None:
+        message = 'Запись в группу завершена. Попробуйте другой день или время'
+    else:
+        message = 'Вы успешно записались!'
+    # ПРОПИСАЬ ЕСЛИ ГРУППА ЗАНЯТА УЖУ
     return render(request, 'catalog/group_success_signup.html',
-                  {'group': group})
+                  {'group': group, 'message': message})
