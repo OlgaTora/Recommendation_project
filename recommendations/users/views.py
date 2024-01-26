@@ -1,10 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.views.generic import TemplateView, FormView
 
 from users.forms import AddressForm, LoginForm, SignupForm
 from users.models import Profile
@@ -26,6 +30,7 @@ class IndexView(TemplateView):
         context = super().get_context_data(*args, **kwargs)
         context['description'] = self.description
         return context
+
 
 #
 # def signup(request):
@@ -57,12 +62,35 @@ class IndexView(TemplateView):
 #     else:
 #         return redirect(reverse('users:index'))
 
+class UserSignUpView(FormView):
+    template_name = "users/login.html"
+    form_class = SignupForm(prefix='signup')
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('users:index')
+    extra_context = {'message': 'Заполните данные о себе, пожалуйста:'}
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        profile = authenticate(username=username, password=password)
+        if profile is not None:
+            login(self.request, profile)
+            messages.success(self.request, 'Вы успешно зарегистрировались.')
+        return super(UserSignUpView, self).form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            messages.error(self.request, 'Вы уже вошли в систему.')
+            return redirect(reverse('users:index'))
+        else:
+            return super(UserSignUpView, self).get(request)
+
 
 def signup(request):
     if not request.user.is_authenticated:
         message = 'Заполните данные о себе, пожалуйста'
-        signup_form = SignupForm(request.POST or None)
-        address_form = AddressForm(request.POST or None)
+        signup_form = SignupForm(request.POST or None, prefix='signup')
+        address_form = AddressForm(request.POST or None, prefix='address')
         if signup_form.is_valid() and address_form.is_valid():
             data = signup_form.cleaned_data
             address = address_form.cleaned_data
@@ -87,29 +115,52 @@ def signup(request):
         return redirect(reverse('users:index'))
 
 
-def user_login(request):
-    if not request.user.is_authenticated:
-        message = 'Введите ваше имя и пароль:'
-        form = LoginForm(request.POST or None)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            profile = authenticate(username=username, password=password)
-            if profile is not None:
-                login(request, profile)
-                messages.success(request, 'Вы успешно вошли в систему.')
-                return redirect(reverse('users:index'))
-        return render(
-            request,
-            'users/login.html',
-            {'form': form, 'user': request.user, 'message': message}
-        )
-    else:
+class UserLoginView(FormView):
+    template_name = "users/login.html"
+    form_class = LoginForm
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('users:index')
+    extra_context = {'message': 'Введите ваше имя и пароль:'}
+
+    def form_valid(self, form):
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        profile = authenticate(username=username, password=password)
+        if profile is not None:
+            login(self.request, profile)
+            messages.success(self.request, 'Вы успешно вошли в систему.')
+        return super(UserLoginView, self).form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            messages.error(self.request, 'Вы уже вошли в систему.')
+            return redirect(reverse('users:index'))
+        else:
+            return super(UserLoginView, self).get(request)
+
+
+class UserLogOutView(TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
         return redirect(reverse('users:index'))
 
-
-@login_required(redirect_field_name='/')
-def user_logout(request):
-    if request.user is not None:
-        logout(request)
-    return redirect(reverse('users:index'))
+# def user_login(request):
+#     if not request.user.is_authenticated:
+#         message = 'Введите ваше имя и пароль:'
+#         form = LoginForm(request.POST or None)
+#         if form.is_valid():
+#             username = form.cleaned_data['username']
+#             password = form.cleaned_data['password']
+#             profile = authenticate(username=username, password=password)
+#             if profile is not None:
+#                 login(request, profile)
+#                 messages.success(request, 'Вы успешно вошли в систему.')
+#                 return redirect(reverse('users:index'))
+#         return render(
+#             request,
+#             'users/login.html',
+#             {'form': form, 'user': request.user, 'message': message}
+#         )
+#     else:
+#         return redirect(reverse('users:index'))

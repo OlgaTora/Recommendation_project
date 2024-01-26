@@ -159,3 +159,5 @@ AUTH_USER_MODEL = 'users.Profile'
 USE_DJANGO_JQUERY = True
 
 LOGIN_URL = '/'
+
+REDIRECT_FIELD_NAME = 'users:index'

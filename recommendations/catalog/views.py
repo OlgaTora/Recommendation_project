@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django_filters.views import FilterView
 
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
@@ -213,13 +213,13 @@ def signup2group(request, group: Groups):
                   {'group': group, 'message': message, 'form': form})
 
 
-def success_signup2group(request, group: Groups):
-    group = get_object_or_404(Groups, pk=group)
-    attends_count = Attends.objects.filter(group_id=group.pk).count()
-    if group is None:
-        message = 'Запись в группу завершена. Попробуйте другой день или время'
-    else:
-        message = 'Вы успешно записались!'
-    # ПРОПИСАЬ ЕСЛИ ГРУППА ЗАНЯТА УЖУ
-    return render(request, 'catalog/group_success_signup.html',
-                  {'group': group, 'message': message})
+class SuccessSignup(LoginRequiredMixin, DetailView):
+    model = Groups
+    context_object_name = 'attend'
+    template_name = 'catalog/group_success_signup.html'
+    extra_context = {'message': 'Вы успешно записались!'}
+    redirect_field_name = reverse_lazy('users:index')
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs['pk']
+        return get_object_or_404(Attends, pk=slug)

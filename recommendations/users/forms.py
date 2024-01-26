@@ -1,6 +1,7 @@
 from datetime import timedelta, date
 from django import forms
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 from address_book.models import StreetsBook
@@ -60,11 +61,6 @@ class SignupForm(forms.ModelForm):
         else:
             return data
 
-    def save(self, commit=True):
-        pass
-
-
-
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=12, label='Логин')
@@ -78,7 +74,7 @@ class LoginForm(forms.Form):
             if not user.check_password(password):
                 raise forms.ValidationError("Неправильно введен пароль.")
             return super(LoginForm, self).clean()
-        except Profile.DoesNotExist:
+        except ObjectDoesNotExist:
             raise forms.ValidationError('Неправильно введено имя.')
 
 

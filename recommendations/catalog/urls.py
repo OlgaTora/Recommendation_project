@@ -13,5 +13,5 @@ urlpatterns = [
          views.Level3View.as_view(), name='level3'),
     path('search/<str:search_string>', views.SearchView.as_view(), name='search'),
     path('signup2group/<str:group>', views.signup2group, name='signup2group'),
-    path('group_success_signup/<str:group>', views.success_signup2group, name='group_success_signup'),
+    path('group_success_signup/<int:pk>', views.SuccessSignup.as_view(), name='group_success_signup'),
 ]

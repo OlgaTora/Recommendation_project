@@ -1,30 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container-fluid">
-    {% if group %}
     <div class="row my-5">
         <h1 class="text-center">{{ message }}!</h1>
     </div>
     <div class="row my-3">
         <div class="col-md-6">
-            <h5>{{group.level}}</h5>
-            <p><b>Номер группы: </b> {{group.uniq_id}}.</p>
-            <p><b>Расписание:</b> {{group.schedule_active}}</p>
-            {% if 'ОНЛАЙН' in group.level %}
+            <h5>{{ attend.group_id.level }}</h5>
+            <p><b>Номер группы: </b> {{ attend.group_id.uniq_id }}.</p>
+            <p><b>Дата: </b>{{ attend.date_attend }}</p>
+            <p><b>Время: </b>{{attend.start_time|slice:":5" }} - {{ attend.end_time|slice:":5" }}</p>
+            {% if 'ОНЛАЙН' in attend.group_id.level %}
             <p>Занятия проходят он-лайн.</p>
             {% else %}
-            <p><b>Адрес:</b> {{ group.address }}</p>
+            <p><b>Адрес:</b> {{ attend.group_id.address }}</p>
             {% endif %}
         </div>
         <div class="col-md-6">
             <img src="/static/images/success.png" class="mx-auto d-block" width="400px">
         </div>
     </div>
-    {% else %}
-    <div class="col-md-12">
-        <img src="/static/images/ups.png" class="mx-auto d-block" width="600px">
-        <h3>{{ message }} </h3>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
