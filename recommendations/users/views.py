@@ -1,13 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
-from django.utils.decorators import method_decorator
-from django.views import View
-from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
 from django.views.generic import TemplateView, FormView
 
 from users.forms import AddressForm, LoginForm, SignupForm
@@ -26,41 +20,11 @@ class IndexView(TemplateView):
                    ' жизни пожилых людей. Наша стратегическая цель: Выстроить в стране систему помощи, '
                    'которая будет доступна каждому пожилому человеку, нуждающемуся в помощи.')
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['description'] = self.description
         return context
 
-
-#
-# def signup(request):
-#     if not request.user.is_authenticated:
-#         message = 'Заполните данные о себе, пожалуйста'
-#         signup_form = SignupForm(request.POST or None)
-#         address_form = AddressForm(request.POST or None)
-#
-#         if signup_form.is_valid() and address_form.is_valid():
-#             data = signup_form.cleaned_data
-#             address = address_form.cleaned_data
-#             Profile.objects.create_user(
-#                 username=data['username'],
-#                 password=data['password'],
-#                 birth_date=data['birth_date'],
-#                 address=f"город Москва, {address['street_name']}",
-#                 gender=data['gender'])
-#             user = authenticate(username=data['username'],
-#                                 password=data['password'])
-#             if user is not None:
-#                 login(request, user)
-#                 messages.success(request, 'Вы успешно зарегистрировались.')
-#             return redirect(reverse('users:index'))
-#         return render(
-#             request,
-#             'users/login.html',
-#             {'form': signup_form, 'address_form': address_form, 'message': message}
-#         )
-#     else:
-#         return redirect(reverse('users:index'))
 
 class UserSignUpView(FormView):
     template_name = "users/login.html"
