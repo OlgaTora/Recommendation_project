@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count
 from django.urls import reverse, reverse_lazy
 from django.views import View
+from django.views.generic import TemplateView
 
 from address_book.models import StreetsBook
 from catalog.filters import GroupsFilterSearch
@@ -16,7 +17,9 @@ from django.contrib import messages
 
 @login_required(redirect_field_name='/')
 def recommendations(request):
-    """Recommendation based on test results and user address"""
+    """
+    Recommendation based on test results and user address
+    """
     result = ResultOfTest.get_results(request.user)
     votes_group = VotesGroups.objects.get(votes=result)
     description = TestResultDescription.objects.get(pk=votes_group.result_group.pk)
@@ -71,7 +74,9 @@ def recommendations(request):
 
 @login_required(redirect_field_name='/')
 def question_form(request, page_num=1):
-    """Testing"""
+    """
+    Testing user
+    """
     message = 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'
     last_page = int(Question.objects.latest('pk').pk) + 1
     user = request.user
@@ -98,8 +103,10 @@ def question_form(request, page_num=1):
                   {'form': form, 'pk': question.pk, 'message': message})
 
 
-class StartView(LoginRequiredMixin, View):
-    """Start test"""
+class StartView(LoginRequiredMixin, TemplateView):
+    """
+    Start test
+    """
     redirect_field_name = reverse_lazy('users:index')
 
     def get(self, request, *args, **kwargs):
@@ -114,7 +121,9 @@ class StartView(LoginRequiredMixin, View):
 
 
 class RestartView(LoginRequiredMixin, View):
-    """Choice: results or restart test"""
+    """
+    Choice: results or restart test
+    """
     redirect_field_name = reverse_lazy('users:index')
 
     def get(self, request, *args, **kwargs):

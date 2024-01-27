@@ -16,7 +16,7 @@ class ActivityTypes(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Сохранение полей модели при их отсутствии заполнения
+        Сохранение полей модели при отсутствии заполнения
         """
         if not self.slug:
             self.slug = unique_slugify(self, self.activity_type)
