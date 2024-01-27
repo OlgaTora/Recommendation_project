@@ -10,20 +10,23 @@ from catalog.forms import SearchForm, DateTimeChoiceForm
 from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups, Attends
 
 
-def index(request):
-    activity_types = ActivityTypes.objects.all().order_by('id')
-    message = 'Поиск по каталогу занятий'
-    form = SearchForm(request.POST or None)
-    if form.is_valid():
-        search_activity = form.cleaned_data['search_activity']
-        return redirect(reverse('catalog:search', args=(search_activity,)))
+class IndexView(FormView):
+    template_name = 'catalog/catalog.html'
+    extra_context = {'message': 'Поиск по каталогу занятий'}
+    form_class = SearchForm
+    context_object_name = 'activity_types'
 
-    return render(
-        request,
-        'catalog/catalog.html',
-        {'activity_types': activity_types,
-         'form': form, 'message': message}
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        activity_types = ActivityTypes.objects.all().order_by('id')
+        context['activity_types'] = activity_types
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            search_activity = form.cleaned_data['search_activity']
+            return redirect(reverse('catalog:search', args=(search_activity,)))
 
 
 class SearchView(FilterView):
@@ -116,6 +119,42 @@ class Level3View(FilterView):
         groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
         return groups
 
+
+class SignUp2GroupView(FormView, LoginRequiredMixin, DetailView):
+    template_name = 'catalog/group_details.html'
+    extra_context = {'message': 'Выберите время и дату посещения'}
+    form_class = DateTimeChoiceForm
+    context_object_name = 'group'
+    redirect_field_name = reverse_lazy('users:index')
+
+    def get_object(self, queryset=None):
+        group_pk = self.kwargs['group']
+        return get_object_or_404(Groups, pk=group_pk)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            form.save()
+            attend = Attends.objects.latest('id')
+            return redirect(reverse('catalog:group_success_signup', args=(attend.pk,)))
+
+    def get_form_kwargs(self):
+        kwargs = super(SignUp2GroupView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['group'] = self.get_object()
+        return kwargs
+
+
+class SuccessSignup(LoginRequiredMixin, DetailView):
+    model = Groups
+    context_object_name = 'attend'
+    template_name = 'catalog/group_success_signup.html'
+    extra_context = {'message': 'Вы успешно записались!'}
+    redirect_field_name = reverse_lazy('users:index')
+
+    def get_object(self, queryset=None):
+        slug = self.kwargs['pk']
+        return get_object_or_404(Attends, pk=slug)
 
 # def search(request, search_string: str):
 #     message = 'Результаты поиска:'
@@ -210,39 +249,18 @@ class Level3View(FilterView):
 #     return render(request, 'catalog/group_details.html',
 #                   {'group': group, 'message': message, 'form': form})
 
-
-class SignUp2GroupView(FormView, LoginRequiredMixin, DetailView):
-    template_name = 'catalog/group_details.html'
-    extra_context = {'message': 'Выберите время и дату посещения'}
-    form_class = DateTimeChoiceForm
-    context_object_name = 'group'
-    redirect_field_name = reverse_lazy('users:index')
-
-    def get_object(self, queryset=None):
-        group_pk = self.kwargs['group']
-        return get_object_or_404(Groups, pk=group_pk)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            form.save()
-            attend = Attends.objects.latest('id')
-            return redirect(reverse('catalog:group_success_signup', args=(attend.pk,)))
-
-    def get_form_kwargs(self):
-        kwargs = super(SignUp2GroupView, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
-        kwargs['group'] = self.get_object()
-        return kwargs
-
-
-class SuccessSignup(LoginRequiredMixin, DetailView):
-    model = Groups
-    context_object_name = 'attend'
-    template_name = 'catalog/group_success_signup.html'
-    extra_context = {'message': 'Вы успешно записались!'}
-    redirect_field_name = reverse_lazy('users:index')
-
-    def get_object(self, queryset=None):
-        slug = self.kwargs['pk']
-        return get_object_or_404(Attends, pk=slug)
+#
+# def index(request):
+#     activity_types = ActivityTypes.objects.all().order_by('id')
+#     message = 'Поиск по каталогу занятий'
+#     form = SearchForm(request.POST or None)
+#     if form.is_valid():
+#         search_activity = form.cleaned_data['search_activity']
+#         return redirect(reverse('catalog:search', args=(search_activity,)))
+#
+#     return render(
+#         request,
+#         'catalog/catalog.html',
+#         {'activity_types': activity_types,
+#          'form': form, 'message': message}
+#     )
