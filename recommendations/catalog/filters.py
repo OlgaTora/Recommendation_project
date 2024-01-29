@@ -21,7 +21,7 @@ class GroupsFilterSearch(django_filters.FilterSet):
     )
     address = CharFilter(
         field_name='address',
-        label='Адрес',
+        label='Название улицы',
         method='filter_offline_address')
 
     def filter_offline_address(self, queryset, name, value):
@@ -52,7 +52,7 @@ class GroupsFilterCatalog(django_filters.FilterSet):
     )
     address = CharFilter(
         field_name='address',
-        label='Адрес',
+        label='Название улицы',
         lookup_expr='icontains')
 
     def filter_district(self, queryset, name, value):
