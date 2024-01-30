@@ -22,8 +22,8 @@ class ActivityTypes(models.Model):
             self.slug = unique_slugify(self, self.activity_type)
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse('types', kwargs={'type_slug': self.slug})
+   # def get_absolute_url(self):
+    #    return reverse('types', kwargs={'type_slug': self.slug})
 
 
 class ActivityLevel1(models.Model):
