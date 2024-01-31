@@ -66,9 +66,10 @@ class DateTimeChoiceForm(forms.Form):
         attend = Attends(
             group_id=Groups.objects.get(pk=self.group.pk),
             user_id=Profile.objects.get(pk=self.user.pk),
-            online=True if 'ОНЛАЙН' in self.group.level.descript_level else False,
+            online=True if 'ОНЛАЙН' in self.group.level.level else False,
             date_attend=self.cleaned_data['date_choice'],
             start_time=self.cleaned_data['weekday_choice'][3:8],
             end_time=self.cleaned_data['weekday_choice'][9:],
         )
         attend.save()
+        #return attend.pk

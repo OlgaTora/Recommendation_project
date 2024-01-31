@@ -1,8 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, FormView
+from django.views.generic.edit import FormMixin
 from django_filters.views import FilterView
 
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
@@ -120,28 +122,31 @@ class Level3View(FilterView):
         return groups
 
 
-class SignUp2GroupView(FormView, LoginRequiredMixin, DetailView):
-    template_name = 'catalog/group_details.html'
+class SignUp2GroupView(FormView, LoginRequiredMixin):
+    template_name = 'catalog/signup2group.html'
     extra_context = {'message': 'Выберите время и дату посещения'}
     form_class = DateTimeChoiceForm
     context_object_name = 'group'
     redirect_field_name = reverse_lazy('users:index')
 
-    def get_object(self, queryset=None):
-        group_pk = self.kwargs['group']
-        return get_object_or_404(Groups, pk=group_pk)
+    def get_success_url(self):
+        attend = Attends.objects.latest('id')
+        return reverse_lazy('catalog:group_success_signup', args=(attend.pk,))
 
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            form.save()
-            attend = Attends.objects.latest('id')
-            return redirect(reverse('catalog:group_success_signup', args=(attend.pk,)))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        group_pk = self.kwargs['group']
+        context['group'] = get_object_or_404(Groups, pk=group_pk)
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return super(SignUp2GroupView, self).form_valid(form)
 
     def get_form_kwargs(self):
         kwargs = super(SignUp2GroupView, self).get_form_kwargs()
+        kwargs['group'] = get_object_or_404(Groups, pk=self.kwargs.get('group'))
         kwargs['user'] = self.request.user
-        kwargs['group'] = self.get_object()
         return kwargs
 
 
@@ -246,7 +251,7 @@ class SuccessSignup(LoginRequiredMixin, DetailView):
 #         form.save()
 #         attend = Attends.objects.latest('id')
 #         return redirect(reverse('catalog:group_success_signup', args=(attend.pk,)))
-#     return render(request, 'catalog/group_details.html',
+#     return render(request, 'catalog/signup2group.html',
 #                   {'group': group, 'message': message, 'form': form})
 
 #
