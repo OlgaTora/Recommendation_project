@@ -4,7 +4,7 @@ import datetime as dt
 
 
 from catalog.models import Attends, Groups
-from catalog.weekdays_dict import WEEKDAYS_DICT
+from services.weekdays_dict import WEEKDAYS_DICT
 from users.models import Profile
 
 
@@ -72,4 +72,3 @@ class DateTimeChoiceForm(forms.Form):
             end_time=self.cleaned_data['weekday_choice'][9:],
         )
         attend.save()
-        #return attend.pk

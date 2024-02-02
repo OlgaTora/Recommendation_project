@@ -15,11 +15,6 @@ class AddressForm(forms.ModelForm):
         model = StreetsBook
         exclude = ('index', 'street_type',)
 
-    def clean_address(self):
-        address = self.cleaned_data.get('address_form')
-        address = f"город Москва, {address['street_name']}"
-        return address
-
 
 class SignupForm(forms.ModelForm):
     class Meta:
@@ -76,5 +71,3 @@ class LoginForm(forms.Form):
             return super(LoginForm, self).clean()
         except ObjectDoesNotExist:
             raise forms.ValidationError('Неправильно введено имя.')
-
-

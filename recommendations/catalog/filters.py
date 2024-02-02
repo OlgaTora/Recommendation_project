@@ -4,7 +4,7 @@ from address_book.models import AdministrativeDistrict
 from catalog.models import Groups
 
 
-CHOICES = (('Онлайн', 'Все занятия'), ('Оффлайн', 'Только оффлайн'))
+CHOICES = (('Онлайн', 'Все группы'), ('Оффлайн', 'Только оффлайн'))
 
 
 class GroupsFilterSearch(django_filters.FilterSet):

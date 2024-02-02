@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView, CreateView
 
 from address_book.models import StreetsBook
 from catalog.filters import GroupsFilterSearch
@@ -21,6 +21,9 @@ def recommendations(request):
     Recommendation based on test results and user address
     """
     result = ResultOfTest.get_results(request.user)
+    if result is None:
+        messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
+        return redirect(reverse('rec_app:question_and_answers', args=(1,)))
     votes_group = VotesGroups.objects.get(votes=result)
     description = TestResultDescription.objects.get(pk=votes_group.result_group.pk)
     activity_type = ActivityTypes.objects.get(pk=description.activity_type.pk)
@@ -72,35 +75,50 @@ def recommendations(request):
                    'groups_list': page_obj})
 
 
-@login_required(redirect_field_name='/')
-def question_form(request, page_num=1):
+class QuestionFormView(LoginRequiredMixin, FormView):
     """
     Testing user
     """
-    message = 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'
-    last_page = int(Question.objects.latest('pk').pk) + 1
-    user = request.user
-    if page_num > last_page:
-        return render(request, '404.html')
+    template_name = 'rec_app/test_form.html'
+    extra_context = {'message': 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'}
+    form_class = AnswerForm
+    model = ResultOfTest
+    redirect_field_name = reverse_lazy('users:index')
+    success_url = 'rec_app:recommendations'
 
-    # когда ответил на последний вопрос
-    if page_num == last_page:
-        votes = len(ResultOfTest.objects.filter(user=user).annotate(count=Count('user')))
-        if votes >= last_page - 1:
-            return redirect('rec_app:recommendations')
-        else:
-            messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
-            return redirect(reverse('rec_app:question_and_answers', args=(1,)))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        question = get_object_or_404(Question, pk=self.kwargs.get('page_num'))
+        context['pk'] = question.pk
+        return context
 
-    question = get_object_or_404(Question, pk=page_num)
-    form = AnswerForm(request.POST or None, page_num=page_num, user=user)
-    if form.is_valid():
+    def get(self, request, *args, **kwargs):
+        last_page = Question.objects.latest('pk').pk + 1
+        user = request.user
+        page_num = self.kwargs.get('page_num')
+        if page_num > last_page or page_num == 0:
+            return render(request, '404.html')
+        # когда ответил на последний вопрос
+        if page_num == last_page:
+            votes = len(ResultOfTest.objects.filter(user=user).annotate(count=Count('user')))
+            if votes == last_page - 1:
+                return redirect(self.get_success_url())
+            else:
+                messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
+                return redirect(reverse('rec_app:question_and_answers', args=(1,)))
+        return self.render_to_response(self.get_context_data())
+
+    def get_form_kwargs(self):
+        kwargs = super(QuestionFormView, self).get_form_kwargs()
+        kwargs['page_num'] = self.kwargs.get('page_num')
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
         form.save()
+        page_num = self.kwargs['page_num']
         page_num += 1
         return redirect(reverse('rec_app:question_and_answers', args=(page_num,)))
-    return render(request,
-                  'rec_app/test_form.html',
-                  {'form': form, 'pk': question.pk, 'message': message})
 
 
 class StartView(LoginRequiredMixin, TemplateView):
@@ -120,7 +138,7 @@ class StartView(LoginRequiredMixin, TemplateView):
         return redirect(reverse('rec_app:question_and_answers', args=(1,)))
 
 
-class RestartView(LoginRequiredMixin, View):
+class RestartView(LoginRequiredMixin, TemplateView):
     """
     Choice: results or restart test
     """
@@ -153,3 +171,34 @@ class RestartView(LoginRequiredMixin, View):
 #         else:
 #             return redirect(reverse('rec_app:restart_test'))
 #     return redirect(reverse('rec_app:question_and_answers', args=(1,)))
+
+#
+# @login_required(redirect_field_name='/')
+# def question_form(request, page_num=1):
+#     """
+#     Testing user
+#     """
+#     message = 'Для получения рекомендаций ответьте, пожалуйста, на все вопросы.'
+#     last_page = int(Question.objects.latest('pk').pk) + 1
+#     user = request.user
+#     if page_num > last_page:
+#         return render(request, '404.html')
+#
+#     # когда ответил на последний вопрос
+#     if page_num == last_page:
+#         votes = len(ResultOfTest.objects.filter(user=user).annotate(count=Count('user')))
+#         if votes >= last_page - 1:
+#             return redirect('rec_app:recommendations')
+#         else:
+#             messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
+#             return redirect(reverse('rec_app:question_and_answers', args=(1,)))
+#
+#     question = get_object_or_404(Question, pk=page_num)
+#     form = AnswerForm(request.POST or None, page_num=page_num, user=user)
+#     if form.is_valid():
+#         form.save()
+#         page_num += 1
+#         return redirect(reverse('rec_app:question_and_answers', args=(page_num,)))
+#     return render(request,
+#                   'rec_app/test_form.html',
+#                   {'form': form, 'pk': question.pk, 'message': message})

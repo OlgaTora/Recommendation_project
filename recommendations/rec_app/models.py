@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum, Count
 
 from catalog.models import ActivityTypes
 from users.models import Profile
@@ -38,11 +39,12 @@ class ResultOfTest(models.Model):
 
     @staticmethod
     def get_results(user):
-        results = ResultOfTest.objects.filter(user=user)
-        resume = 0
-        for result in results:
-            resume += result.answer.votes
-        return resume
+        counter_votes = len(ResultOfTest.objects.filter(user=user).annotate(count=Count("user")))
+        # ответов меньше, чем вопросов
+        if Question.objects.latest('pk').pk != counter_votes:
+            return None
+        result = ResultOfTest.objects.filter(user=user).values('answer__votes').aggregate(Sum('answer__votes'))
+        return result['answer__votes__sum']
 
 
 class VotesGroups(models.Model):

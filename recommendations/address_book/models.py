@@ -76,7 +76,6 @@ class StreetsBook(models.Model):
         sort=True,
         verbose_name='Улица'
     )
-
     street_type = models.ForeignKey(StreetType, on_delete=models.CASCADE, default=None)
     index = models.CharField(max_length=255)
     objects = models.Manager()
@@ -86,6 +85,7 @@ class StreetsBook(models.Model):
 
     @staticmethod
     def address_transform(address: str):
+        address = str(address)
         """Funcion for check user address in address book"""
         street_type = ''
         # если адрес - одно слово

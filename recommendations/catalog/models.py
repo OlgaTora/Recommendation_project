@@ -22,8 +22,9 @@ class ActivityTypes(models.Model):
             self.slug = unique_slugify(self, self.activity_type)
         super().save(*args, **kwargs)
 
-   # def get_absolute_url(self):
-    #    return reverse('types', kwargs={'type_slug': self.slug})
+
+# def get_absolute_url(self):
+#    return reverse('types', kwargs={'type_slug': self.slug})
 
 
 class ActivityLevel1(models.Model):
@@ -112,7 +113,8 @@ class Groups(models.Model):
     @staticmethod
     def get_user_groups(user):
         user_attends = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
-        user_groups = Groups.objects.filter(pk__in=user_attends)
+        print(user_attends)
+        user_groups = Groups.objects.filter(pk__in=[i.group_id.pk for i in user_attends])
         return user_groups
 
     @property

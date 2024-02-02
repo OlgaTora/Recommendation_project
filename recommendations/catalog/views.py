@@ -1,10 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, FormView
-from django.views.generic.edit import FormMixin
 from django_filters.views import FilterView
 
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
@@ -18,30 +16,26 @@ class IndexView(FormView):
     form_class = SearchForm
     context_object_name = 'activity_types'
 
+    def get_success_url(self, search_activity=None):
+        return reverse_lazy('catalog:search', args=(search_activity,))
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        activity_types = ActivityTypes.objects.all().order_by('id')
-        context['activity_types'] = activity_types
+        context['activity_types'] = ActivityTypes.objects.all().order_by('id')
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            search_activity = form.cleaned_data['search_activity']
-            return redirect(reverse('catalog:search', args=(search_activity,)))
+    def form_valid(self, form):
+        search_activity = form.cleaned_data.get('search_activity')
+        return redirect(self.get_success_url(search_activity))
 
 
 class SearchView(FilterView):
     model = Groups
     paginate_by = 25
     template_name = 'catalog/search_results.html'
+    extra_context = {'message': 'Результаты поиска'}
     context_object_name = 'groups'
     filterset_class = GroupsFilterSearch
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['message'] = 'Результаты поиска'
-        return context
 
     def get_queryset(self):
         search_string = self.kwargs['search_string']
@@ -122,12 +116,12 @@ class Level3View(FilterView):
         return groups
 
 
-class SignUp2GroupView(FormView, LoginRequiredMixin):
+class SignUp2GroupView(LoginRequiredMixin, FormView):
     template_name = 'catalog/signup2group.html'
     extra_context = {'message': 'Выберите время и дату посещения'}
     form_class = DateTimeChoiceForm
     context_object_name = 'group'
-    redirect_field_name = reverse_lazy('users:index')
+    redirect_field_name = 'users:index'
 
     def get_success_url(self):
         attend = Attends.objects.latest('id')
