@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, FormView
 from django_filters.views import FilterView
 
@@ -38,7 +38,7 @@ class SearchView(FilterView):
     filterset_class = GroupsFilterSearch
 
     def get_queryset(self):
-        search_string = self.kwargs['search_string']
+        search_string = self.kwargs.get('search_string')
         level3 = ActivityLevel3.objects.filter(Q(descript_level__icontains=search_string) |
                                                Q(level__icontains=search_string))
         groups = Groups.objects.filter(level__in=level3).exclude(schedule_active='')
@@ -56,7 +56,7 @@ class TypeView(ListView):
         return context
 
     def get_queryset(self):
-        type_slug = self.kwargs['type_slug']
+        type_slug = self.kwargs.get('type_slug')
         activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
         level1 = ActivityLevel1.objects.filter(activity_type=activity_type).order_by('id')
         return level1
@@ -73,7 +73,7 @@ class Level1View(ListView):
         return context
 
     def get_queryset(self):
-        level1_slug = self.kwargs['level1_slug']
+        level1_slug = self.kwargs.get('level1_slug')
         level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
         level2 = ActivityLevel2.objects.filter(activity_type=level1)
         return level2
@@ -90,7 +90,7 @@ class Level2View(ListView):
         return context
 
     def get_queryset(self):
-        level2_slug = self.kwargs['level2_slug']
+        level2_slug = self.kwargs.get('level2_slug')
         level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
         level3 = ActivityLevel3.objects.filter(activity_type=level2)
         return level3
@@ -102,16 +102,20 @@ class Level3View(FilterView):
     template_name = 'catalog/groups.html'
     context_object_name = 'groups'
     filterset_class = GroupsFilterCatalog
+    level3_slug: int
+
+    def get_slug(self):
+        if not hasattr(self, 'level3_slug'):
+            self.level3_slug = self.kwargs.get('level3_slug')
+        return self.level3_slug
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        level3_slug = self.kwargs['level3_slug']
-        context['level3'] = get_object_or_404(ActivityLevel3, slug=level3_slug)
+        context['level3'] = get_object_or_404(ActivityLevel3, slug=self.get_slug())
         return context
 
     def get_queryset(self):
-        level3_slug = self.kwargs['level3_slug']
-        level3 = get_object_or_404(ActivityLevel3, slug=level3_slug)
+        level3 = get_object_or_404(ActivityLevel3, slug=self.get_slug())
         groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
         return groups
 
@@ -122,6 +126,12 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
     form_class = DateTimeChoiceForm
     context_object_name = 'group'
     redirect_field_name = 'users:index'
+    group: int
+
+    def get_group(self):
+        if not hasattr(self, 'group'):
+            self.group = self.kwargs.get('group')
+        return self.group
 
     def get_success_url(self):
         attend = Attends.objects.latest('id')
@@ -129,8 +139,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        group_pk = self.kwargs['group']
-        context['group'] = get_object_or_404(Groups, pk=group_pk)
+        context['group'] = get_object_or_404(Groups, pk=self.get_group())
         return context
 
     def form_valid(self, form):
@@ -139,7 +148,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(SignUp2GroupView, self).get_form_kwargs()
-        kwargs['group'] = get_object_or_404(Groups, pk=self.kwargs.get('group'))
+        kwargs['group'] = get_object_or_404(Groups, pk=self.get_group())
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -152,8 +161,7 @@ class SuccessSignup(LoginRequiredMixin, DetailView):
     redirect_field_name = reverse_lazy('users:index')
 
     def get_object(self, queryset=None):
-        slug = self.kwargs['pk']
-        return get_object_or_404(Attends, pk=slug)
+        return get_object_or_404(Attends, pk=self.kwargs['pk'])
 
 # def search(request, search_string: str):
 #     message = 'Результаты поиска:'

@@ -1,5 +1,6 @@
 from datetime import timedelta, date
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -57,7 +58,11 @@ class SignupForm(forms.ModelForm):
             return data
 
 
-class LoginForm(forms.Form):
+class LoginForm(AuthenticationForm):
+    class Meta:
+        model = Profile
+        fields = ['username', 'password']
+
     username = forms.CharField(max_length=12, label='Логин')
     password = forms.CharField(widget=forms.PasswordInput, label='Пароль')
 

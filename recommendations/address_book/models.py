@@ -1,7 +1,7 @@
 from django.db import models
 from smart_selects.db_fields import ChainedForeignKey
 
-from address_book.address_parser.street_types_dict import street_types_dict
+from services.address_parser.street_types_dict import street_types_dict
 
 
 class AdministrativeDistrict(models.Model):

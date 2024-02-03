@@ -1,8 +1,9 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
-from django.urls import reverse, reverse_lazy
-from django.views.generic import TemplateView, FormView
+from django.urls import reverse
+from django.views.generic import TemplateView
 
 from users.forms import AddressForm, LoginForm, SignupForm
 from users.models import Profile
@@ -24,30 +25,6 @@ class IndexView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['description'] = self.description
         return context
-
-
-class UserSignUpView(FormView):
-    template_name = "users/login.html"
-    form_class = SignupForm(prefix='signup')
-    redirect_authenticated_user = True
-    success_url = reverse_lazy('users:index')
-    extra_context = {'message': 'Заполните данные о себе, пожалуйста:'}
-
-    def form_valid(self, form):
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        profile = authenticate(username=username, password=password)
-        if profile is not None:
-            login(self.request, profile)
-            messages.success(self.request, 'Вы успешно зарегистрировались.')
-        return super(UserSignUpView, self).form_valid(form)
-
-    def get(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            messages.error(self.request, 'Вы уже вошли в систему.')
-            return redirect(reverse('users:index'))
-        else:
-            return super(UserSignUpView, self).get(request)
 
 
 def signup(request):
@@ -79,11 +56,11 @@ def signup(request):
         return redirect(reverse('users:index'))
 
 
-class UserLoginView(FormView):
+class UserLoginView(LoginView):
     template_name = "users/login.html"
     form_class = LoginForm
-    redirect_authenticated_user = True
-    success_url = reverse_lazy('users:index')
+    # redirect_authenticated_user = True
+    # success_url = reverse_lazy('users:index')
     extra_context = {'message': 'Введите ваше имя и пароль:'}
 
     def form_valid(self, form):
@@ -93,7 +70,8 @@ class UserLoginView(FormView):
         if profile is not None:
             login(self.request, profile)
             messages.success(self.request, 'Вы успешно вошли в систему.')
-        return super(UserLoginView, self).form_valid(form)
+        return redirect(self.get_success_url())
+        # return super(UserLoginView, self).form_valid(form)
 
     def get(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
@@ -101,13 +79,6 @@ class UserLoginView(FormView):
             return redirect(reverse('users:index'))
         else:
             return super(UserLoginView, self).get(request)
-
-
-class UserLogOutView(TemplateView):
-
-    def get(self, request, *args, **kwargs):
-        logout(request)
-        return redirect(reverse('users:index'))
 
 # def user_login(request):
 #     if not request.user.is_authenticated:

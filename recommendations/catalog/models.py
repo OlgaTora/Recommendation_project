@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Count
-from django.urls import reverse
 
+from services.date_time_extraction import case_two_dates_two_time, case_one_time, case_two_dates_one_time
 from services.utils import unique_slugify
 from users.models import Profile
 
@@ -23,10 +23,6 @@ class ActivityTypes(models.Model):
         super().save(*args, **kwargs)
 
 
-# def get_absolute_url(self):
-#    return reverse('types', kwargs={'type_slug': self.slug})
-
-
 class ActivityLevel1(models.Model):
     activity_type = models.ForeignKey(ActivityTypes, on_delete=models.CASCADE)
     id_level = models.IntegerField()
@@ -41,9 +37,6 @@ class ActivityLevel1(models.Model):
         if not self.slug:
             self.slug = unique_slugify(self, self.level)
         super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('level1', kwargs={'level_slug': self.slug})
 
 
 class ActivityLevel2(models.Model):
@@ -61,9 +54,6 @@ class ActivityLevel2(models.Model):
             self.slug = unique_slugify(self, self.level)
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse('level2', kwargs={'level_slug': self.slug})
-
 
 class ActivityLevel3(models.Model):
     activity_type = models.ForeignKey(ActivityLevel2, on_delete=models.CASCADE)
@@ -80,9 +70,6 @@ class ActivityLevel3(models.Model):
         if not self.slug:
             self.slug = unique_slugify(self, self.level)
         super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('level3', kwargs={'level_slug': self.slug})
 
 
 class Groups(models.Model):
@@ -107,38 +94,35 @@ class Groups(models.Model):
             self.slug = unique_slugify(self, self.uniq_id)
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse('groups', kwargs={'groups_slug': self.slug})
-
     @staticmethod
     def get_user_groups(user):
         user_attends = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
-        print(user_attends)
         user_groups = Groups.objects.filter(pk__in=[i.group_id.pk for i in user_attends])
         return user_groups
 
     @property
-    def extract(self):
+    def extract(self) -> list:
         s = str(self.schedule_active)
-        result = []
+        # result = []
         if s.count(';') == 0:
             if s.count('перерыв') > 1:
                 result = case_two_dates_two_time(s)
             else:
                 result = case_one_time(s)
         else:
-            """
-            обработка случая 'c 01.06.2022 по 11.08.2022, Пн., Ср. 12:05-13:05, без перерыва;
-            c 01.01.2022 по 31.05.2022, Пн., Ср. 12:15-13:15, без перерыва;
-            """
-            spl = [i.strip() for i in s.split(';')]
-            for lst in spl:
-                if lst.count('перерыв') > 1:
-                    lst = case_two_dates_two_time(lst)
-                    result += lst
-                else:
-                    lst = case_one_time(lst)
-                    result += lst
+            result = case_two_dates_one_time(s)
+            # """
+            # обработка случая 'c 01.06.2022 по 11.08.2022, Пн., Ср. 12:05-13:05, без перерыва;
+            # c 01.01.2022 по 31.05.2022, Пн., Ср. 12:15-13:15, без перерыва;
+            # """
+            # spl = [i.strip() for i in s.split(';')]
+            # for lst in spl:
+            #     if lst.count('перерыв') > 1:
+            #         lst = case_two_dates_two_time(lst)
+            #         result += lst
+            #     else:
+            #         lst = case_one_time(lst)
+            #         result += lst
         return result
 
 
@@ -179,67 +163,67 @@ class Attends(models.Model):
             return top_offline, top_online
         return level3_offline, level3_online
 
-
-def clean_str(s: str):
-    str_clean = (s.replace('c', '')
-                 .replace('по', '')
-                 .replace('без перерыва', '')
-                 .replace(',', '')).strip()
-    return str_clean
-
-
-def case_one_time(s: str):
-    """
-    обработка случая 'c 31.03.2023 по 31.12.2023, Пн., Ср. 17:00-19:00, без перерыва'
-    """
-    str_clean = clean_str(s)
-    spl = [i for i in str_clean.split(' ')]
-    lst = []
-    schedule_dict = extract_time_weekday(spl)
-    if schedule_dict:
-        for day, times in schedule_dict.items():
-            lst.append([spl[0], spl[2], day, times])
-    return lst
-
-
-def case_two_dates_two_time(s: str):
-    """
-    обработка случая 'c 31.03.2023 по 31.12.2023, Вт. 17:00-19:00, без перерыва, Пт. 13:00-15:00, без перерыва'
-    """
-    str_split = s.split('без перерыва')
-    str_clean = clean_str(str_split[0])
-    spl = [i for i in str_clean.split(' ')]
-    lst = []
-    schedule_dict = extract_time_weekday(spl)
-    if schedule_dict:
-        for day, times in schedule_dict.items():
-            lst.append([spl[0], spl[2], day, times])
-    for i in range(1, len(str_split)):
-        new_str_split = [i for i in clean_str(str_split[i]).split(' ')]
-        schedule_dict_ = extract_time_weekday(new_str_split)
-        if schedule_dict_:
-            for day_, times_ in schedule_dict_.items():
-                lst.append([spl[0], spl[2], day_, times_])
-    return lst
-
-
-def extract_time_weekday(elem: list):
-    weeksdays_list = ['Пн.', 'Вт.', 'Ср.', 'Чт.', 'Пт.', 'Сб.', 'Вс.']
-    times = []
-    weeksdays = []
-    schedule_dict = {}
-    for j in elem:
-        if j in weeksdays_list:
-            weeksdays.append(j[:-1])
-        if '-' in j:
-            times.append(j)
-    if len(weeksdays) == len(times):
-        schedule_dict = dict(zip(weeksdays, times))
-    elif len(weeksdays) > len(times):
-        for i in weeksdays:
-            schedule_dict[i] = times[0]
-    else:
-        for i in times:
-            times[i] = weeksdays
-    if schedule_dict:
-        return schedule_dict
+#
+# def clean_str(s: str):
+#     str_clean = (s.replace('c', '')
+#                  .replace('по', '')
+#                  .replace('без перерыва', '')
+#                  .replace(',', '')).strip()
+#     return str_clean
+#
+#
+# def case_one_time(s: str):
+#     """
+#     обработка случая 'c 31.03.2023 по 31.12.2023, Пн., Ср. 17:00-19:00, без перерыва'
+#     """
+#     str_clean = clean_str(s)
+#     spl = [i for i in str_clean.split(' ')]
+#     lst = []
+#     schedule_dict = extract_time_weekday(spl)
+#     if schedule_dict:
+#         for day, times in schedule_dict.items():
+#             lst.append([spl[0], spl[2], day, times])
+#     return lst
+#
+#
+# def case_two_dates_two_time(s: str):
+#     """
+#     обработка случая 'c 31.03.2023 по 31.12.2023, Вт. 17:00-19:00, без перерыва, Пт. 13:00-15:00, без перерыва'
+#     """
+#     str_split = s.split('без перерыва')
+#     str_clean = clean_str(str_split[0])
+#     spl = [i for i in str_clean.split(' ')]
+#     lst = []
+#     schedule_dict = extract_time_weekday(spl)
+#     if schedule_dict:
+#         for day, times in schedule_dict.items():
+#             lst.append([spl[0], spl[2], day, times])
+#     for i in range(1, len(str_split)):
+#         new_str_split = [i for i in clean_str(str_split[i]).split(' ')]
+#         schedule_dict_ = extract_time_weekday(new_str_split)
+#         if schedule_dict_:
+#             for day_, times_ in schedule_dict_.items():
+#                 lst.append([spl[0], spl[2], day_, times_])
+#     return lst
+#
+#
+# def extract_time_weekday(elem: list):
+#     weeksdays_list = ['Пн.', 'Вт.', 'Ср.', 'Чт.', 'Пт.', 'Сб.', 'Вс.']
+#     times = []
+#     weeksdays = []
+#     schedule_dict = {}
+#     for j in elem:
+#         if j in weeksdays_list:
+#             weeksdays.append(j[:-1])
+#         if '-' in j:
+#             times.append(j)
+#     if len(weeksdays) == len(times):
+#         schedule_dict = dict(zip(weeksdays, times))
+#     elif len(weeksdays) > len(times):
+#         for i in weeksdays:
+#             schedule_dict[i] = times[0]
+#     else:
+#         for i in times:
+#             times[i] = weeksdays
+#     if schedule_dict:
+#         return schedule_dict

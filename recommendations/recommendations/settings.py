@@ -160,4 +160,8 @@ USE_DJANGO_JQUERY = True
 
 LOGIN_URL = '/'
 
+LOGIN_REDIRECT_URL = '/'
+
 REDIRECT_FIELD_NAME = 'users:index'
+
+LOGOUT_REDIRECT_URL = 'users:index'

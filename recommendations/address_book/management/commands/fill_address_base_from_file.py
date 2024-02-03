@@ -3,7 +3,6 @@ import os
 import django
 
 from django.core.management.base import BaseCommand
-from more_itertools import unique_everseen
 
 from address_book.models import StreetsBook, District, AdministrativeDistrict, StreetType, Streets
 

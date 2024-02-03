@@ -48,7 +48,7 @@
             <h5>оффлайн занятий:</h5>
             <form method="GET" action="">
                 <div style="display: grid">
-                    {% for field in group_filter.form %}
+                    {% for field in filter.form %}
                     <div id="form-field-{{ forloop.counter0 }}">
                         {{ field.label_tag }}
                         {% render_field field class="form-control" %}
@@ -66,11 +66,6 @@
     {% else %}
     <img src="/static/images/ups.png" class="mx-auto d-block" width="400px">
     <h3>Мы ничего не нашли по вашему запросу.<br/>Попробуйте еще. </h3>
-    {% endif %}
-</div>
-<div class="container">
-    {% if groups_list %}
-    {% include "pagination.html" with page=groups_list %}
     {% endif %}
 </div>
 {% endblock %}
