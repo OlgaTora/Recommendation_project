@@ -86,44 +86,42 @@ class QuestionFormView(LoginRequiredMixin, FormView):
     form_class = AnswerForm
     redirect_field_name = reverse_lazy('users:index')
     success_url = 'rec_app:recommendations'
-    page_num: int
+    question: int
 
-    def get_page_num(self):
-        if not hasattr(self, 'page_num'):
-            self.page_num = self.kwargs.get('page_num')
-        return self.page_num
+    def get_question(self):
+        if not hasattr(self, 'question'):
+            self.question = get_object_or_404(Question, pk=self.kwargs.get('question')).pk
+        return self.question
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['question'] = get_object_or_404(Question, pk=self.get_page_num()).pk
+        context['question'] = self.get_question()
         return context
 
     def get(self, request, *args, **kwargs):
         last_page = Question.objects.latest('pk').pk + 1
-        page_num = self.get_page_num()
-        if page_num > last_page or page_num == 0:
-            return render(request, '404.html')
         # когда ответил на последний вопрос
-        if page_num == last_page:
-            votes = len(ResultOfTest.objects.filter(user=request.user).annotate(count=Count('user')))
+        if self.get_question() == last_page:
+            votes = len(ResultOfTest.objects.filter(user=request.user)
+                        .annotate(count=Count('user')))
             if votes == last_page - 1:
                 return redirect(self.get_success_url())
             else:
-                messages.error(request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
+                messages.error(request, 'Вы ответили не на все вопросы,'
+                                        ' начните тестирование с начала.')
                 return redirect(reverse('rec_app:question_and_answers', args=(1,)))
         return self.render_to_response(self.get_context_data())
 
     def get_form_kwargs(self):
         kwargs = super(QuestionFormView, self).get_form_kwargs()
-        kwargs['page_num'] = self.get_page_num()
+        kwargs['question'] = self.get_question()
         kwargs['user'] = self.request.user
         return kwargs
 
     def form_valid(self, form):
         form.save()
-        page_num = self.get_page_num() + 1
-#        page_num += 1
-        return redirect(reverse('rec_app:question_and_answers', args=(page_num,)))
+        question = self.get_question() + 1
+        return redirect(reverse('rec_app:question_and_answers', args=(question,)))
 
 
 class StartView(LoginRequiredMixin, TemplateView):

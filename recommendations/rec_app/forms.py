@@ -5,13 +5,11 @@ from .models import Question, Choice, ResultOfTest
 
 class AnswerForm(forms.Form):
 
-    def __init__(self, page_num, user, *args, **kwargs):
+    def __init__(self, question, user, *args, **kwargs):
         super(AnswerForm, self).__init__(*args, **kwargs)
-        self.page = page_num
         self.user = user
         choices = []
-        question_pk = self.page
-        self.question = Question.objects.get(pk=question_pk)
+        self.question = Question.objects.get(pk=question)
         for choice in Choice.objects.all():
             choices.append((choice.votes, choice.choice_text))
 

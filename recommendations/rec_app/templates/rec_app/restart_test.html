@@ -6,11 +6,13 @@
 <div class="d-grid gap-2 d-md-flex justify-content-center">
     <a class="btn btn-success"
        href=" {% url 'rec_app:recommendations'%}" role="button"
-       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 2.75rem;">Перейти к
+       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem;
+        --bs-btn-font-size: 2.75rem;">Перейти к
         результатам</a>
     <a class="btn btn-success btn-block btn-lg"
-       href=" {% url 'rec_app:question_and_answers' page_num=1%}" role="button"
-       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 2.75rem;">Пройти тест
+       href=" {% url 'rec_app:question_and_answers' question=1%}" role="button"
+       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem;
+        --bs-btn-font-size: 2.75rem;">Пройти тест
         заново</a>
 </div>
 {% endblock %}
