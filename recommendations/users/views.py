@@ -59,8 +59,6 @@ def signup(request):
 class UserLoginView(LoginView):
     template_name = "users/login.html"
     form_class = LoginForm
-    # redirect_authenticated_user = True
-    # success_url = reverse_lazy('users:index')
     extra_context = {'message': 'Введите ваше имя и пароль:'}
 
     def form_valid(self, form):

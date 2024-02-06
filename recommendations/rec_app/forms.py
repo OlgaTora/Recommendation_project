@@ -6,7 +6,6 @@ from .models import Question, Choice, ResultOfTest
 class AnswerForm(forms.Form):
 
     def __init__(self, page_num, user, *args, **kwargs):
-        # super().__init__(*args, **kwargs)
         super(AnswerForm, self).__init__(*args, **kwargs)
         self.page = page_num
         self.user = user
