@@ -103,7 +103,6 @@ class Groups(models.Model):
     @property
     def extract(self) -> list:
         s = str(self.schedule_active)
-        # result = []
         if s.count(';') == 0:
             if s.count('перерыв') > 1:
                 result = case_two_dates_two_time(s)
@@ -111,6 +110,7 @@ class Groups(models.Model):
                 result = case_one_time(s)
         else:
             result = case_two_dates_one_time(s)
+        return result
             # """
             # обработка случая 'c 01.06.2022 по 11.08.2022, Пн., Ср. 12:05-13:05, без перерыва;
             # c 01.01.2022 по 31.05.2022, Пн., Ср. 12:15-13:15, без перерыва;
@@ -123,7 +123,7 @@ class Groups(models.Model):
             #     else:
             #         lst = case_one_time(lst)
             #         result += lst
-        return result
+            #return result
 
 
 class Attends(models.Model):

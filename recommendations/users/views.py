@@ -71,7 +71,6 @@ class UserLoginView(LoginView):
             login(self.request, profile)
             messages.success(self.request, 'Вы успешно вошли в систему.')
         return redirect(self.get_success_url())
-        # return super(UserLoginView, self).form_valid(form)
 
     def get(self, request, *args, **kwargs):
         if self.request.user.is_authenticated:
