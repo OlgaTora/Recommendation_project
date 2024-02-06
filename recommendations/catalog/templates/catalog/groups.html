@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
 {% load widget_tweaks %}
+{% load static %}
 {% block content %}
 <div class="container-fluid">
     {% if object_list %}
@@ -57,7 +58,7 @@
     </div>
     {% else %}
     <div class="col-md-12">
-        <img src="/static/images/ups.png" class="mx-auto d-block" width="400px">
+        <img src=" {% static 'images/ups.png' %}" class="mx-auto d-block" width="400px">
         <h3>Мы ничего не нашли по вашему запросу.<br/>Попробуйте еще. </h3>
     </div>
     {% endif %}

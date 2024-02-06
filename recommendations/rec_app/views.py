@@ -50,12 +50,11 @@ class RecommendationView(LoginRequiredMixin, FilterView):
     def get_queryset(self):
         votes_group = VotesGroups.objects.get(votes=self.get_result())
         activity_type = ActivityTypes.objects.get(pk=votes_group.result_group.pk)
-        # топ offline-10, online-5
+        # топ offline & online
         level3_offline, level3_online = Attends.get_top_level3(activity_type)
         groups_list_on = Groups.objects.filter(level__in=level3_online).exclude(schedule_active='')
         user_address = self.request.user.address
-        # если адрес есть в базе адресов Москвы
-        if user_address:
+        if user_address: # если адрес есть в базе адресов Москвы
             admin_districts = StreetsBook.admin_districts_transform(user_address)
             # группы по типу активности из теста и из района пользователя
             groups_list_off = (Groups.objects.filter(

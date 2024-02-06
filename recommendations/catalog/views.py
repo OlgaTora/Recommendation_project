@@ -126,12 +126,12 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
     form_class = DateTimeChoiceForm
     context_object_name = 'group'
     redirect_field_name = 'users:index'
-    group: int
+    group_pk: int
 
     def get_group(self):
         if not hasattr(self, 'group'):
-            self.group = self.kwargs.get('group')
-        return self.group
+            self.group_pk = get_object_or_404(Groups, pk=self.kwargs['group']).pk
+        return self.group_pk
 
     def get_success_url(self):
         attend = Attends.objects.latest('id')
@@ -139,7 +139,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['group'] = get_object_or_404(Groups, pk=self.get_group())
+        context['group'] = self.get_group()
         return context
 
     def form_valid(self, form):
@@ -148,7 +148,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(SignUp2GroupView, self).get_form_kwargs()
-        kwargs['group'] = get_object_or_404(Groups, pk=self.get_group())
+        kwargs['group'] = self.get_group()
         kwargs['user'] = self.request.user
         return kwargs
 
