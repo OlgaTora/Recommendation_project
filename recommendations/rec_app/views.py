@@ -48,33 +48,37 @@ class RecommendationView(LoginRequiredMixin, FilterView):
         return super(RecommendationView, self).get(request)
 
     def get_queryset(self):
+        groups_list = None
         votes_group = VotesGroups.objects.get(votes=self.get_result())
         activity_type = ActivityTypes.objects.get(pk=votes_group.result_group.pk)
         # топ offline & online
         level3_offline, level3_online = Attends.get_top_level3(activity_type)
-        groups_list_on = Groups.objects.filter(level__in=level3_online)\
+        groups_list_on = Groups.objects.filter(level__in=level3_online) \
             .exclude(schedule_active='')
-        user_address = self.request.user.address
-        if user_address: # если адрес есть
-            admin_districts = StreetsBook.admin_districts_transform(user_address)
-            # группы из района пользователя
-            groups_list_off = (Groups.objects.filter(
-                level__in=level3_offline,
-                districts__icontains=admin_districts[0])
-                               .exclude(schedule_active=''))
-            # если улица с этим названием в нескольких районах
-            if len(admin_districts) > 1:
-                for i in range(1, len(admin_districts)):
-                    groups = (Groups.objects.filter(
-                        level__in=level3_offline,
-                        districts__icontains=admin_districts[i])
-                              .exclude(schedule_active=''))
-                    groups_list_off = groups_list_off | groups
-            groups_list = groups_list_off | groups_list_on
-        else:
-            groups_list = groups_list_on | Groups.objects.filter(level__in=level3_offline)\
-                .exclude(schedule_active='')
         user_groups = Groups.get_user_groups(self.request.user)
+        user_address = self.request.user.address
+        if user_address:
+            admin_districts = StreetsBook.admin_districts_transform(user_address)
+            if admin_districts:  # если адрес есть
+                groups_list_off = (Groups.objects.filter(
+                    level__in=level3_offline,
+                    districts__icontains=admin_districts[0])
+                                   .exclude(schedule_active=''))
+                # если улица с этим названием в нескольких районах
+                if len(admin_districts) > 1:
+                    for i in range(1, len(admin_districts)):
+                        groups = (Groups.objects.filter(
+                            level__in=level3_offline,
+                            districts__icontains=admin_districts[i])
+                                  .exclude(schedule_active=''))
+                        groups_list_off = groups_list_off | groups
+                groups_list = groups_list_off | groups_list_on
+            else:
+                groups_list = groups_list_on | Groups.objects.filter(level__in=level3_offline) \
+                    .exclude(schedule_active='')
+        else:
+            groups_list = groups_list_on | Groups.objects.filter(level__in=level3_offline) \
+                .exclude(schedule_active='')
         groups_list = groups_list.exclude(pk__in=user_groups)
         return groups_list
 
