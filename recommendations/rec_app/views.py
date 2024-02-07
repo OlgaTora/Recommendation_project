@@ -92,12 +92,12 @@ class QuestionFormView(LoginRequiredMixin, FormView):
 
     def get_question(self):
         if not hasattr(self, 'question'):
-            self.question = get_object_or_404(Question, pk=self.kwargs.get('question')).pk
+            self.question = self.kwargs.get('question')
         return self.question
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['question'] = self.get_question()
+        context['question'] = get_object_or_404(Question, pk=self.get_question()).pk
         return context
 
     def get(self, request, *args, **kwargs):
