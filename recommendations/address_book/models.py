@@ -86,7 +86,7 @@ class StreetsBook(models.Model):
     @staticmethod
     def address_transform(address: str):
         address = str(address)
-        """Funcion for check user address in address book"""
+        """Function for check user address in address book"""
         street_type = ''
         # если адрес - одно слово
         if len(address.split(',')) != 1:
