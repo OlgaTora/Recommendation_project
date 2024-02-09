@@ -24,13 +24,15 @@ class DateTimeChoiceForm(forms.Form):
         self.user = user
         period = []
         weekdays_time_choices = []
+        group = Groups.objects.get(pk=group)
         lst = group.extract
+        print(lst)
+
         for i in lst:
             res = f'{i[2]} {i[3]}'
             weekdays_time_choices.append((res, res))
             period.append(dt.datetime.strptime(i[0], '%d.%m.%Y'))
             period.append(dt.datetime.strptime(i[1], '%d.%m.%Y'))
-
         start_date = min(period)
         end_date = max(period)
 

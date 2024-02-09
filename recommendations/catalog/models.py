@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Count
 
+from address_book.models import AdministrativeDistrict
 from services.date_time_extraction import case_two_dates_two_time, case_one_time, case_two_dates_one_time
 from services.utils import unique_slugify
 from users.models import Profile
@@ -111,6 +112,49 @@ class Groups(models.Model):
         else:
             result = case_two_dates_one_time(s)
         return result
+
+
+class GroupsCorrect(models.Model):
+    uniq_id = models.IntegerField()
+    group_id = models.ForeignKey(Groups, on_delete=models.CASCADE)
+    level = models.ForeignKey(ActivityLevel3, on_delete=models.CASCADE)
+    address = models.TextField()
+    admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
+    objects = models.Manager()
+
+    class Meta:
+        ordering = ('-uniq_id',)
+
+    def __str__(self):
+        return f'{self.level}'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = unique_slugify(self, self.uniq_id)
+        super().save(*args, **kwargs)
+
+
+class ScheduleActive(models.Model):
+    uniq_id = models.IntegerField()
+    group_id = models.ForeignKey(GroupsCorrect, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    weekday = models.TextField()
+    start_time = models.CharField(max_length=32)
+    end_time = models.CharField(max_length=32)
+    objects = models.Manager()
+
+    class Meta:
+        ordering = ('-uniq_id',)
+
+    def __str__(self):
+        return (f'{self.group_id}'
+                f' {self.start_date}'
+                f' {self.end_date} '
+                f'{self.weekday} '
+                f'{self.start_time} '
+                f'{self.end_time}')
 
 
 class Attends(models.Model):

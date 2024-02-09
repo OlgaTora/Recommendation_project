@@ -25,6 +25,7 @@ class RecommendationView(LoginRequiredMixin, FilterView):
     """
     result: int | None
     template_name = 'rec_app/recommendations.html'
+    extra_context = {'message': 'Выберите занятие:'}
     redirect_field_name = reverse_lazy('users:index')
     model = Groups
     paginate_by = 10

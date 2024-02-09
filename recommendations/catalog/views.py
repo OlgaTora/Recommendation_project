@@ -34,7 +34,7 @@ class SearchView(FilterView):
     paginate_by = 10
     template_name = 'catalog/search_results.html'
     extra_context = {'message': 'Результаты поиска'}
-    context_object_name = 'groups'
+    context_object_name = 'groups_list'
     filterset_class = GroupsFilterSearch
 
     def get_queryset(self):
@@ -100,7 +100,8 @@ class Level3View(FilterView):
     model = Groups
     paginate_by = 10
     template_name = 'catalog/groups.html'
-    context_object_name = 'groups'
+    context_object_name = 'groups_list'
+    extra_context = {'message': 'Выберите удобную для Вас группу'}
     filterset_class = GroupsFilterCatalog
     level3_slug: int
 
@@ -116,8 +117,8 @@ class Level3View(FilterView):
 
     def get_queryset(self):
         level3 = get_object_or_404(ActivityLevel3, slug=self.get_slug())
-        groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
-        return groups
+        groups_list = Groups.objects.filter(level=level3).exclude(schedule_active='')
+        return groups_list
 
 
 class SignUp2GroupView(LoginRequiredMixin, FormView):

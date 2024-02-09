@@ -1,0 +1,24 @@
+<div class="col-md-8">
+    <ul class="list-group">
+        {% for group in groups_list %}
+        <li class="list-group-item list-group-item-dark" style="font-size: 25px">
+            <p><b>{{group.level.level}}</b></p>
+            <p><i>{{group.level.descript_level}}</i></p>
+            <p><b>Номер группы: </b> {{group.uniq_id}}.</p>
+            {% if 'ОНЛАЙН' in group.level.level %}
+            <p>Занятия проходят он-лайн.</p>
+            {% else %}
+            <p><b>Адрес:</b> {{ group.address }}</p>
+            {% endif %}
+            <p><b>Расписание:</b> {{group.schedule_active}}</p>
+            {% if user.is_authenticated %}
+            <a class="btn btn-success btn-block btn-lg"
+               href=" {% url 'catalog:signup2group' group.id %}" role="button"
+               style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: 1.75rem;">Записаться</a>
+            {% else %}
+            <p>Для записи необходимо войти в систему.</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
