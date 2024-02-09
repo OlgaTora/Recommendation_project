@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count
 from django.urls import reverse, reverse_lazy
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView, FormView, ListView
 from django_filters.views import FilterView
 
 from address_book.models import StreetsBook
@@ -15,6 +15,10 @@ from .models import Question, ResultOfTest, TestResultDescription, VotesGroups
 from django.contrib import messages
 
 
+class Paginator:
+    pass
+
+
 class RecommendationView(LoginRequiredMixin, FilterView):
     """
     Recommendation based on test results and user address
@@ -23,7 +27,7 @@ class RecommendationView(LoginRequiredMixin, FilterView):
     template_name = 'rec_app/recommendations.html'
     redirect_field_name = reverse_lazy('users:index')
     model = Groups
-    paginate_by = 25
+    paginate_by = 10
     context_object_name = 'groups_list'
     filterset_class = GroupsFilterSearch
 
@@ -48,39 +52,36 @@ class RecommendationView(LoginRequiredMixin, FilterView):
         return super(RecommendationView, self).get(request)
 
     def get_queryset(self):
-        groups_list = None
+        queryset = super().get_queryset()
         votes_group = VotesGroups.objects.get(votes=self.get_result())
         activity_type = ActivityTypes.objects.get(pk=votes_group.result_group.pk)
         # топ offline & online
         level3_offline, level3_online = Attends.get_top_level3(activity_type)
         groups_list_on = Groups.objects.filter(level__in=level3_online) \
             .exclude(schedule_active='')
+        print(f'on - {len(groups_list_on)}')
+        groups_list_off = Groups.objects.filter(level__in=level3_offline) \
+            .exclude(schedule_active='')
+        print(f'off - {len(groups_list_off)}')
         user_groups = Groups.get_user_groups(self.request.user)
+        print(f'user - {len(user_groups)}')
         user_address = self.request.user.address
         if user_address:
             admin_districts = StreetsBook.admin_districts_transform(user_address)
-            if admin_districts:  # если адрес есть
-                groups_list_off = (Groups.objects.filter(
-                    level__in=level3_offline,
-                    districts__icontains=admin_districts[0])
-                                   .exclude(schedule_active=''))
-                # если улица с этим названием в нескольких районах
-                if len(admin_districts) > 1:
-                    for i in range(1, len(admin_districts)):
-                        groups = (Groups.objects.filter(
-                            level__in=level3_offline,
-                            districts__icontains=admin_districts[i])
-                                  .exclude(schedule_active=''))
-                        groups_list_off = groups_list_off | groups
-                groups_list = groups_list_off | groups_list_on
-            else:
-                groups_list = groups_list_on | Groups.objects.filter(level__in=level3_offline) \
-                    .exclude(schedule_active='')
-        else:
-            groups_list = groups_list_on | Groups.objects.filter(level__in=level3_offline) \
-                .exclude(schedule_active='')
-        groups_list = groups_list.exclude(pk__in=user_groups)
-        return groups_list
+            print(admin_districts)
+            tmp = Groups.objects.none()
+            for i in range(len(admin_districts)):
+                groups = groups_list_off.filter(
+                    districts__icontains=admin_districts[i])
+                print(f'off - {len(groups)} district {admin_districts[i]}')
+                tmp = tmp | groups
+                print(f'off + group - {len(tmp)} district {admin_districts[i]}')
+            groups_list_off = tmp
+        groups_list = groups_list_off | groups_list_on
+        print(f'all - {len(groups_list)}')
+        queryset = groups_list.exclude(pk__in=user_groups)
+        print(f'all - {len(queryset)}')
+        return queryset
 
 
 class QuestionFormView(LoginRequiredMixin, FormView):

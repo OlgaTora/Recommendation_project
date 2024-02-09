@@ -31,7 +31,7 @@ class IndexView(FormView):
 
 class SearchView(FilterView):
     model = Groups
-    paginate_by = 25
+    paginate_by = 10
     template_name = 'catalog/search_results.html'
     extra_context = {'message': 'Результаты поиска'}
     context_object_name = 'groups'
@@ -98,7 +98,7 @@ class Level2View(ListView):
 
 class Level3View(FilterView):
     model = Groups
-    paginate_by = 25
+    paginate_by = 10
     template_name = 'catalog/groups.html'
     context_object_name = 'groups'
     filterset_class = GroupsFilterCatalog

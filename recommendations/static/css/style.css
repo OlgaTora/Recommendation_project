@@ -103,3 +103,8 @@ input:focus{
     font-size: 25px;
     color: #128849
 }
+
+.pagination .page-link {
+    background: 128849;
+    color: white;
+}

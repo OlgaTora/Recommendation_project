@@ -132,7 +132,7 @@ class Attends(models.Model):
         top_off = Attends.objects.exclude(online='1') \
                       .values('group_id__level') \
                       .annotate(count_level3=Count('group_id__level')) \
-                      .order_by('-count_level3')[:25]
+                      .order_by('-count_level3')[:10]
         top_offline = ActivityLevel3.objects.filter(
             pk__in=[i.get('group_id__level') for i in top_off])
         level3_offline = top_offline.filter(activity_type__activity_type__activity_type=activity_type)
@@ -140,7 +140,7 @@ class Attends(models.Model):
         top_on = Attends.objects.filter(online='1') \
                      .values('group_id__level') \
                      .annotate(count_level3=Count('group_id__level')) \
-                     .order_by('-count_level3')[:10]
+                     .order_by('-count_level3')[:5]
         top_online = ActivityLevel3.objects.filter(
             pk__in=[i.get('group_id__level') for i in top_on])
         level3_online = top_online.filter(activity_type__activity_type__activity_type=activity_type)
