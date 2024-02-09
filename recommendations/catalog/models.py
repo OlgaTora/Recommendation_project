@@ -145,9 +145,6 @@ class ScheduleActive(models.Model):
     end_time = models.CharField(max_length=32)
     objects = models.Manager()
 
-    class Meta:
-        ordering = ('-uniq_id',)
-
     def __str__(self):
         return (f'{self.group_id}'
                 f' {self.start_date}'
