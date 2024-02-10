@@ -7,7 +7,8 @@ from django_filters.views import FilterView
 
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
 from catalog.forms import SearchForm, DateTimeChoiceForm
-from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups, Attends
+from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups, Attends, \
+    GroupsCorrect, ScheduleActive
 
 
 class IndexView(FormView):
@@ -118,6 +119,7 @@ class Level3View(FilterView):
     def get_queryset(self):
         level3 = get_object_or_404(ActivityLevel3, slug=self.get_slug())
         groups_list = Groups.objects.filter(level=level3).exclude(schedule_active='')
+        groups_list = GroupsCorrect.objects.filter(group_id__in=groups_list)
         return groups_list
 
 

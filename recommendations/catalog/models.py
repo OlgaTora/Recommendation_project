@@ -119,7 +119,7 @@ class GroupsCorrect(models.Model):
     group_id = models.ForeignKey(Groups, on_delete=models.CASCADE)
     level = models.ForeignKey(ActivityLevel3, on_delete=models.CASCADE)
     address = models.TextField()
-    admin_district = models.ForeignKey(AdministrativeDistrict, on_delete=models.CASCADE, default=None)
+    admin_district = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     objects = models.Manager()
 
@@ -136,11 +136,10 @@ class GroupsCorrect(models.Model):
 
 
 class ScheduleActive(models.Model):
-    uniq_id = models.IntegerField()
-    group_id = models.ForeignKey(GroupsCorrect, on_delete=models.CASCADE)
+    group_id = models.ForeignKey(GroupsCorrect, on_delete=models.CASCADE, related_name='active')
     start_date = models.DateField()
     end_date = models.DateField()
-    weekday = models.TextField()
+    weekday = models.CharField(max_length=8)
     start_time = models.CharField(max_length=32)
     end_time = models.CharField(max_length=32)
     objects = models.Manager()

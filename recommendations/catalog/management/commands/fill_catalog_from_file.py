@@ -3,11 +3,13 @@ import os
 from more_itertools import unique_everseen
 import django
 import openpyxl
+import datetime as dt
 
 from django.core.management.base import BaseCommand
 
 from address_book.models import AdministrativeDistrict
-from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups, Attends, GroupsCorrect
+from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups, Attends, \
+    GroupsCorrect, ScheduleActive
 from users.models import Profile
 
 
@@ -135,32 +137,42 @@ class Command(BaseCommand):
         #             end_time=row[9],
         #         )
 
-            # for row in range(127221, len(att)):
-            #     Attends.objects.create(
-            #         uniq_id=att[row][1],
-            #         group_id=Groups.objects.get(uniq_id=att[row][2]),
-            #         user_id=Profile.objects.get(username=att[row][3]),
-            #         online=True if att[row][6] == 'Да' else False,
-            #         date_attend=att[row][7],
-            #         start_time=att[row][8],
-            #         end_time=att[row][9],
-            #     )
-            #     print(row)
+        # for row in range(127221, len(att)):
+        #     Attends.objects.create(
+        #         uniq_id=att[row][1],
+        #         group_id=Groups.objects.get(uniq_id=att[row][2]),
+        #         user_id=Profile.objects.get(username=att[row][3]),
+        #         online=True if att[row][6] == 'Да' else False,
+        #         date_attend=att[row][7],
+        #         start_time=att[row][8],
+        #         end_time=att[row][9],
+        #     )
+        #     print(row)
 
-        #группы correct
-        with open('files/groups_correct.csv', 'r', encoding='utf-8') as address_base:
+        # #группы correct
+        # with open('files/groups_correct.csv', 'r', encoding='utf-8') as address_base:
+        #     file_reader = csv.reader(address_base, delimiter=',')
+        #     next(file_reader)
+        #     for row in file_reader:
+        #         activity_type = ActivityLevel2.objects.get(level=row[2])
+        #         GroupsCorrect.objects.create(
+        #             uniq_id=row[0],
+        #             group_id=Groups.objects.get(uniq_id=row[1]),
+        #             level=ActivityLevel3.objects.get(level=row[3], activity_type=activity_type),
+        #             address=row[4],
+        #             admin_district=row[5],
+        #         )
+
+        # schedule
+        with open('files/schedule_active.csv', 'r', encoding='utf-8') as address_base:
             file_reader = csv.reader(address_base, delimiter=',')
             next(file_reader)
             for row in file_reader:
-                activity_type = ActivityLevel2.objects.get(level=row[2])
-                GroupsCorrect.objects.create(
-                    uniq_id=row[0],
-                    group_id=Groups.objects.get(uniq_id=row[1]),
-                    level=ActivityLevel3.objects.get(level=row[3], activity_type=activity_type),
-                    address=row[4],
-                    admin_district=AdministrativeDistrict.objects.get(admin_district_name__contains=row[5]),
+                ScheduleActive.objects.create(
+                    group_id=GroupsCorrect.objects.get(pk=row[0]),
+                    weekday=row[2],
+                    start_date=dt.datetime.strptime(row[3], '%d.%m.%Y'),
+                    end_date=dt.datetime.strptime(row[4], '%d.%m.%Y'),
+                    start_time=row[5],
+                    end_time=row[6],
                 )
-                print(row[5])
-
-
-

@@ -1,8 +1,7 @@
 import django_filters
 from django_filters import CharFilter, filters, ChoiceFilter
 from address_book.models import AdministrativeDistrict
-from catalog.models import Groups
-
+from catalog.models import GroupsCorrect
 
 CHOICES = (('Онлайн', 'Все группы'), ('Оффлайн', 'Только оффлайн'))
 
@@ -30,8 +29,8 @@ class GroupsFilterSearch(django_filters.FilterSet):
 
     def filter_offline_district(self, queryset, name, value):
         # только группы оффлайн.
-        value = f'{str(value).split(" ")[0]}'
-        return queryset.filter(districts__icontains=value).exclude(level__level__icontains='ОНЛАЙН')
+        #value = f'{str(value).split(" ")[0]}'
+        return queryset.filter(district=value).exclude(level__level__icontains='ОНЛАЙН')
 
     def filter_offline(self, queryset, name, value):
         if value != 'Онлайн':
@@ -40,8 +39,8 @@ class GroupsFilterSearch(django_filters.FilterSet):
             return queryset
 
     class Meta:
-        model = Groups
-        fields = ['address', 'districts', ]
+        model = GroupsCorrect
+        fields = ['address', 'admin_district', ]
 
 
 class GroupsFilterCatalog(django_filters.FilterSet):
@@ -56,12 +55,12 @@ class GroupsFilterCatalog(django_filters.FilterSet):
         lookup_expr='icontains')
 
     def filter_district(self, queryset, name, value):
-        value = f'{str(value).split(" ")[0]}'
-        return queryset.filter(districts__icontains=value)
+       # value = f'{str(value).split(" ")[0]}'
+        return queryset.filter(admin_district=value)
 
     class Meta:
-        model = Groups
+        model = GroupsCorrect
         fields = [
             'address',
-            'districts',
+            'admin_district',
         ]
