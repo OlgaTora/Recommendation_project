@@ -115,42 +115,28 @@ class Groups(models.Model):
 
 
 class GroupsCorrect(models.Model):
-    uniq_id = models.IntegerField()
     group_id = models.ForeignKey(Groups, on_delete=models.CASCADE)
     level = models.ForeignKey(ActivityLevel3, on_delete=models.CASCADE)
     address = models.TextField()
     admin_district = models.CharField(max_length=255)
+    start_date = models.CharField(max_length=32, null=True)
+    end_date = models.CharField(max_length=32, null=True)
+    weekday = models.CharField(max_length=8, null=True)
+    start_time = models.CharField(max_length=32, null=True)
+    end_time = models.CharField(max_length=32, null=True)
     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     objects = models.Manager()
 
     class Meta:
-        ordering = ('-uniq_id',)
+        ordering = ('-group_id',)
 
     def __str__(self):
-        return f'{self.level}'
+        return f'{self.group_id}'
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = unique_slugify(self, self.uniq_id)
+            self.slug = unique_slugify(self, self.pk)
         super().save(*args, **kwargs)
-
-
-class ScheduleActive(models.Model):
-    group_id = models.ForeignKey(GroupsCorrect, on_delete=models.CASCADE, related_name='active')
-    start_date = models.DateField()
-    end_date = models.DateField()
-    weekday = models.CharField(max_length=8)
-    start_time = models.CharField(max_length=32)
-    end_time = models.CharField(max_length=32)
-    objects = models.Manager()
-
-    def __str__(self):
-        return (f'{self.group_id}'
-                f' {self.start_date}'
-                f' {self.end_date} '
-                f'{self.weekday} '
-                f'{self.start_time} '
-                f'{self.end_time}')
 
 
 class Attends(models.Model):

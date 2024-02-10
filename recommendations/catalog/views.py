@@ -8,7 +8,7 @@ from django_filters.views import FilterView
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
 from catalog.forms import SearchForm, DateTimeChoiceForm
 from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups, Attends, \
-    GroupsCorrect, ScheduleActive
+    GroupsCorrect
 
 
 class IndexView(FormView):
@@ -118,14 +118,13 @@ class Level3View(FilterView):
 
     def get_queryset(self):
         level3 = get_object_or_404(ActivityLevel3, slug=self.get_slug())
-        groups_list = Groups.objects.filter(level=level3).exclude(schedule_active='')
-        groups_list = GroupsCorrect.objects.filter(group_id__in=groups_list)
+        groups_list = GroupsCorrect.objects.filter(level=level3).exclude(start_date='')
         return groups_list
 
 
 class SignUp2GroupView(LoginRequiredMixin, FormView):
     template_name = 'catalog/signup2group.html'
-    extra_context = {'message': 'Выберите время и дату посещения'}
+    extra_context = {'message': 'Выберите дату посещения'}
     form_class = DateTimeChoiceForm
     context_object_name = 'group'
     redirect_field_name = 'users:index'
@@ -133,7 +132,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def get_group(self):
         if not hasattr(self, 'group'):
-            self.group_pk = get_object_or_404(Groups, pk=self.kwargs['group']).pk
+            self.group_pk = get_object_or_404(GroupsCorrect, pk=self.kwargs['group']).pk
         return self.group_pk
 
     def get_success_url(self):
@@ -142,7 +141,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['group'] = self.get_group()
+        context['group'] = GroupsCorrect.objects.get(pk=self.get_group())
         return context
 
     def form_valid(self, form):
@@ -151,7 +150,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(SignUp2GroupView, self).get_form_kwargs()
-        kwargs['group'] = self.get_group()
+        kwargs['group_pk'] = self.get_group()
         kwargs['user'] = self.request.user
         return kwargs
 
