@@ -11,8 +11,13 @@
                 <h4 class="text-center">{{group.level.descript_level}}</h4>
                 <h3 class="text_center"><b>Расписание: </b>с {{ group.start_date }} до {{ group.end_date}}</h3>
                 <h3 class="text-center"> день недели: {{ group.weekday }}, время {{ group.start_time }} - {{ group.end_time }}</h3>
+                {% if 'ОНЛАЙН' in group.level.level %}
+                <h5 class="text_center">Занятия проходят он-лайн.</h5>
+                {% else %}
+                <h5 class="text-center"><b>Адрес:</b> {{ group.address }}</h5>
+                {% endif %}
             </div>
-            <div class="container" data-width="500">
+            <div class="container">
                 <form action="" method="post">
                     {{ form.media }}
                     {% csrf_token %}

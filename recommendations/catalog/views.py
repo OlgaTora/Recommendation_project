@@ -31,7 +31,7 @@ class IndexView(FormView):
 
 
 class SearchView(FilterView):
-    model = Groups
+    model = GroupsCorrect
     paginate_by = 10
     template_name = 'catalog/search_results.html'
     extra_context = {'message': 'Результаты поиска'}
@@ -42,8 +42,8 @@ class SearchView(FilterView):
         search_string = self.kwargs.get('search_string')
         level3 = ActivityLevel3.objects.filter(Q(descript_level__icontains=search_string) |
                                                Q(level__icontains=search_string))
-        groups = Groups.objects.filter(level__in=level3).exclude(schedule_active='')
-        return groups
+        groups_list = GroupsCorrect.objects.filter(level__in=level3).exclude(start_date='')
+        return groups_list
 
 
 class TypeView(ListView):
@@ -98,7 +98,7 @@ class Level2View(ListView):
 
 
 class Level3View(FilterView):
-    model = Groups
+    model = GroupsCorrect
     paginate_by = 10
     template_name = 'catalog/groups.html'
     context_object_name = 'groups_list'
@@ -136,8 +136,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
         return self.group_pk
 
     def get_success_url(self):
-        attend = Attends.objects.latest('id')
-        return reverse_lazy('catalog:group_success_signup', args=(attend.pk,))
+        return reverse_lazy('catalog:group_success_signup', args=(self.get_group(),))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -157,13 +156,13 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
 class SuccessSignup(LoginRequiredMixin, DetailView):
     model = Groups
-    context_object_name = 'attend'
+    context_object_name = 'group'
     template_name = 'catalog/group_success_signup.html'
     extra_context = {'message': 'Вы успешно записались!'}
     redirect_field_name = reverse_lazy('users:index')
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Attends, pk=self.kwargs['pk'])
+        return get_object_or_404(GroupsCorrect, pk=self.kwargs['pk'])
 
 # def search(request, search_string: str):
 #     message = 'Результаты поиска:'

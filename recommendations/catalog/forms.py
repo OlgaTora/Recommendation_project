@@ -2,7 +2,6 @@ from django import forms
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 import datetime as dt
 
-
 from catalog.models import Attends, Groups, GroupsCorrect
 from services.weekdays_dict import WEEKDAYS_DICT
 from users.models import Profile
@@ -23,28 +22,25 @@ class DateTimeChoiceForm(forms.Form):
         self.group_pk = group_pk
         group = GroupsCorrect.objects.get(pk=self.group_pk)
         self.user = user
-        start_date = dt.datetime.strptime(group.start_date, '%d.%m.%Y')
-        end_date = dt.datetime.strptime(group.end_date, '%d.%m.%Y')
-
         self.fields['date_choice'] = forms.DateField(
             label='Выберите подходящую дату:',
             required=True,
             widget=DatePickerInput(
                 options={
-                    'minDate': start_date,
-                    'maxDate': end_date,
+                    'format': 'DD.MM.YYYY',
+                    'minDate': dt.datetime.strptime(group.start_date, '%d.%m.%Y'),
+                    'maxDate': dt.datetime.strptime(group.end_date, '%d.%m.%Y'),
                 }
             )
         )
 
-
     def clean(self):
         data = self.cleaned_data
-       # group = GroupsCorrect.objects.get(pk=self.group_pk)
+        group = GroupsCorrect.objects.get(pk=self.group_pk)
         date_choice = data.get('date_choice')
         if date_choice:
             weekday_choice = date_choice.weekday()
-            weekday = int(WEEKDAYS_DICT[group_pk.weekday[:2]])
+            weekday = int(WEEKDAYS_DICT[group.weekday[:2]])
             if weekday_choice != weekday:
                 raise forms.ValidationError('День недели должен совпадать с выбранным.')
         return data

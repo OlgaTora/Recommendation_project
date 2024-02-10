@@ -90,29 +90,6 @@ class Groups(models.Model):
     def __str__(self):
         return f'{self.level}'
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = unique_slugify(self, self.uniq_id)
-        super().save(*args, **kwargs)
-
-    @staticmethod
-    def get_user_groups(user):
-        user_attends = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
-        user_groups = Groups.objects.filter(pk__in=[i.group_id.pk for i in user_attends])
-        return user_groups
-
-    @property
-    def extract(self) -> list:
-        s = str(self.schedule_active)
-        if s.count(';') == 0:
-            if s.count('перерыв') > 1:
-                result = case_two_dates_two_time(s)
-            else:
-                result = case_one_time(s)
-        else:
-            result = case_two_dates_one_time(s)
-        return result
-
 
 class GroupsCorrect(models.Model):
     group_id = models.ForeignKey(Groups, on_delete=models.CASCADE)
@@ -137,6 +114,12 @@ class GroupsCorrect(models.Model):
         if not self.slug:
             self.slug = unique_slugify(self, self.pk)
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_user_groups(user):
+        user_groups = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
+       # user_groups = GroupsCorrect.objects.filter(group_id__in=[i.group_id.pk for i in user_attends])
+        return user_groups
 
 
 class Attends(models.Model):

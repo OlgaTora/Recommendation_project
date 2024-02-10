@@ -9,14 +9,10 @@ from django_filters.views import FilterView
 
 from address_book.models import StreetsBook
 from catalog.filters import GroupsFilterSearch
-from catalog.models import Groups, ActivityTypes, Attends
+from catalog.models import Groups, ActivityTypes, Attends, GroupsCorrect
 from .forms import AnswerForm
 from .models import Question, ResultOfTest, TestResultDescription, VotesGroups
 from django.contrib import messages
-
-
-class Paginator:
-    pass
 
 
 class RecommendationView(LoginRequiredMixin, FilterView):
@@ -27,7 +23,7 @@ class RecommendationView(LoginRequiredMixin, FilterView):
     template_name = 'rec_app/recommendations.html'
     extra_context = {'message': 'Выберите занятие:'}
     redirect_field_name = reverse_lazy('users:index')
-    model = Groups
+    model = GroupsCorrect
     paginate_by = 10
     context_object_name = 'groups_list'
     filterset_class = GroupsFilterSearch
@@ -58,13 +54,13 @@ class RecommendationView(LoginRequiredMixin, FilterView):
         activity_type = ActivityTypes.objects.get(pk=votes_group.result_group.pk)
         # топ offline & online
         level3_offline, level3_online = Attends.get_top_level3(activity_type)
-        groups_list_on = Groups.objects.filter(level__in=level3_online) \
-            .exclude(schedule_active='')
+        groups_list_on = GroupsCorrect.objects.filter(level__in=level3_online) \
+            .exclude(start_date='')
         print(f'on - {len(groups_list_on)}')
-        groups_list_off = Groups.objects.filter(level__in=level3_offline) \
-            .exclude(schedule_active='')
+        groups_list_off = GroupsCorrect.objects.filter(level__in=level3_offline) \
+            .exclude(start_date='')
         print(f'off - {len(groups_list_off)}')
-        user_groups = Groups.get_user_groups(self.request.user)
+        user_groups = GroupsCorrect.get_user_groups(self.request.user)
         print(f'user - {len(user_groups)}')
         user_address = self.request.user.address
         if user_address:
@@ -73,7 +69,7 @@ class RecommendationView(LoginRequiredMixin, FilterView):
             tmp = Groups.objects.none()
             for i in range(len(admin_districts)):
                 groups = groups_list_off.filter(
-                    districts__icontains=admin_districts[i])
+                    admin_district=admin_districts[i])
                 print(f'off - {len(groups)} district {admin_districts[i]}')
                 tmp = tmp | groups
                 print(f'off + group - {len(tmp)} district {admin_districts[i]}')

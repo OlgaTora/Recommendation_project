@@ -118,5 +118,4 @@ class StreetsBook(models.Model):
         # адрес пользователя: так как нет инфо по району пользователя, берем все улицы с таким названием
         user_address = list(StreetsBook.address_transform(address))
         admin_districts = list(set([i.admin_district.admin_district_name for i in user_address]))
-        admin_districts = [str(i).split(" ")[0] for i in admin_districts]
         return admin_districts
