@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
-{% load widget_tweaks %}
-{% load static %}
 {% block content %}
 <div class="container-fluid">
     {% if groups_list %}
@@ -13,23 +11,9 @@
         </div>
         <div class="col-md-2">
         </div>
-        <div class="col-md-4">
             {% if not 'ОНЛАЙН' in level3.level %}
-            <h4>Уточните поиск:</h4>
-            <form method="GET" action="">
-                <div style="display: grid">
-                    {% for field in filter.form %}
-                    <div id="form-field-{{ forloop.counter0 }}">
-                        {{ field.label_tag }}
-                        {% render_field field class="form-control" %}
-                    </div>
-                    {% endfor %}
-                </div>
-                <button type="submit" class="btn btn-success mb-3 mt-2">Выбрать
-                </button>
-            </form>
+            {% include 'filter_with_onoff.html' %}
             {% endif %}
-        </div>
     </div>
     <div class="row my-3">
         <h4>{{message}}:</h4>

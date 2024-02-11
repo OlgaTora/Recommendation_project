@@ -7,19 +7,14 @@
     </div>
     <div class="row my-3">
         <div class="col-md-6">
-            <h2>{{ group.level }}</h2>
-            <br/>
-            <h4><b>Номер группы: </b> {{ group.group_id.uniq_id }}</h4>
-<!--            <p><b>Дата: </b>{{ attend.date_attend }}</p>-->
-            <h4><b>Время: </b>{{group.start_time }} - {{ group.end_time }}</h4>
-            {% if 'ОНЛАЙН' in group.level.level %}
-            <h4>Занятия проходят он-лайн.</h4>
-            {% else %}
-            <h4><b>Адрес:</b> {{ group.address }}</h4>
-            {% endif %}
+            {% include './group_details.html' %}
+            <div class="container">
+                <h3 class="text-center"><b>Дата: </b>{{ date_choice }}</h3>
+                <h3 class="text-center"><b>Время: </b>{{group.start_time }} - {{ group.end_time }}</h3>
+            </div>
         </div>
         <div class="col-md-6">
-            <img src="{% static 'images/success.png' %}" class="mx-auto d-block" width="400px">
+            <img src="{% static 'images/success.png' %}" class="mx-auto d-block" width="500px">
         </div>
     </div>
 </div>

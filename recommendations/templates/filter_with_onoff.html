@@ -1,0 +1,18 @@
+{% load widget_tweaks %}
+{% load django_bootstrap5 %}
+<div class="col-md-4">
+    <h4>Уточните поиск</h4>
+    <form method="GET" action="">
+        <div style="display: grid">
+            {% for field in filter.form %}
+            <div id="form-field-{{ forloop.counter0 }}">
+                {{ field.label_tag }}
+                {% render_field field class="form-control" %}
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-success btn-lg mb-3 mt-2">Выбрать
+        </button>
+    </form>
+    <p>Внимание!<br/>Занятия онлайн не зависят от района.</p>
+</div>

@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
 {% load django_bootstrap5 %}
-{% load widget_tweaks %}
 {% block content %}
 <div class="container-fluid">
     {% if groups_list %}
@@ -12,21 +10,7 @@
     </div>
     <div class="row my-5">
         {% include 'groups_list.html' %}
-        <div class="col-md-4">
-            <h4>Уточните поиск</h4>
-            <form method="GET" action="">
-                <div style="display: grid">
-                    {% for field in filter.form %}
-                    <div id="form-field-{{ forloop.counter0 }}">
-                        {{ field.label_tag }}
-                        {% render_field field class="form-control" %}
-                    </div>
-                    {% endfor %}
-                </div>
-                <button type="submit" class="btn btn-success mb-3 mt-2">Выбрать
-                </button>
-            </form>
-        </div>
+        {% include 'filter_with_onoff.html' %}
     </div>
     {% else %}
     <div class="col-md-12">

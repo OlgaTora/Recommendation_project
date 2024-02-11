@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, FormView
 from django_filters.views import FilterView
 
@@ -13,7 +13,7 @@ from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, Activi
 
 class IndexView(FormView):
     template_name = 'catalog/catalog.html'
-    extra_context = {'message': 'Поиск по каталогу занятий'}
+    extra_context = {'message': 'Каталог занятий', 'searcher': 'Введите слово для поиска по каталогу'}
     form_class = SearchForm
     context_object_name = 'activity_types'
 
@@ -135,8 +135,9 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
             self.group_pk = get_object_or_404(GroupsCorrect, pk=self.kwargs['group']).pk
         return self.group_pk
 
-    def get_success_url(self):
-        return reverse_lazy('catalog:group_success_signup', args=(self.get_group(),))
+    def get_success_url(self, date_choice=None):
+        date_choice = Attends.objects.latest('id').date_attend
+        return reverse_lazy('catalog:group_success_signup', args=(self.get_group(), date_choice))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -145,7 +146,8 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         form.save()
-        return super(SignUp2GroupView, self).form_valid(form)
+        date_choice = form.cleaned_data.get('date_choice')
+        return redirect(self.get_success_url(date_choice))
 
     def get_form_kwargs(self):
         kwargs = super(SignUp2GroupView, self).get_form_kwargs()
@@ -155,11 +157,16 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
 
 class SuccessSignup(LoginRequiredMixin, DetailView):
-    model = Groups
+    model = GroupsCorrect
     context_object_name = 'group'
     template_name = 'catalog/group_success_signup.html'
     extra_context = {'message': 'Вы успешно записались!'}
     redirect_field_name = reverse_lazy('users:index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['date_choice'] = self.kwargs['date_choice']
+        return context
 
     def get_object(self, queryset=None):
         return get_object_or_404(GroupsCorrect, pk=self.kwargs['pk'])
