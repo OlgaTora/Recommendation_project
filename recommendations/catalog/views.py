@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, FormView
 from django_filters.views import FilterView
 
@@ -13,7 +13,10 @@ from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, Activi
 
 class IndexView(FormView):
     template_name = 'catalog/catalog.html'
-    extra_context = {'message': 'Каталог занятий', 'searcher': 'Введите слово для поиска по каталогу'}
+    extra_context = {
+        'message': 'Каталог занятий',
+        'searcher': 'Введите слово для поиска по каталогу'
+    }
     form_class = SearchForm
     context_object_name = 'activity_types'
 

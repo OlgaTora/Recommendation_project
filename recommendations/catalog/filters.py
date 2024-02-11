@@ -1,33 +1,46 @@
 import django_filters
 from django_filters import CharFilter, filters, ChoiceFilter
 from address_book.models import AdministrativeDistrict
-from services.weekdays_dict import WEEK_CHOICE
-
-ON_OFF = (('Онлайн', 'Все группы'), ('Оффлайн', 'Только оффлайн'))
+from services.dictionaries import WEEK_CHOICE, ON_OFF, TIME_CHOICE
 
 
-class GroupsFilterSearch(django_filters.FilterSet):
+class GroupsFilter(django_filters.FilterSet):
+    districts = filters.ModelChoiceFilter(
+        queryset=AdministrativeDistrict.objects.all(),
+        label='Район',
+        method='filter_district'
+    )
+    address = CharFilter(
+        label='Название улицы',
+        lookup_expr='icontains')
+    weekday = ChoiceFilter(
+        choices=WEEK_CHOICE,
+        label='День недели',
+        method='filter_weekday'
+    )
+    start_time = ChoiceFilter(
+        choices=TIME_CHOICE,
+        label='Время начала',
+        method='filter_time'
+    )
+
+    def filter_weekday(self, queryset, name, value):
+        return queryset.filter(weekday=value)
+
+    def filter_time(self, queryset, name, value):
+        return queryset.filter(start_time__icontains=value)
+
+
+class GroupsFilterSearch(GroupsFilter):
     offline = ChoiceFilter(
         choices=ON_OFF,
         label='Онлайн/Оффлайн',
         method='filter_offline'
     )
 
-    districts = filters.ModelChoiceFilter(
-        queryset=AdministrativeDistrict.objects.all(),
-        label='Район',
-        method='filter_offline_district'
-    )
     address = CharFilter(
-        field_name='address',
         label='Название улицы',
         method='filter_offline_address')
-
-    weekday = ChoiceFilter(
-        choices=WEEK_CHOICE,
-        label='День недели',
-        method='filter_weekday'
-    )
 
     def filter_offline_address(self, queryset, name, value):
         # только группы оффлайн.
@@ -43,29 +56,8 @@ class GroupsFilterSearch(django_filters.FilterSet):
         else:
             return queryset
 
-    def filter_weekday(self, queryset, name, value):
-        return queryset.filter(weekday=value)
 
-
-class GroupsFilterCatalog(django_filters.FilterSet):
-    districts = filters.ModelChoiceFilter(
-        queryset=AdministrativeDistrict.objects.all(),
-        label='Район',
-        method='filter_district'
-    )
-    address = CharFilter(
-        field_name='address',
-        label='Название улицы',
-        lookup_expr='icontains')
-
-    weekday = ChoiceFilter(
-        choices=WEEK_CHOICE,
-        label='День недели',
-        method='filter_weekday'
-    )
+class GroupsFilterCatalog(GroupsFilter):
 
     def filter_district(self, queryset, name, value):
         return queryset.filter(admin_district=value)
-
-    def filter_weekday(self, queryset, name, value):
-        return queryset.filter(weekday=value)
