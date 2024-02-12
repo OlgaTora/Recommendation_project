@@ -1,10 +1,32 @@
- Указывает Docker использовать официальный образ python 3 с dockerhub в качестве базового образа
-FROM python:3
-# Устанавливает переменную окружения, которая гарантирует, что вывод из python будет отправлен прямо в терминал без предварительной буферизации
+{% for field in filter.form %}
+            <div id="form-field-{{ forloop.counter0 }}">
+                {{ field.label_tag }}
+                {% render_field field class="form-control" %}
+            </div>
+            {% endfor %}
+FROM python:3.10.12-alpine3.18
 ENV PYTHONUNBUFFERED 1
+
 # Устанавливает рабочий каталог контейнера — "app"
-WORKDIR /app
+WORKDIR /recommendations
+
+COPY requirements.txt requirements.txt
+
 # Копирует все файлы из нашего локального проекта в контейнер
-ADD ./app
-# Запускает команду pip install для всех библиотек, перечисленных в requirements.txt
-RUN pip install -r requirements.txt
+ADD ./recommendations
+
+RUN pip install pip==23.1.2
+RUN pip install --no-cache-dir -r requirements.txt
+EXPOSE 8000
+
+FROM apache/airflow:2.7.1
+COPY ./.env ./
+COPY ./docker/airflow/requirements.txt ./
+RUN pip install pip==23.1.2
+RUN pip install --no-cache-dir -r requirements.txt
+COPY ./dags ./dags
+
+ADD . /app
+WORKDIR /app
+
+ENV PYTHONPATH "${PYTHONPATH}:/opt/airflow/dags"

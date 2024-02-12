@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count
 from django.urls import reverse, reverse_lazy
-from django.views.generic import TemplateView, FormView, ListView
+from django.views.generic import TemplateView, FormView
 from django_filters.views import FilterView
 
 from address_book.models import StreetsBook
@@ -21,7 +21,8 @@ class RecommendationView(LoginRequiredMixin, FilterView):
     """
     result: int | None
     template_name = 'rec_app/recommendations.html'
-    extra_context = {'message': 'Выберите занятие:'}
+    extra_context = {'message': 'Выберите занятие:',
+                     'message_error': 'Мы ничего не нашли по вашему запросу'}
     redirect_field_name = reverse_lazy('users:index')
     model = GroupsCorrect
     paginate_by = 10
@@ -36,6 +37,9 @@ class RecommendationView(LoginRequiredMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         result = self.get_result()
+
+      #!!!!  user_groups = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
+
         votes_group = VotesGroups.objects.get(votes=result)
         context['result'] = result
         context['description'] = TestResultDescription.objects.get(pk=votes_group.result_group.pk)
@@ -56,28 +60,20 @@ class RecommendationView(LoginRequiredMixin, FilterView):
         level3_offline, level3_online = Attends.get_top_level3(activity_type)
         groups_list_on = GroupsCorrect.objects.filter(level__in=level3_online) \
             .exclude(start_date='')
-        print(f'on - {len(groups_list_on)}')
         groups_list_off = GroupsCorrect.objects.filter(level__in=level3_offline) \
             .exclude(start_date='')
-        print(f'off - {len(groups_list_off)}')
         user_groups = GroupsCorrect.get_user_groups(self.request.user)
-        print(f'user - {len(user_groups)}')
         user_address = self.request.user.address
         if user_address:
             admin_districts = StreetsBook.admin_districts_transform(user_address)
-            print(admin_districts)
             tmp = Groups.objects.none()
             for i in range(len(admin_districts)):
                 groups = groups_list_off.filter(
                     admin_district=admin_districts[i])
-                print(f'off - {len(groups)} district {admin_districts[i]}')
                 tmp = tmp | groups
-                print(f'off + group - {len(tmp)} district {admin_districts[i]}')
             groups_list_off = tmp
         groups_list = groups_list_off | groups_list_on
-        print(f'all - {len(groups_list)}')
         queryset = groups_list.exclude(pk__in=user_groups)
-        print(f'all - {len(queryset)}')
         return queryset
 
 

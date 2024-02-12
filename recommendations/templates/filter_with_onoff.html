@@ -4,12 +4,28 @@
     <h4>Уточните поиск</h4>
     <form method="GET" action="">
         <div style="display: grid">
-            {% for field in filter.form %}
-            <div id="form-field-{{ forloop.counter0 }}">
-                {{ field.label_tag }}
-                {% render_field field class="form-control" %}
+            <div id="form-field4">
+                {{ filter.form.weekday.label_tag }}
+                {% render_field filter.form.weekday class="form-control" placeholder=filter.form.weekday.label_tag %}
             </div>
-            {% endfor %}
+            <div id="form-field5">
+                {{ filter.form.start_time.label_tag }}
+                {% render_field filter.form.start_time class="form-control" %}
+            </div>
+            {% if not 'ОНЛАЙН' in level3.level %}
+            <div id="form-field1">
+                {{ filter.form.districts.label_tag }}
+                {% render_field filter.form.districts class="form-control" placeholder=filter.form.districts.label %}
+            </div>
+            <div id="form-field2">
+                {{ filter.form.address.label_tag }}
+                {% render_field filter.form.address class="form-control" %}
+            </div>
+            <div id="form-field3">
+                {{ filter.form.offline.label_tag }}
+                {% render_field filter.form.offline class="form-control" %}
+            </div>
+            {% endif %}
         </div>
         <button type="submit" class="btn btn-success btn-lg mb-3 mt-2">Выбрать
         </button>

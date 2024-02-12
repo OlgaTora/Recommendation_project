@@ -4,11 +4,13 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, FormView
 from django_filters.views import FilterView
+from django.contrib import messages
 
 from catalog.filters import GroupsFilterSearch, GroupsFilterCatalog
 from catalog.forms import SearchForm, DateTimeChoiceForm
-from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Groups, Attends, \
+from catalog.models import ActivityTypes, ActivityLevel1, ActivityLevel2, ActivityLevel3, Attends, \
     GroupsCorrect
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class IndexView(FormView):
@@ -37,7 +39,8 @@ class SearchView(FilterView):
     model = GroupsCorrect
     paginate_by = 10
     template_name = 'catalog/search_results.html'
-    extra_context = {'message': 'Результаты поиска'}
+    extra_context = {'message': 'Результаты поиска',
+                     'message_error': 'Мы ничего не нашли по вашему запросу'}
     context_object_name = 'groups_list'
     filterset_class = GroupsFilterSearch
 
@@ -105,7 +108,8 @@ class Level3View(FilterView):
     paginate_by = 10
     template_name = 'catalog/groups.html'
     context_object_name = 'groups_list'
-    extra_context = {'message': 'Выберите удобную для Вас группу'}
+    extra_context = {'message': 'Выберите удобную для Вас группу',
+                     'message_error': 'Мы ничего не нашли по вашему запросу'}
     filterset_class = GroupsFilterCatalog
     level3_slug: int
 
@@ -125,6 +129,10 @@ class Level3View(FilterView):
         return groups_list
 
 
+class HttpResponseRedirect:
+    pass
+
+
 class SignUp2GroupView(LoginRequiredMixin, FormView):
     template_name = 'catalog/signup2group.html'
     extra_context = {'message': 'Выберите дату посещения'}
@@ -139,7 +147,6 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
         return self.group
 
     def get_success_url(self, date_choice=None):
-        date_choice = Attends.objects.latest('id').date_attend
         return reverse_lazy('catalog:group_success_signup', args=(self.get_group().pk, date_choice))
 
     def get_context_data(self, **kwargs):
@@ -148,9 +155,18 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
-        form.save()
         date_choice = form.cleaned_data.get('date_choice')
-        return redirect(self.get_success_url(date_choice))
+        try:
+            attend = Attends.objects.get(
+                user_id=self.request.user.pk,
+                date_attend=date_choice,
+                start_time=self.group.start_time
+            )
+            messages.error(self.request, 'Вы уже записаны на эту дату и время')
+            return redirect(self.request.META.get('HTTP_REFERER'))
+        except ObjectDoesNotExist:
+            form.save()
+            return redirect(self.get_success_url(date_choice))
 
     def get_form_kwargs(self):
         kwargs = super(SignUp2GroupView, self).get_form_kwargs()

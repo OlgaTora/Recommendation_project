@@ -13,9 +13,7 @@
     <div class="row my-3">
         <h4>{{message}}:</h4>
         {% include 'groups_list.html' %}
-        {% if not 'ОНЛАЙН' in level3.level %}
         {% include 'filter_with_onoff.html' %}
-        {% endif %}
         {% else %}
     </div>
     <div class="col-md-12">

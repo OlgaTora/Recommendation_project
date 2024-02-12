@@ -2,7 +2,7 @@ from django import forms
 from bootstrap_datepicker_plus.widgets import DatePickerInput
 import datetime as dt
 
-from catalog.models import Attends, Groups, GroupsCorrect
+from catalog.models import Attends, Groups
 from services.dictionaries import WEEKDAYS_DICT
 from users.models import Profile
 

@@ -99,6 +99,11 @@ input:focus{
     font-size: 25px;
 }
 
+
+label{
+    font-size: 25px;
+}
+
 .form-check-label{
     font-size: 25px;
 }
