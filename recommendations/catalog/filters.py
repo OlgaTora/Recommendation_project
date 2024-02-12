@@ -40,13 +40,13 @@ class GroupsFilterSearch(GroupsFilter):
 
     address = CharFilter(
         label='Название улицы',
-        method='filter_offline_address')
+        method='filter_address')
 
-    def filter_offline_address(self, queryset, name, value):
+    def filter_address(self, queryset, name, value):
         # только группы оффлайн.
         return queryset.filter(address__icontains=value).exclude(level__level__icontains='ОНЛАЙН')
 
-    def filter_offline_district(self, queryset, name, value):
+    def filter_district(self, queryset, name, value):
         # только группы оффлайн.
         return queryset.filter(admin_district=value).exclude(level__level__icontains='ОНЛАЙН')
 

@@ -76,23 +76,3 @@ class UserLoginView(LoginView):
             return redirect(reverse('users:index'))
         else:
             return super(UserLoginView, self).get(request)
-
-# def user_login(request):
-#     if not request.user.is_authenticated:
-#         message = 'Введите ваше имя и пароль:'
-#         form = LoginForm(request.POST or None)
-#         if form.is_valid():
-#             username = form.cleaned_data['username']
-#             password = form.cleaned_data['password']
-#             profile = authenticate(username=username, password=password)
-#             if profile is not None:
-#                 login(request, profile)
-#                 messages.success(request, 'Вы успешно вошли в систему.')
-#                 return redirect(reverse('users:index'))
-#         return render(
-#             request,
-#             'users/login.html',
-#             {'form': form, 'user': request.user, 'message': message}
-#         )
-#     else:
-#         return redirect(reverse('users:index'))

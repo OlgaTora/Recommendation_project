@@ -109,7 +109,7 @@ class GroupsCorrect(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = unique_slugify(self, self.pk)
+            self.slug = unique_slugify(self, self.group_id)
         super().save(*args, **kwargs)
 
     @staticmethod

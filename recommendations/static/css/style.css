@@ -42,20 +42,6 @@ li{
     font-size: 20px;
 }
 
-.form-input{
-    padding: 10px;
-}
-
-input{
-    height: 45px;
-    padding: 5px;
-    width: 100%;
-    margin: 5px 0 22px 0;
-    font-size: 20px;
-    display: inline-block;
-}
-
-
 input:focus{
     color: red;
 }
@@ -66,10 +52,6 @@ input:focus{
     display: inline-block;
     margin: 10px 10px 10px 10px;
     margin-top: 30px
-}
-
-.auth_button:focus{
-    color:red;
 }
 
 
@@ -119,4 +101,9 @@ input:focus{
 
 .form-check-label{
     font-size: 25px;
+}
+
+.form-select{
+    border: 3px solid #128849 !important;
+    font-size: 1.5rem !important;
 }

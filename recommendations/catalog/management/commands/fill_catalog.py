@@ -107,17 +107,10 @@ class Command(BaseCommand):
             file_reader = csv.reader(groups, delimiter=',')
             next(file_reader)
             for row in file_reader:
-                #address = clean_group_address(row[4])
-                #districts = clean_group_district(row[5])
                 activity_type = ActivityLevel2.objects.get(level=row[1])
                 Groups.objects.create(
                     uniq_id=row[0],
                     level=ActivityLevel3.objects.get(level=row[2], activity_type=activity_type),
-                  #  address=address,
-                   # districts=districts,
-                   # schedule_active=row[7],
-                   # schedule_past=row[8],
-                   # schedule_plan=row[9],
                 )
 
         # attends

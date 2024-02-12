@@ -131,20 +131,20 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
     form_class = DateTimeChoiceForm
     context_object_name = 'group'
     redirect_field_name = 'users:index'
-    group_pk: int
+    group: GroupsCorrect
 
     def get_group(self):
         if not hasattr(self, 'group'):
-            self.group_pk = get_object_or_404(GroupsCorrect, pk=self.kwargs['group']).pk
-        return self.group_pk
+            self.group = get_object_or_404(GroupsCorrect, pk=self.kwargs['group'])
+        return self.group
 
     def get_success_url(self, date_choice=None):
         date_choice = Attends.objects.latest('id').date_attend
-        return reverse_lazy('catalog:group_success_signup', args=(self.get_group(), date_choice))
+        return reverse_lazy('catalog:group_success_signup', args=(self.get_group().pk, date_choice))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['group'] = GroupsCorrect.objects.get(pk=self.get_group())
+        context['group'] = self.get_group()
         return context
 
     def form_valid(self, form):
@@ -154,7 +154,7 @@ class SignUp2GroupView(LoginRequiredMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(SignUp2GroupView, self).get_form_kwargs()
-        kwargs['group_pk'] = self.get_group()
+        kwargs['group'] = self.get_group()
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -173,112 +173,3 @@ class SuccessSignup(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(GroupsCorrect, pk=self.kwargs['pk'])
-
-# def search(request, search_string: str):
-#     message = 'Результаты поиска:'
-#     level3 = ActivityLevel3.objects.filter(Q(descript_level__icontains=search_string) |
-#                                            Q(level__icontains=search_string))
-#     groups = Groups.objects.filter(level__in=level3).exclude(schedule_active='')
-#     group_filter = GroupsFilterSearch(request.GET, queryset=groups)
-#     groups = group_filter.qs
-#
-#     paginator = Paginator(groups, 25)
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-#     return render(
-#         request,
-#         'catalog/search_results.html',
-#         {'groups': page_obj,
-#          'message': message,
-#          'group_filter': group_filter}
-#     )
-
-#
-# def type_content(request, type_slug):
-#     message = 'Выберите раздел по вкусу:'
-#     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
-#     level1 = ActivityLevel1.objects.filter(activity_type=activity_type).order_by('id')
-#     return render(
-#         request,
-#         'catalog/types.html',
-#         {
-#             'level1': level1,
-#             'message': message}
-#     )
-#
-#
-# def level1_content(request, type_slug, level1_slug):
-#     message = 'Выберите раздел по настроению'
-#     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
-#     level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
-#     level2 = ActivityLevel2.objects.filter(activity_type=level1)
-#     return render(
-#         request,
-#         'catalog/level1.html',
-#         {'level2': level2,
-#          'message': message}
-#     )
-#
-#
-# def level2_content(request, type_slug, level1_slug, level2_slug):
-#     message = 'Выберите раздел по любви'
-#     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
-#     level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
-#     level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
-#     level3 = ActivityLevel3.objects.filter(activity_type=level2)
-#     return render(
-#         request,
-#         'catalog/level2.html',
-#         {'level3': level3,
-#          'message': message}
-#     )
-#
-#
-# def level3_content(request, type_slug, level1_slug, level2_slug, level3_slug):
-#     activity_type = get_object_or_404(ActivityTypes, slug=type_slug)
-#     level1 = get_object_or_404(ActivityLevel1, slug=level1_slug)
-#     level2 = get_object_or_404(ActivityLevel2, slug=level2_slug)
-#     level3 = get_object_or_404(ActivityLevel3, slug=level3_slug)
-#     groups = Groups.objects.filter(level=level3).exclude(schedule_active='')
-#
-#     groups_filter = GroupsFilterCatalog(request.GET, queryset=groups)
-#     groups = groups_filter.qs
-#     paginator = Paginator(groups, 25)
-#
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-#     return render(
-#         request,
-#         'catalog/level3.html',
-#         {'groups': page_obj, 'groups_filter': groups_filter, 'level3': level3}
-#     )
-
-#
-# @login_required
-# def signup2group(request, group: Groups):
-#     message = 'Выберите время и дату посещения'
-#     group = get_object_or_404(Groups, pk=group)
-#     user = request.user
-#     form = DateTimeChoiceForm(request.POST or None, group=group, user=user)
-#     if form.is_valid():
-#         form.save()
-#         attend = Attends.objects.latest('id')
-#         return redirect(reverse('catalog:group_success_signup', args=(attend.pk,)))
-#     return render(request, 'catalog/signup2group.html',
-#                   {'group': group, 'message': message, 'form': form})
-
-#
-# def index(request):
-#     activity_types = ActivityTypes.objects.all().order_by('id')
-#     message = 'Поиск по каталогу занятий'
-#     form = SearchForm(request.POST or None)
-#     if form.is_valid():
-#         search_activity = form.cleaned_data['search_activity']
-#         return redirect(reverse('catalog:search', args=(search_activity,)))
-#
-#     return render(
-#         request,
-#         'catalog/catalog.html',
-#         {'activity_types': activity_types,
-#          'form': form, 'message': message}
-#     )
