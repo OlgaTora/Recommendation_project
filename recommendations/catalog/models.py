@@ -76,19 +76,16 @@ class ActivityLevel3(models.Model):
 class Groups(models.Model):
     uniq_id = models.IntegerField()
     level = models.ForeignKey(ActivityLevel3, on_delete=models.CASCADE)
-    address = models.TextField()
-    districts = models.TextField(null=True)
-    schedule_active = models.TextField(null=True)
-    schedule_past = models.TextField(null=True)
-    schedule_plan = models.TextField(null=True)
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
+    # address = models.TextField()
+    # districts = models.TextField(null=True)
+    # schedule_active = models.TextField(null=True)
+    # schedule_past = models.TextField(null=True)
+    # schedule_plan = models.TextField(null=True)
+    # slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     objects = models.Manager()
 
-    class Meta:
-        ordering = ('-uniq_id',)
-
     def __str__(self):
-        return f'{self.level}'
+        return f'{self.uniq_id}'
 
 
 class GroupsCorrect(models.Model):
@@ -98,7 +95,7 @@ class GroupsCorrect(models.Model):
     admin_district = models.CharField(max_length=255)
     start_date = models.CharField(max_length=32, null=True)
     end_date = models.CharField(max_length=32, null=True)
-    weekday = models.CharField(max_length=8, null=True)
+    weekday = models.CharField(max_length=32, null=True)
     start_time = models.CharField(max_length=32, null=True)
     end_time = models.CharField(max_length=32, null=True)
     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')

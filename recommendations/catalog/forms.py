@@ -40,7 +40,7 @@ class DateTimeChoiceForm(forms.Form):
         date_choice = data.get('date_choice')
         if date_choice:
             weekday_choice = date_choice.weekday()
-            weekday = int(WEEKDAYS_DICT[group.weekday[:2]])
+            weekday = int(WEEKDAYS_DICT[group.weekday])
             if weekday_choice != weekday:
                 raise forms.ValidationError('День недели должен совпадать с выбранным.')
         return data
