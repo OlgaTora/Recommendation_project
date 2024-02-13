@@ -5,7 +5,7 @@ mysql -uroot -e "create user 'torres'@'localhost' identified by 'torres';"
 mysql -uroot -e "grant all privileges on Recservice.* to 'torres'@'localhost' with grant option;"
 
 #parsing script
-#python3 parse2csv.py
+python3 parse2csv.py
 
 python3 manage.py makemigrations
 python3 manage.py migrate
