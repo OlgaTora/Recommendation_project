@@ -34,6 +34,6 @@ def address_transform(address: str):
 
 def admin_districts_transform(address: str) -> list:
     # адрес пользователя: так как нет инфо по району пользователя, берем все улицы с таким названием
-    user_address = list(StreetsBook.address_transform(address))
+    user_address = list(address_transform(address))
     admin_districts = list(set([i.admin_district.admin_district_name for i in user_address]))
     return admin_districts
