@@ -57,7 +57,7 @@ class RecommendationView(LoginRequiredMixin, FilterView):
         return super(RecommendationView, self).get(request)
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+       # queryset = super(RecommendationView, self).get_queryset()
         votes_group = VotesGroups.objects.get(votes=self.get_result())
         activity_type = ActivityTypes.objects.get(pk=votes_group.result_group.pk)
         # топ offline & online
