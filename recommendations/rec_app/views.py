@@ -10,6 +10,7 @@ from django_filters.views import FilterView
 from address_book.models import StreetsBook
 from catalog.filters import GroupsFilterSearch
 from catalog.models import Groups, ActivityTypes, Attends, GroupsCorrect
+from services.address_transform import admin_districts_transform
 from .forms import AnswerForm
 from .models import Question, ResultOfTest, TestResultDescription, VotesGroups
 from django.contrib import messages
@@ -68,7 +69,7 @@ class RecommendationView(LoginRequiredMixin, FilterView):
         user_groups = GroupsCorrect.get_user_groups(self.request.user)
         user_address = self.request.user.address
         if user_address:
-            admin_districts = StreetsBook.admin_districts_transform(user_address)
+            admin_districts = admin_districts_transform(user_address)
             tmp = Groups.objects.none()
             for i in range(len(admin_districts)):
                 groups = groups_list_off.filter(
