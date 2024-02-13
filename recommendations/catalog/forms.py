@@ -27,8 +27,10 @@ class DateTimeChoiceForm(forms.Form):
             widget=DatePickerInput(
                 options={
                     'format': 'DD.MM.YYYY',
-                    'minDate': dt.datetime.strptime(self.group.start_date, '%d.%m.%Y'),
-                    'maxDate': dt.datetime.strptime(self.group.end_date, '%d.%m.%Y'),
+                    'minDate': dt.datetime.strptime(
+                        self.group.start_date, '%d.%m.%Y'),
+                    'maxDate': dt.datetime.strptime(
+                        self.group.end_date, '%d.%m.%Y') + dt.timedelta(days=1),
                 }
             )
         )

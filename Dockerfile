@@ -1,9 +1,3 @@
-{% for field in filter.form %}
-            <div id="form-field-{{ forloop.counter0 }}">
-                {{ field.label_tag }}
-                {% render_field field class="form-control" %}
-            </div>
-            {% endfor %}
 FROM python:3.10.12-alpine3.18
 ENV PYTHONUNBUFFERED 1
 

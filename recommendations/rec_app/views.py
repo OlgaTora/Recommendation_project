@@ -38,7 +38,7 @@ class RecommendationView(LoginRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
         result = self.get_result()
 
-      #!!!!  user_groups = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
+        # !!!!  user_groups = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
 
         votes_group = VotesGroups.objects.get(votes=result)
         context['result'] = result
@@ -48,7 +48,10 @@ class RecommendationView(LoginRequiredMixin, FilterView):
     def get(self, request, *args, **kwargs):
         result = self.get_result()
         if result is None:
-            messages.error(self.request, 'Вы ответили не на все вопросы, начните тестирование с начала.')
+            messages.error(
+                self.request,
+                'Вы ответили не на все вопросы, начните тестирование с начала.'
+            )
             return redirect(reverse('rec_app:question_and_answers', args=(1,)))
         return super(RecommendationView, self).get(request)
 
