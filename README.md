@@ -7,7 +7,9 @@ mkdir test_project && cd test_project
 git clone https://github.com/OlgaTora/Recommendation_project.git
 4. Перейти в директорию со скриптами:
 cd Recommendation_project/recommendation
-5. Запустить стартовый скрипт:
+5. Изменить права доступа:
+chmod -vR 777 .
+7. Запустить стартовый скрипт:
 sh start.sh
 Docker-compose сначала загрузит контейнер с MySQL, потом контейнер с приложением и после заполнит БД физическими данными. Это займет порядка 15-20 минут. 
-6. Открыть в браузере 127.0.0.1:8000.
+8. Открыть в браузере 127.0.0.1:8000.
