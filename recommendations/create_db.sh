@@ -5,7 +5,7 @@
 
 python manage.py makemigrations
 python manage.py migrate
-echo Make make migrations
+echo Make makes migrations
 
 #scripts for fill base
 python manage.py fill_users
