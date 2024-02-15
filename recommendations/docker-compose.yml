@@ -8,11 +8,6 @@ services:
     command: sh -c "./create_db.sh"
     volumes:
       - .:/app
-#    environment:
-#      - MYSQL_NAME=rec_db
-#      - MYSQL_USER=admin
-#      - MYSQL_PASSWORD=admin
-#      - MYSQL_HOST=db
     ports:
       - '8000:8000'
     depends_on:
