@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-@4-u@belq4uhiu8$q6*6&-^04iixqq)ricq6!zva#_3-1z8$6l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -89,14 +89,25 @@ WSGI_APPLICATION = 'recommendations.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+#
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.environ.get('MYSQL_DATABASE'),
+#         'USER': os.environ.get('MYSQL_USER'),
+#         'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+#         'HOST': 'localhost',
+#     }
+# }
+
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Recservice',
-        'USER': 'torres',
-        'PASSWORD': 'torres',
-        'HOST': 'localhost',
+        'NAME': 'rec_db',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'db',
     }
 }
 

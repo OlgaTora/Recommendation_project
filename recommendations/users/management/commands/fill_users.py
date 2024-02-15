@@ -30,4 +30,3 @@ class Command(BaseCommand):
                     birth_date=profiles[row][3],
                     address=profiles[row][4],
                 )
-            print(row)
