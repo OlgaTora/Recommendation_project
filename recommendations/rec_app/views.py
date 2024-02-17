@@ -7,7 +7,6 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView, FormView
 from django_filters.views import FilterView
 
-from address_book.models import StreetsBook
 from catalog.filters import GroupsFilterSearch
 from catalog.models import Groups, ActivityTypes, Attends, GroupsCorrect
 from services.address_transform import admin_districts_transform
@@ -38,9 +37,6 @@ class RecommendationView(LoginRequiredMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         result = self.get_result()
-
-        # !!!!  user_groups = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
-
         votes_group = VotesGroups.objects.get(votes=result)
         context['result'] = result
         context['description'] = TestResultDescription.objects.get(pk=votes_group.result_group.pk)

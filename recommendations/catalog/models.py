@@ -1,8 +1,6 @@
 from django.db import models
 from django.db.models import Count
 
-from address_book.models import AdministrativeDistrict
-from services.date_time_extraction import case_two_dates_two_time, case_one_time, case_two_dates_one_time
 from services.utils import unique_slugify
 from users.models import Profile
 
@@ -76,12 +74,6 @@ class ActivityLevel3(models.Model):
 class Groups(models.Model):
     uniq_id = models.IntegerField()
     level = models.ForeignKey(ActivityLevel3, on_delete=models.CASCADE)
-    # address = models.TextField()
-    # districts = models.TextField(null=True)
-    # schedule_active = models.TextField(null=True)
-    # schedule_past = models.TextField(null=True)
-    # schedule_plan = models.TextField(null=True)
-    # slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     objects = models.Manager()
 
     def __str__(self):
@@ -115,7 +107,6 @@ class GroupsCorrect(models.Model):
     @staticmethod
     def get_user_groups(user):
         user_groups = Attends.objects.select_related('group_id').filter(user_id=user.pk).distinct()
-       # user_groups = GroupsCorrect.objects.filter(group_id__in=[i.group_id.pk for i in user_attends])
         return user_groups
 
 

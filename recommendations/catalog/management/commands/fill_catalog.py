@@ -77,31 +77,6 @@ class Command(BaseCommand):
                 descript_level=lst_types[i][7]
             )
 
-        # def clean_group_address(address: str):
-        #     """Function for delete replicas in address"""
-        #     address = address.replace('г.о.', 'город')
-        #     addresses = address.split(',')
-        #     for i in range(len(addresses)):
-        #         if 'Москва' in addresses[i] or 'москва' in addresses[i]:
-        #             addresses[i] = (addresses[i].replace('город', '')
-        #                             .replace('г.', '')
-        #                             .replace('Город', '')
-        #                             .replace('Г', '')
-        #                             )
-        #     addresses = ', '.join(addresses)
-        #     addresses = addresses.split('Москва,')
-        #     # убрать пустой список вначале, запятые в конце списка
-        #     addresses = ['город Москва, ' + i.strip().strip(',') for i in addresses if i != ' ' and i != '']
-        #     addresses = ', '.join(addresses)
-        #     return addresses
-
-        # def clean_group_district(district: str):
-        #     """Function for delete replicas in district"""
-        #     district = district.replace(' и ', ' округ,').replace('округа', 'округ').split(',')
-        #     districts_list = [i.strip() for i in district if i != ' ']
-        #     districts = ', '.join(districts_list)
-        #     return districts
-
         #группы
         with open('files/groups_test.csv', 'r', encoding='utf-8') as groups:
             file_reader = csv.reader(groups, delimiter=',')
@@ -128,17 +103,6 @@ class Command(BaseCommand):
                     end_time=row[8],
                 )
 
-        # for row in range(127221, len(att)):
-        #     Attends.objects.create(
-        #         uniq_id=att[row][1],
-        #         group_id=Groups.objects.get(uniq_id=att[row][2]),
-        #         user_id=Profile.objects.get(username=att[row][3]),
-        #         online=True if att[row][6] == 'Да' else False,
-        #         date_attend=att[row][7],
-        #         start_time=att[row][8],
-        #         end_time=att[row][9],
-        #     )
-        #     print(row)
 
         # группы correct
         with open('files/groups_test_corr.csv', 'r', encoding='utf-8') as groups_corr:
@@ -152,8 +116,6 @@ class Command(BaseCommand):
                     address=row[4],
                     admin_district=row[5],
                     weekday=row[6],
-                    # start_date=dt.datetime.strptime(row[7], '%d.%m.%Y'),
-                    # end_date=dt.datetime.strptime(row[8], '%d.%m.%Y'),
                     start_date=row[7],
                     end_date=row[8],
                     start_time=row[9],
